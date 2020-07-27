@@ -103,16 +103,16 @@ def position(level,dimension,state):
 
     Returns
     -------
-    int
-        Position of state in level, or -1 if state is not in the elvel.
+    position - 1 : int
+        Position of state in level, or -1 if state is not in the level.
 
     """
     
-    if len(state)!=dimension or sum(state)!=level or isAbsorbed(state):
-        return -1
-    
     if level == dimension and isUnit(state):
         return 0
+    
+    if len(state)!=dimension or sum(state)!=level or isAbsorbed(state):
+        return -1
     
     position = 0
     
@@ -130,6 +130,34 @@ def position(level,dimension,state):
         position += int(comb(level - 1 - sum(state[dimension - i:dimension]), dimension - 1 - i)) - int(comb(level - sum(state[dimension -i - 1:dimension]), dimension - 1 - i))   
     
     return int(position - 1)
+
+def totalPosition(dimension,state):
+    """
+    Calculates the position of state in level.
+
+    Parameters
+    ----------
+    dimension : int
+        Number of clonotypes.
+    state : list
+        List of number of cells per clonotype.
+
+    Returns
+    -------
+    Position : int
+        Position of state in the non-absorbed state space
+    """
+    
+    level = sum(state)
+    Position = 0
+    
+    if level > dimension:
+        for i in range(1, level - dimension + 1):
+            Position += comb(level - i - 1, dimension - 1)
+            
+    Position += position(level, dimension, state)
+            
+    return int(Position)
 
 def isInLevel(state,level,dimension):
     """
@@ -352,7 +380,7 @@ def birthRate(state,probability,clone,dimension,stimulus):
 
 def deathRate(state,clone,mu,model):
     """
-    calculates the death rate for clone in state for a given model type.
+    Calculates the death rate for clone in state for a given model type.
 
     Parameters
     ----------
@@ -363,7 +391,7 @@ def deathRate(state,clone,mu,model):
     mu : float
         Single cell death rate.
     model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
+        Process (0 = X, 1 = X^1, 2 = X^2).
 
     Returns
     -------
@@ -371,13 +399,14 @@ def deathRate(state,clone,mu,model):
         Death rate for clone in state.
 
     """
-    
     if model == 0:
+        return state[clone] * mu
+    if model == 1:
         if state[clone] > 1:
             return state[clone] * mu
         else:
             return 0.0
-    if model == 1:
+    if model == 2:
         return (state[clone] - 1) * mu
 
 
@@ -398,7 +427,7 @@ def delta(state,probability,mu,dimension,stimulus,model):
     stimulus : list
         Stimulus parameters.
     model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
+        Process (0 = X, 1 = X^1, 2 = X^2).
 
     Returns
     -------
@@ -428,7 +457,7 @@ def deathDelta(state,mu,model):
     mu : float
         Single cell death rate.
     model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
+        Process (0 = X, 1 = X^1, 2 = X^2).
 
     Returns
     -------
@@ -444,14 +473,29 @@ def deathDelta(state,mu,model):
         
     return total
 
-def mainDiagonalLists(level,maxLevel,dimension,probability,mu,stimulus,model):
+def transitionMatrix(maxLevel,dimension,probability,mu,stimulus,model):
+    
+    values = []
+    rows = []
+    cols = []
+    
+    pos, val = mainDiagonalLists(maxLevel, dimension, probability, mu, stimulus, model)
+    rows.append(pos)
+    cols.append(pos)
+    values.append(val)
+    
+    matrixShape = (comb(maxLevel, dimension), comb(maxLevel, dimension))
+    matrix = coo_matrix((values,(rows,cols)),matrixShape).tocsc()
+    
+    return matrix
+    
+
+def mainDiagonalLists(maxLevel,dimension,probability,mu,stimulus,model):
     """
-    Creates the diagonal matrix A_{level,level}
+    Creates the lists required to create the diagonal matrices A_{level,level} CSR matrix
 
     Parameters
     ----------
-    level : int
-        Level in the state space.
     maxLevel : int
         Maximum level of the state space.
     dimension : int
@@ -463,84 +507,88 @@ def mainDiagonalLists(level,maxLevel,dimension,probability,mu,stimulus,model):
     stimulus : list
         Stimulus parameters.
     model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
+        Process (0 = X, 1 = X^1, 2 = X^2).
 
     Returns
     -------
-    matrix : csc_matrix
-        Matrix A_{level,level}.
-
+    position : list
+        List of the positions along the diagonal of the values in the same location in 'values'.
+    values : list
+        List of the entries of the transition matrix.
     """
     
-    pos = []
-    data = []
+    position = []
+    values = []
     
-    states = levelStates(level, dimension)
+    for level in range(dimension, maxLevel + 1):
     
-    if level < maxLevel:
-        for state in states:
-            data.append(-delta(state, probability, mu, dimension, stimulus, model))
-            pos.append(position(level, dimension, state))
-    else:
-        for state in states:
-            data.append(-deathDelta(state, mu, model))
-            pos.append(position(level, dimension, state))
-        
-    # matrixShape = (int(comb(level - 1,dimension - 1)),int(comb(level - 1,dimension - 1)))
-    # matrix = coo_matrix((data,(pos,pos)),matrixShape).tocsc()
+        states = levelStates(level, dimension)
     
-    return pos,data
+        if level < maxLevel:
+            for state in states:
+                values.append(-delta(state, probability, mu, dimension, stimulus, model))
+                position.append(totalPosition(dimension, state))
+        else:
+            for state in states:
+                values.append(-deathDelta(state, mu, model))
+                position.append(totalPosition(dimension, state))
 
-def deathDiagonalLists(level,dimension,mu,model):
+    
+    return position,values
+
+def deathDiagonalLists(maxLevel,dimension,mu,model):
     """
-    Creates the sub-diagonal matrix A_{level,level + 1}
+    Creates the lists required to create the sub-diagonal matrices A_{level,level + 1}
 
     Parameters
     ----------
-    level : int
-        Level in the state space.
+    maxLevel : int
+        Maximum level of the state space.
     dimension : int
         Number of clonotypes.
     mu : float
         Single cell death rate.
     model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
+        Process (0 = X, 1 = X^1, 2 = X^2).
 
     Returns
     -------
-    matrix : csc_matrix
-        Matrix A_{level,level + 1}.
+    rows : list
+        List of the row positions of the value in the same location in 'values'.
+    cols : list
+        List of the column positions of the value in the same location in 'values'.
+    values : list
+        List of the entries of the transition matrix.
 
     """
     
     rows = []
     cols = []
-    data = []
+    values = []
     
-    states = levelStates(level, dimension)
+    for level in range(dimension + 1,maxLevel + 1):
     
-    for state in states:
-        for i in range(len(state)):
-            newState = state[:]
-            newState[i] -= 1
-            if isInLevel(newState, level - 1, dimension):
-                data.append(deathRate(state, i, mu, model))
-                cols.append(position(level - 1, dimension, newState))
-                rows.append(position(level, dimension, state))
+        states = levelStates(level, dimension)
     
-    # matrixShape = (int(comb(level - 1,dimension - 1)),int(comb(level - 2,dimension - 1)))
-    # matrix = coo_matrix((data,(rows,cols)),matrixShape).tocsc()
+        for state in states:
+            for i in range(len(state)):
+                newState = state[:]
+                newState[i] -= 1
+                if isInLevel(newState, level - 1, dimension):
+                    values.append(deathRate(state, i, mu, model))
+                    cols.append(totalPosition(dimension, newState))
+                    rows.append(totalPosition(dimension, state))
     
-    return rows,cols,data
+    return rows,cols,values
 
-def birthDiagonalLists(level,dimension,probability,stimulus):
+def birthDiagonalLists(maxLevel,dimension,probability,stimulus):
     """
-    Creates the diagonal matrix A_{level - 1,level}
+    Creates the lists required to create the super-diagonal matrices A_{level - 1,level}
 
     Parameters
     ----------
-    level : int
-        Level in the state space.
+    maxLevel : int
+        Maximum level of the state space.
     dimension : int
         Number of clonotypes.
     probability : list
@@ -550,275 +598,34 @@ def birthDiagonalLists(level,dimension,probability,stimulus):
 
     Returns
     -------
-    matrix : csc_matrix
-        Matrix A_{level - 1,level}.
+    rows : list
+        List of the row positions of the value in the same location in 'values'.
+    cols : list
+        List of the column positions of the value in the same location in 'values'.
+    values : list
+        List of the entries of the transition matrix.
 
     """
     
     rows = []
     cols = []
-    data = []
+    values = []
     
-    states = levelStates(level, dimension)
+    for level in range(dimension,maxLevel):
     
-    for state in states:
-        for i in range(len(state)):
-            newState = state[:]
-            newState[i] += 1
-            if isInLevel(newState, level + 1, dimension):
-                data.append(birthRate(state, probability, i, dimension, stimulus))
-                cols.append(position(level + 1, dimension, newState))
-                rows.append(position(level, dimension, state))
+        states = levelStates(level, dimension)
     
-    # matrixShape = (int(comb(level - 1,dimension - 1)),int(comb(level,dimension - 1)))
-    # matrix = coo_matrix((data,(rows,cols)),matrixShape).tocsc()
+        for state in states:
+            for i in range(len(state)):
+                newState = state[:]
+                newState[i] += 1
+                if isInLevel(newState, level + 1, dimension):
+                    values.append(birthRate(state, probability, i, dimension, stimulus))
+                    cols.append(totalPosition(level + 1, dimension, newState))
+                    rows.append(totalPosition(level, dimension, state))
+
     
-    return rows,cols,data
-
-# def probabilityRow(row,probability,matrix):
-#     """Function that updates a row of the probability matrix.
-
-#     Arguments:
-#         row - Row of the matrix to be updated.
-#         probability - Specified probability value.
-#         matrix - Probability matrix.
-#     """
-
-#     probabilities = [0 for _ in xrange(len(matrix[0]))]
-#     size = len(probabilities)
-
-#     if row == 0:
-#         probabilities[location] = probability
-#         for i in xrange(size):
-#             if i != location:
-#                 probabilities[i] = float((1 - probability) / (size - 1))
-#     else:
-#         free = []
-#         i = size - 1
-#         while i >= 0:
-#             pair = matrix[row][i]
-#             if pair != [row,i]:
-#                 probabilities[i] = (phi[pair[0]] / phi[row]) * matrix[pair[0]][pair[1]]
-#             else:
-#                 free.append(i)
-#             i -= 1
-
-#         if len(free) > 0:
-#             value = (1 - sum(probabilities)) / len(free)
-#             for i in free:
-#                 probabilities[i] = value
-
-#     return probabilities
-
-# def probabilityMatrix(probability):
-#     """Function that creates the probability matrix when setting a specified probability.
-
-#     Arguments:
-#         probability - Specified probability value.
-#     """
-
-#     sets = []
-#     matrix = [[0 for _ in xrange(2 ** (N - 1))] for _ in xrange(N)]
-
-#     for i in xrange(N):
-#         sets.append(cloneSets(N,i))
-
-#     for row in xrange(len(matrix)):
-#         for col in xrange(len(matrix[0])):
-#             for i in xrange(len(matrix)):
-#                 for j in xrange(len(matrix[0])):
-#                     if matrix[row][col] == 0 and sets[row][col] == sets[i][j]:
-#                         matrix[row][col] = [i,j]
-#                         break
-#                 else:
-#                     continue
-#                 break
-
-#     for i in xrange(len(matrix)):
-#         matrix[i] = probabilityRow(i,probability,matrix)
-
-#     return matrix
-
-# def position(state):
-#     """Function to obtain the position in the coefficient matrix.
-
-#     Returns the position in the coefficient matrix corresponding to the state specified, if the state is not in the state space returns -1.
-
-#     Arguments:
-#         state - State list (number of cells per clonotype).
-#     """
-
-#     for i in xrange(N):
-#         if state[i] > eta or state[i] < 0:
-#             return -1
-
-#     place = 0
-#     for i in xrange(len(state)):
-#         place += state[i] * ((eta + 1) ** i)
-
-#     return place
-
-
-# def sumClones(subset,state):
-#     """Function that sums the number of cells in the specified subset of clonotypes.
-
-#     Arguments:
-#         subset - tuple of the clonotypes in the subset.
-#         state - State list (number of cells per clonotype).
-#     """
-
-#     total = 0.0
-
-#     for s in subset:
-#         total += float(state[s])
-
-#     return float(total)
-
-
-# def birthRate(state,probability,clone):
-#     """Function that calculates the birth rate for a given state, clone and probability vector.
-
-#     Arguments:
-#         state - State list (number of cells per clonotype).
-#         probability - Probability list.
-#         clone - Specified clone.
-#     """
-
-#     rate = 0.0
-#     sets = cloneSets(N,clone)
-
-#     for i in xrange(len(sets)):
-#         if sumClones(sets[i],state) != 0:
-#             rate += probability[clone][i] / sumClones(sets[i],state)
-
-#     return rate * state[clone] * phi[clone]
-
-
-# def delta(state,probability):
-#     """Function to calculate the sum of all death and birth rates for a given state.
-
-#     Arguments:
-#         state - State list (number of cells per clonotype).
-#         probability - Probability list.
-#     """
-
-#     total = 0.0
-
-#     for i in xrange(len(state)):
-#         if state[i] > 0:
-#             total += state[i] * mu
-#             total += birthRate(state,probability,i)
-
-#     return total
-
-# def validStates(state):
-#     """Function that creates a dictionary of states (casted as tuples and used as keys) that can reach the desired state and their new relative position (used as values).
-
-#     Arguments:
-#         state - State to be visited
-#     """
-
-#     ValidStates = dict()
-#     StatePosition = 0
-#     n = [0 for _ in xrange(N)]
-
-#     while True:
-#         escape = False
-#         absorbed = False
-
-#         for i in xrange(N):
-#             if n[i] == 0 and state[i]>0:
-#                 escape = True
-#                 break
-
-#         if n != state:
-#             for i in xrange(N):
-#                 if n[i] == 0:
-#                     absorbed = True
-
-#         if not escape and not absorbed:
-#             ValidStates[tuple(n)] = StatePosition
-#             StatePosition += 1
-
-#         n[0] += 1
-#         for i in xrange(len(n)):
-#             if n[i] > eta:
-#                 if (i + 1) < len(n):
-#                     n[i+1] += 1
-#                     n[i] = 0
-#                 for j in xrange(i):
-#                     n[j] = 0
-
-#         if n[-1] > eta:
-#             break
-
-#     return ValidStates
-
-# def coefficientMatrix(probability,dimensions,state,initialStates):
-#     """Function that creates the coefficient matrix of the difference equations as a csr_matrix.
-
-#     Arguments:
-#         probability - Probability matrix.
-#         dimensions - Dimensions of the matrix.
-#         state - State to be visited.
-#         initialStates - Initial states with non-zero probability of visiting the specified state.
-#     """
-
-#     rows = []
-#     cols = []
-#     data = []
-
-#     for key in initialStates:
-#         n = list(key)
-#         current_row = initialStates[key]
-
-#         if n == state:
-#             starting_visit = True
-#             data.append(1)
-#         else:
-#             starting_visit = False
-#             data.append(-delta(n,probability))
-#             current_delta = len(data) - 1
-
-#         rows.append(current_row)
-#         cols.append(current_row)
-
-#         if not starting_visit:
-#             for l in xrange(N):
-#                 temp = n[:]
-#                 temp[l] += 1
-#                 if tuple(temp) in initialStates:
-#                     current_col  = initialStates[tuple(temp)]
-#                     rows.append(current_row)
-#                     cols.append(current_col)
-#                     data.append(birthRate(n,probability,l))
-#                 elif temp[l] == eta + 1:
-#                     data[current_delta] += birthRate(n,probability,l)
-
-#                 temp[l] -= 2
-#                 if tuple(temp) in initialStates:
-#                     current_col = initialStates[tuple(temp)]
-#                     rows.append(current_row)
-#                     cols.append(current_col)
-#                     data.append(n[l] * mu)
-
-#     matrix = coo_matrix((data,(rows,cols)),dimensions).tocsr()
-
-#     return matrix
-
-# def nonHomogeneousTerm(size,state,initialStates):
-#     """Function that creates the vector of non-homogenous terms for the system of difference equations.
-    
-#     Arguments:
-#         size - Length of the vector.
-#         state - State to be visited.
-#         initialStates - Initial states with non-zero probability of visiting the specified state.
-#     """
-
-#     b = [0] * size
-#     b[initialStates[tuple(state)]] = 1
-
-#     return b
+    return rows,cols,values
 
 #%% Solving the matrix equation
 
