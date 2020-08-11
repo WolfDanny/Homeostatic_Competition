@@ -43,29 +43,6 @@ def cloneSets(dimension,clone):
         
     return sets
 
-def isAbsorbed(state):
-    """
-    Checks if a state has been absorbed.
-
-    Parameters
-    ----------
-    state : list
-        List of number of cells per clonotype.
-
-    Returns
-    -------
-    bool
-        True if any component of state is 0, False otherwise.
-
-    """
-
-    
-    for i in range(len(state)):
-        if state[i]<=0:
-            return True
-    
-    return False
-
 def isUnit(state):
     """
     Checks if a state consists of only one cell per clonotype.
@@ -111,7 +88,7 @@ def position(level,dimension,state):
     if level == dimension and isUnit(state):
         return 0
     
-    if len(state)!=dimension or sum(state)!=level or isAbsorbed(state):
+    if len(state)!=dimension or sum(state)!=level or (state.count(0) > 0):
         return -1
     
     position = 0
@@ -133,7 +110,7 @@ def position(level,dimension,state):
 
 def totalPosition(dimension,state):
     """
-    Calculates the position of state in level.
+    Calculates the position of state in the non-absorbed state space.
 
     Parameters
     ----------
@@ -145,7 +122,7 @@ def totalPosition(dimension,state):
     Returns
     -------
     Position : int
-        Position of state in the non-absorbed state space
+        Position of state in the non-absorbed state space.
     """
     
     level = sum(state)
@@ -157,6 +134,44 @@ def totalPosition(dimension,state):
             
     Position += position(level, dimension, state)
             
+    return int(Position)
+
+def absorbedPosition(dimension,state,maxLevel):
+    """
+    Calculates the position of state in the absorbed state space.
+
+    Parameters
+    ----------
+    dimension : int
+        Number of clonotypes.
+    state : list
+        List of number of cells per clonotype.
+    maxLevel : int
+        Maximum level of the state space.
+
+    Returns
+    -------
+    Position : int
+        Position of state in the absorbed state space.
+
+    """
+    
+    if not (state.count(0) > 0):
+        return -1
+    elif state.count(0) > 1:
+        return -1
+    elif sum(state) > maxLevel:
+        return -1
+    elif len(state) != dimension:
+        return -1
+    
+    projection = state[:]
+    projectionComponent = projection.index(0)
+    projection.pop(projectionComponent)
+    
+    Position = projectionComponent * comb(maxLevel,dimension - 1)
+    Position += totalPosition(dimension - 1, projection)
+    
     return int(Position)
 
 def isInLevel(state,level,dimension):
@@ -179,7 +194,7 @@ def isInLevel(state,level,dimension):
 
     """
     
-    if len(state)!=dimension or sum(state)!=level or isAbsorbed(state):
+    if len(state)!=dimension or sum(state)!=level or (state.count(0) > 0):
         return False
     else:
         return True
@@ -198,18 +213,18 @@ def levelStates(level,dimension):
 
     Returns
     -------
-    levelStates : list
+    stateList : list
         List of all states in level.
 
     """
 
-    levelStates = []
+    stateList = []
     n = [1 for _ in range(dimension)]
 
     while True:
 
         if isInLevel(n, level, dimension):
-            levelStates.append(n[:])
+            stateList.append(n[:])
 
         n[0] += 1
         for i in range(len(n)):
@@ -223,7 +238,7 @@ def levelStates(level,dimension):
         if n[-1] > level - dimension + 1:
             break
 
-    return levelStates
+    return stateList
 
 def probabilityRow(row,probability,matrix,location,stimulus):
     """
@@ -473,26 +488,9 @@ def deathDelta(state,mu,model):
         
     return total
 
-def transitionMatrix(maxLevel,dimension,probability,mu,stimulus,model):
-    
-    values = []
-    rows = []
-    cols = []
-    
-    pos, val = mainDiagonalLists(maxLevel, dimension, probability, mu, stimulus, model)
-    rows.append(pos)
-    cols.append(pos)
-    values.append(val)
-    
-    matrixShape = (comb(maxLevel, dimension), comb(maxLevel, dimension))
-    matrix = coo_matrix((values,(rows,cols)),matrixShape).tocsc()
-    
-    return matrix
-    
-
-def mainDiagonalLists(maxLevel,dimension,probability,mu,stimulus,model):
+def transitionMatrix(maxLevel,dimension,mu,probability,stimulus,model):
     """
-    Creates the lists required to create the diagonal matrices A_{level,level} CSR matrix
+    Creates the transition matrix for the embedded Markov process as a csc_matrix
 
     Parameters
     ----------
@@ -500,10 +498,10 @@ def mainDiagonalLists(maxLevel,dimension,probability,mu,stimulus,model):
         Maximum level of the state space.
     dimension : int
         Number of clonotypes.
-    probability : list
-        Probability matrix.
     mu : float
         Single cell death rate.
+    probability : list
+        Probability matrix.
     stimulus : list
         Stimulus parameters.
     model : int
@@ -511,32 +509,32 @@ def mainDiagonalLists(maxLevel,dimension,probability,mu,stimulus,model):
 
     Returns
     -------
-    position : list
-        List of the positions along the diagonal of the values in the same location in 'values'.
-    values : list
-        List of the entries of the transition matrix.
+    matrix : csc_matrix
+        Transition matrix of the embedded Markov process.
+
     """
     
-    position = []
     values = []
+    rows = []
+    cols = []
     
-    for level in range(dimension, maxLevel + 1):
+    deathRows, deathCols, deathVals = deathDiagonalLists(maxLevel, dimension, mu, probability, stimulus, model)
+    rows.append(deathRows)
+    cols.append(deathCols)
+    values.append(deathVals)
     
-        states = levelStates(level, dimension)
+    birthRows, birthCols, birthVals = birthDiagonalLists(maxLevel, dimension, mu, probability, stimulus, model)
+    rows.append(birthRows)
+    cols.append(birthCols)
+    values.append(birthVals)
     
-        if level < maxLevel:
-            for state in states:
-                values.append(-delta(state, probability, mu, dimension, stimulus, model))
-                position.append(totalPosition(dimension, state))
-        else:
-            for state in states:
-                values.append(-deathDelta(state, mu, model))
-                position.append(totalPosition(dimension, state))
+    matrixShape = (comb(maxLevel, dimension), comb(maxLevel, dimension))
+    matrix = coo_matrix((values,(rows,cols)),matrixShape).tocsc()
+    
+    return matrix
+    
 
-    
-    return position,values
-
-def deathDiagonalLists(maxLevel,dimension,mu,model):
+def deathDiagonalLists(maxLevel,dimension,mu,probability,stimulus,model):
     """
     Creates the lists required to create the sub-diagonal matrices A_{level,level + 1}
 
@@ -548,6 +546,10 @@ def deathDiagonalLists(maxLevel,dimension,mu,model):
         Number of clonotypes.
     mu : float
         Single cell death rate.
+    probability : list
+        Probability matrix.
+    stimulus : list
+        Stimulus parameters.
     model : int
         Process (0 = X, 1 = X^1, 2 = X^2).
 
@@ -569,19 +571,29 @@ def deathDiagonalLists(maxLevel,dimension,mu,model):
     for level in range(dimension + 1,maxLevel + 1):
     
         states = levelStates(level, dimension)
-    
-        for state in states:
-            for i in range(len(state)):
-                newState = state[:]
-                newState[i] -= 1
-                if isInLevel(newState, level - 1, dimension):
-                    values.append(deathRate(state, i, mu, model))
-                    cols.append(totalPosition(dimension, newState))
-                    rows.append(totalPosition(dimension, state))
+        
+        if level < maxLevel:
+            for state in states:
+                for i in range(len(state)):
+                    newState = state[:]
+                    newState[i] -= 1
+                    if isInLevel(newState, level - 1, dimension):
+                        values.append(deathRate(state, i, mu, model) / delta(state, probability, mu, dimension, stimulus, model))
+                        cols.append(totalPosition(dimension, newState))
+                        rows.append(totalPosition(dimension, state))
+        else:
+            for state in states:
+                for i in range(len(state)):
+                    newState = state[:]
+                    newState[i] -= 1
+                    if isInLevel(newState, level - 1, dimension):
+                        values.append(deathRate(state, i, mu, model) / deathDelta(state, mu, model))
+                        cols.append(totalPosition(dimension, newState))
+                        rows.append(totalPosition(dimension, state))
     
     return rows,cols,values
 
-def birthDiagonalLists(maxLevel,dimension,probability,stimulus):
+def birthDiagonalLists(maxLevel,dimension,mu,probability,stimulus,model):
     """
     Creates the lists required to create the super-diagonal matrices A_{level - 1,level}
 
@@ -591,10 +603,14 @@ def birthDiagonalLists(maxLevel,dimension,probability,stimulus):
         Maximum level of the state space.
     dimension : int
         Number of clonotypes.
+    mu : float
+        Single cell death rate.
     probability : list
         Probability matrix.
     stimulus : list
         Stimulus parameters.
+    model : int
+        Process (0 = X, 1 = X^1, 2 = X^2).
 
     Returns
     -------
@@ -620,13 +636,70 @@ def birthDiagonalLists(maxLevel,dimension,probability,stimulus):
                 newState = state[:]
                 newState[i] += 1
                 if isInLevel(newState, level + 1, dimension):
-                    values.append(birthRate(state, probability, i, dimension, stimulus))
+                    values.append(birthRate(state, probability, i, dimension, stimulus) / delta(state, probability, mu, dimension, stimulus, model))
                     cols.append(totalPosition(level + 1, dimension, newState))
                     rows.append(totalPosition(level, dimension, state))
 
     
     return rows,cols,values
 
+def absorptionMatrix(maxLevel,dimension,mu,probability,stimulus,model):
+    """
+    Creates the transition matrix from A^{0} to A^{1} in the embedded Markov chain as a csc_matrix
+
+    Parameters
+    ----------
+    maxLevel : int
+        Maximum level of the state space.
+    dimension : int
+        Number of clonotypes.
+    mu : float
+        Single cell death rate.
+    probability : list
+        Probability matrix.
+    stimulus : list
+        Stimulus parameters.
+    model : int
+        Process (0 = X, 1 = X^1, 2 = X^2).
+
+    Returns
+    -------
+    matrix : csc_matrix
+        Transition matrix from A^{0} to A^{1} in the embedded Markov process.
+
+    """
+    
+    rows = []
+    cols = []
+    values = []
+    
+    for level in range(dimension,maxLevel + 1):
+        
+        states = levelStates(level, dimension)
+        
+        if level < maxLevel:
+            for state in states:
+                for i in range(len(state)):
+                    newState = state[:]
+                    newState[i] -= 1
+                    if state.count(0) == 1:
+                        values.append(deathRate(state, i, mu, model) / delta(state, probability, mu, dimension, stimulus, model))
+                        cols.append(absorbedPosition(dimension, state, maxLevel))
+                        rows.append(totalPosition(dimension, state))
+        else:
+            for state in states:
+                for i in range(len(state)):
+                    newState = state[:]
+                    newState[i] -= 1
+                    if state.count(0) == 1:
+                        values.append(deathRate(state, i, mu, model) / deathDelta(state, mu, model))
+                        cols.append(absorbedPosition(dimension, state, maxLevel))
+                        rows.append(totalPosition(dimension, state))
+    
+    matrixShape = (comb(maxLevel, dimension), dimension * comb(maxLevel, dimension - 1))
+    matrix = coo_matrix((values,(rows,cols)),matrixShape).tocsc()
+    
+    return matrix
 #%% Solving the matrix equation
 
 dimension = 3
