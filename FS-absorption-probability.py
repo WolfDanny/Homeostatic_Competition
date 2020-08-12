@@ -1,11 +1,13 @@
 #%% Packages
 
+from pyDOE import *
 from scipy.special import comb
-from itertools import chain, combinations
-from scipy.sparse import coo_matrix
+from scipy.stats import uniform
+from scipy.sparse import coo_matrix, identity
 from scipy.sparse.linalg import inv
+from itertools import chain, combinations
 import numpy as np
-import random,math,pickle
+import random,math,pickle,functools,operator
 
 #%% Functions
 
@@ -43,28 +45,6 @@ def cloneSets(dimension,clone):
         
     return sets
 
-def isUnit(state):
-    """
-    Checks if a state consists of only one cell per clonotype.
-
-    Parameters
-    ----------
-    state : list
-        List of number of cells per clonotype.
-
-    Returns
-    -------
-    bool
-        True if every component of state is 1, False otherwise.
-
-    """
-    
-    for i in range(len(state)):
-        if state[i] != 1:
-            return False
-        
-    return True
-
 def position(level,dimension,state):
     """
     Calculates the position of state in level.
@@ -85,10 +65,10 @@ def position(level,dimension,state):
 
     """
     
-    if level == dimension and isUnit(state):
+    if level == dimension and state.count(1) == dimension:
         return 0
     
-    if len(state)!=dimension or sum(state)!=level or (state.count(0) > 0):
+    if len(state)!=dimension or sum(state)!=level or state.count(0) > 0:
         return -1
     
     position = 0
@@ -240,70 +220,18 @@ def levelStates(level,dimension):
 
     return stateList
 
-def probabilityRow(row,probability,matrix,location,stimulus):
+def probabilityMatrix(dimension,stimulus,sample):
     """
-    Calculates the values of a row of the probability matrix.
+    Creates the probability matrix from a sample of values.
 
     Parameters
     ----------
-    row : int
-        Row of the matrix to be updated.
-    probability : list
-        Specified probability value.
-    matrix : list
-        Probability matrix.
-    location : int
-        Position of the first selected probability.
-    stimulus : list
-        Stimulus parameters.
-
-    Returns
-    -------
-    probabilities : list
-        List of values for row.
-
-    """
-    
-    probabilities = [0 for _ in range(len(matrix[0]))]
-    size = len(probabilities)
-    
-    if row == 0:
-        probabilities[location] = probability
-        for i in range(size):
-            if i != location:
-                probabilities[i] = float((1 - probability) / (size - 1))
-    else:
-        free = []
-        i = size - 1
-        while i >= 0:
-            pair = matrix[row][i]
-            if pair != [row,i]:
-                probabilities[i] = (stimulus[pair[0]] / stimulus[row]) * matrix[pair[0]][pair[1]]
-            else:
-                free.append(i)
-            i -= 1
-        
-        if len(free) > 0:
-            value = (1 - sum(probabilities)) / len(free)
-            for i in free:
-                probabilities[i] = value
-    
-    return probabilities
-
-def probabilityMatrix(probability,dimension,location,stimulus):
-    """
-    Creates the probability matrix for a probability and location.
-
-    Parameters
-    ----------
-    probability : float
-        Probability value.
     dimension : int
         Number of clonotypes.
-    location : int
-        Position of the first selected probability.
     stimulus : list
         Stimulus parameters.
+    sample : list
+        List of probability values sampled.
 
     Returns
     -------
@@ -312,6 +240,7 @@ def probabilityMatrix(probability,dimension,location,stimulus):
 
     """
     
+    sampleLocal = sample[:]
     sets = []
     matrix = [[0 for _ in range(2 ** (dimension - 1))] for _ in range(dimension)]
     
@@ -328,9 +257,27 @@ def probabilityMatrix(probability,dimension,location,stimulus):
                 else:
                     continue
                 break
+    
+    del sets
+    
+    rowValues = [0 for _ in range(len(matrix[0]))]
+    for pos, pair in reversed(list(enumerate(matrix[0]))):
+        if pair != [0,0]:
+            rowValues[pos] = uniform(loc=0,scale=1-sum(rowValues)).ppf(sampleLocal.pop())
+        else:
+            rowValues[pos] = 1 - sum(rowValues)
+    matrix[0] = rowValues[:]
             
-    for i in range(len(matrix)):
-        matrix[i] = probabilityRow(i,probability,matrix,location,stimulus)
+    for i in range(1,len(matrix)):
+        rowValues = [0 for _ in range(len(matrix[i]))]
+        for pos, pair in reversed(list(enumerate(matrix[i]))):
+            if pair != [i,pos]:
+                rowValues[pos] = matrix[pair[0]][pair[1]] * (stimulus[pair[0]] / stimulus[i])
+            elif pair != [i,0]:
+                rowValues[pos] = uniform(loc=0,scale=1-sum(rowValues)).ppf(sampleLocal.pop())
+            elif pair == [i,0]:
+                rowValues[pos] = 1 - sum(rowValues)
+        matrix[i] = rowValues[:]
                         
     return matrix
 
@@ -528,7 +475,13 @@ def transitionMatrix(maxLevel,dimension,mu,probability,stimulus,model):
     cols.append(birthCols)
     values.append(birthVals)
     
-    matrixShape = (comb(maxLevel, dimension), comb(maxLevel, dimension))
+    
+    rows = functools.reduce(operator.iconcat, rows, [])
+    cols = functools.reduce(operator.iconcat, cols, [])
+    values = functools.reduce(operator.iconcat, values, [])
+    
+    
+    matrixShape = (int(comb(maxLevel, dimension)), int(comb(maxLevel, dimension)))
     matrix = coo_matrix((values,(rows,cols)),matrixShape).tocsc()
     
     return matrix
@@ -637,8 +590,8 @@ def birthDiagonalLists(maxLevel,dimension,mu,probability,stimulus,model):
                 newState[i] += 1
                 if isInLevel(newState, level + 1, dimension):
                     values.append(birthRate(state, probability, i, dimension, stimulus) / delta(state, probability, mu, dimension, stimulus, model))
-                    cols.append(totalPosition(level + 1, dimension, newState))
-                    rows.append(totalPosition(level, dimension, state))
+                    cols.append(totalPosition(dimension, newState))
+                    rows.append(totalPosition(dimension, state))
 
     
     return rows,cols,values
@@ -682,71 +635,67 @@ def absorptionMatrix(maxLevel,dimension,mu,probability,stimulus,model):
                 for i in range(len(state)):
                     newState = state[:]
                     newState[i] -= 1
-                    if state.count(0) == 1:
+                    if newState.count(0) == 1:
                         values.append(deathRate(state, i, mu, model) / delta(state, probability, mu, dimension, stimulus, model))
-                        cols.append(absorbedPosition(dimension, state, maxLevel))
+                        cols.append(absorbedPosition(dimension, newState, maxLevel))
                         rows.append(totalPosition(dimension, state))
         else:
             for state in states:
                 for i in range(len(state)):
                     newState = state[:]
                     newState[i] -= 1
-                    if state.count(0) == 1:
+                    if newState.count(0) == 1:
                         values.append(deathRate(state, i, mu, model) / deathDelta(state, mu, model))
-                        cols.append(absorbedPosition(dimension, state, maxLevel))
+                        cols.append(absorbedPosition(dimension, newState, maxLevel))
                         rows.append(totalPosition(dimension, state))
     
-    matrixShape = (comb(maxLevel, dimension), dimension * comb(maxLevel, dimension - 1))
+    matrixShape = (int(comb(maxLevel, dimension)), int(dimension * comb(maxLevel, dimension - 1)))
     matrix = coo_matrix((values,(rows,cols)),matrixShape).tocsc()
     
     return matrix
-#%% Solving the matrix equation
+
+#%% Variables
 
 dimension = 3
-maxLevel = 99
-location = (2 ** (dimension - 1)) - 1
+maxLevel = 179 # To have ~10^6 states in ARC set to 179, local tests set to 10
 mu = 1.0
 gamma = 1.0
 stimulus = [5 * gamma,10 * gamma,10 * gamma]
-dp = 0.05
+strata = 20
+model = 0 # 0 = X, 1 = X^1, 2 = X^2
 
-p = 0.0
-Solutions = []
-prob = []
+#%% Sampling with LHS
 
-while p < 1+dp:
+samples = lhs((2 ** dimension) - dimension - 1, strata)
 
-    P = probabilityMatrix(p)
-    M = coefficientMatrix(P,(len(initialStates),len(initialStates)),v_state,initialStates)
-    b = nonHomogeneousTerm(len(initialStates),v_state,initialStates)
+#%% Solving the matrix equation
 
-    X_initial = spsolve(M,b)
-    X = [0] * ((eta + 1) ** N)
-    for key in initialStates:
-        n = list(key)
-        X[position(n)] = X_initial[initialStates[key]]
+AbsorptionDistributions = []
 
-    Solutions.append(X)
-    prob.append(p)
+shape = int(comb(maxLevel, dimension))
 
-    #Writing to console
-    with open('console.txt','a') as file:
-        file.write('Run {0} CPU time: {1:.3f}s\n'.format(run,time.clock() - run_start))
-
-    p += dp
-    run += 1
+for sample in samples:
+    values = list(sample)
+    ProbMatrix = probabilityMatrix(dimension, stimulus, values)
+    TransMatrix = transitionMatrix(maxLevel, dimension, mu, ProbMatrix, stimulus, model)
+    AbsMatrix = absorptionMatrix(maxLevel, dimension, mu, ProbMatrix, stimulus, model)
+    
+    AssocMatrix = identity(shape,format="csc") - TransMatrix
+    AssocMatrix = inv(AssocMatrix)
+    
+    AbsorptionDistributions.append(AssocMatrix * AbsMatrix)
 
 #%% Storing Data
 
-with open('Data.bin','wb') as file:
-    data = (Solutions,prob,N,eta,mu,phi,gamma)
-    pickle.dump(data,file)
+file = open('Samples.bin','wb')
+pickle.dump(samples, file)
+file.close()
 
-# file =  open('Parameters.bin','wb')
-# data = (dimension,maxLevel,location,firstProbability,mu,gamma,stimulus,model)
-# pickle.dump(data,file)
-# file.close()
+file = open('Parameters.bin','wb')
+data = (["dimension","maxLevel","mu","gamma","stimulus","strata","model"],dimension,maxLevel,mu,gamma,stimulus,strata,model)
+pickle.dump(data,file)
+file.close()
     
-# file = open('Data.bin','wb')
-# pickle.dump(values, file)
-# file.close()
+file = open('Data.bin','wb')
+pickle.dump(AbsorptionDistributions, file)
+file.close()
