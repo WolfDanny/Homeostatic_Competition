@@ -1,10 +1,9 @@
 #%% Packages
 
-from pyDOE import *
 from scipy.special import comb
 from scipy.stats import uniform
 from scipy.sparse import coo_matrix, identity
-from scipy.sparse.linalg import inv
+from scipy.sparse.linalg import spsolve
 from itertools import chain, combinations
 import numpy as np
 import random,math,pickle,functools,operator
@@ -152,33 +151,7 @@ def absorbedPosition(dimension,state,maxLevel):
     Position = projectionComponent * comb(maxLevel,dimension - 1)
     Position += totalPosition(dimension - 1, projection)
     
-    return int(Position)
-
-def isInLevel(state,level,dimension):
-    """
-    Determines if a state is part of a level.
-
-    Parameters
-    ----------
-    state : list
-        List of number of cells per clonotype.
-    level : int
-        Level of the state space.
-    dimension : int
-        Number of clonotypes.
-
-    Returns
-    -------
-    bool
-        True if state is part of level, False otherwise..
-
-    """
-    
-    if len(state)!=dimension or sum(state)!=level or (state.count(0) > 0):
-        return False
-    else:
-        return True
-    
+    return int(Position)    
 
 def levelStates(level,dimension):
     """
@@ -203,7 +176,7 @@ def levelStates(level,dimension):
 
     while True:
 
-        if isInLevel(n, level, dimension):
+        if len(n) == dimension and sum(n) == level and (n.count(0) == 0):
             stateList.append(n[:])
 
         n[0] += 1
@@ -530,7 +503,7 @@ def deathDiagonalLists(maxLevel,dimension,mu,probability,stimulus,model):
                 for i in range(len(state)):
                     newState = state[:]
                     newState[i] -= 1
-                    if isInLevel(newState, level - 1, dimension):
+                    if newState.count(0) == 0:
                         values.append(deathRate(state, i, mu, model) / delta(state, probability, mu, dimension, stimulus, model))
                         cols.append(totalPosition(dimension, newState))
                         rows.append(totalPosition(dimension, state))
@@ -539,7 +512,7 @@ def deathDiagonalLists(maxLevel,dimension,mu,probability,stimulus,model):
                 for i in range(len(state)):
                     newState = state[:]
                     newState[i] -= 1
-                    if isInLevel(newState, level - 1, dimension):
+                    if newState.count(0) == 0:
                         values.append(deathRate(state, i, mu, model) / deathDelta(state, mu, model))
                         cols.append(totalPosition(dimension, newState))
                         rows.append(totalPosition(dimension, state))
@@ -588,11 +561,10 @@ def birthDiagonalLists(maxLevel,dimension,mu,probability,stimulus,model):
             for i in range(len(state)):
                 newState = state[:]
                 newState[i] += 1
-                if isInLevel(newState, level + 1, dimension):
-                    values.append(birthRate(state, probability, i, dimension, stimulus) / delta(state, probability, mu, dimension, stimulus, model))
-                    cols.append(totalPosition(dimension, newState))
-                    rows.append(totalPosition(dimension, state))
-
+                
+                values.append(birthRate(state, probability, i, dimension, stimulus) / delta(state, probability, mu, dimension, stimulus, model))
+                cols.append(totalPosition(dimension, newState))
+                rows.append(totalPosition(dimension, state))
     
     return rows,cols,values
 
@@ -654,48 +626,49 @@ def absorptionMatrix(maxLevel,dimension,mu,probability,stimulus,model):
     
     return matrix
 
+#%% Reading samples and variables
+
+file = open('Samples.bin','rb')
+load_data = pickle.load(file)
+
+dimension = load_data[0]
+strata = load_data[1]
+samples = load_data[2]
+
+del load_data
+file.close()
+
 #%% Variables
 
-dimension = 3
-maxLevel = 179 # To have ~10^6 states in ARC set to 179, local tests set to 10
+maxLevel = 179 # To have ~10^6 states in the HPC set to 179
 mu = 1.0
 gamma = 1.0
 stimulus = [5 * gamma,10 * gamma,10 * gamma]
-strata = 20
 model = 0 # 0 = X, 1 = X^1, 2 = X^2
-
-#%% Sampling with LHS
-
-samples = lhs((2 ** dimension) - dimension - 1, strata)
 
 #%% Solving the matrix equation
 
-AbsorptionDistributions = []
+sampleNumber = Placeholder
+sample = samples[sampleNumber]
 
 shape = int(comb(maxLevel, dimension))
 
-for sample in samples:
-    values = list(sample)
-    ProbMatrix = probabilityMatrix(dimension, stimulus, values)
-    TransMatrix = transitionMatrix(maxLevel, dimension, mu, ProbMatrix, stimulus, model)
-    AbsMatrix = absorptionMatrix(maxLevel, dimension, mu, ProbMatrix, stimulus, model)
-    
-    AssocMatrix = identity(shape,format="csc") - TransMatrix
-    AssocMatrix = inv(AssocMatrix)
-    
-    AbsorptionDistributions.append(AssocMatrix * AbsMatrix)
+values = list(sample)
+
+ProbMatrix = probabilityMatrix(dimension, stimulus, values)
+TransMatrix = transitionMatrix(maxLevel, dimension, mu, ProbMatrix, stimulus, model)
+AbsMatrix = absorptionMatrix(maxLevel, dimension, mu, ProbMatrix, stimulus, model)
+AssocMatrix = identity(shape,format="csc") - TransMatrix
+
+AbsorptionDistribution = spsolve(AssocMatrix, AbsMatrix)
 
 #%% Storing Data
-
-file = open('Samples.bin','wb')
-pickle.dump(samples, file)
-file.close()
 
 file = open('Parameters.bin','wb')
 data = (["dimension","maxLevel","mu","gamma","stimulus","strata","model"],dimension,maxLevel,mu,gamma,stimulus,strata,model)
 pickle.dump(data,file)
 file.close()
     
-file = open('Data.bin','wb')
-pickle.dump(AbsorptionDistributions, file)
+file = open('Data-'+str(sampleNumber)+'.bin','wb')
+pickle.dump(AbsorptionDistribution, file)
 file.close()
