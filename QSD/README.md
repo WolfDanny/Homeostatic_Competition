@@ -1,4 +1,4 @@
-#Approximating the QSD of the competition process
+# Approximating the QSD of the competition process
 
 This script calculates the stationary distribution of 2 approximating processes that cannot go extinct, ![equation](https://latex.codecogs.com/svg.latex?%5Cmathcal%7BX%7D%5E%7B%281%29%7D) where the last remaining cell of a clonotype has death rate zero, and ![equation](https://latex.codecogs.com/svg.latex?%5Cmathcal%7BX%7D%5E%7B%282%29%7D) where there is an immortal cell in each clonotype. 
 

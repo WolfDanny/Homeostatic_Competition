@@ -1,4 +1,4 @@
-#Python scripts used to calculate stochastic descriptors of the homeostatic competition model 
+# Python scripts used to calculate stochastic descriptors of the homeostatic competition model 
 
 This repository contains the codes used to calculate the QSD, distribution of absorptions, and distribution of divisions for the homeostatic competition model.
 
