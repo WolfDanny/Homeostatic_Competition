@@ -12,6 +12,7 @@
 .LSOverride
 
 *.bin
+!Samples/*.bin
 *.zip
 *.pdf
 
