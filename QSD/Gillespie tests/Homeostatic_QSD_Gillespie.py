@@ -4,11 +4,16 @@
 from scipy.special import comb
 from scipy.stats import uniform
 from itertools import chain, combinations
+from copy import deepcopy
 from scipy.sparse import coo_matrix, csc_matrix
 from scipy.sparse.linalg import inv
 import numpy as np
+import random
 import pickle
-import gc
+import math
+import tikzplotlib
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 #%% Global parameters
 
@@ -18,46 +23,19 @@ max_level_value = 179
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
-stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
-model_value = ModelHolder  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
-sample_value = SampleHolder
+stimulus_value = [8 * gamma_value, 8 * gamma_value, 8 * gamma_value]
+sample_value = 0
+nu_value = np.asarray([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+
+realisations = 1
+time_max = 100
+initial_state = [15, 15, 15]
 
 #%% Reading Samples and variables [Paper results]
 
 
-probability_values = np.genfromtxt("../../Matrix-{}.csv".format(sample_value), delimiter=",")
+probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(0), delimiter=",")
 dimension_value = probability_values.shape[0]
-
-if sample_value < 3:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Soft.csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Hard.csv", delimiter=",")
-else:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Soft-(D).csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Hard-(D).csv", delimiter=",")
-nu_value = nu_value * n_mean_value
-
-#%% Reading samples and variables [LHS]
-
-
-# file = open('Samples.bin', 'rb')
-# load_data = pickle.load(file)
-#
-# dimension_value = load_data[0]
-# strata_number = load_data[1]
-# samples = load_data[2]
-#
-# del load_data
-# file.close()
-
-#%% Creating Probability matrix [LHS]
-
-
-# sample_values = list(samples[sample_value])
-# probability_values = probability_matrix(dimension_value, stimulus_value, sample_values)
 
 #%% Functions
 
@@ -429,198 +407,53 @@ def death_delta(state, mu, model):
         delta_value += death_rate(state, i, mu, model)
         
     return delta_value
-    
-
-def main_diagonal_matrices(level, max_level, dimension, probability, mu, nu, stimulus, model):
-    """
-    Creates the diagonal matrix A_{level, level}.
-
-    Parameters
-    ----------
-    level : int
-        Level in the state space.
-    max_level : int
-        Maximum level of the state space.
-    dimension : int
-        Number of clonotypes.
-    probability : numpy.ndarray
-        Probability matrix.
-    mu : float
-        Single cell death rate.
-    nu : numpy.ndarray
-        Niche overlap matrix.
-    stimulus : List[float]
-        Stimulus parameters.
-    model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
-
-    Returns
-    -------
-    md_matrix : csc_matrix
-        Matrix A_{level, level}.
-    """
-    
-    pos = []
-    data = []
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 1, dimension - 1)))
-    
-    states = level_states(level, dimension)
-    
-    if level < max_level:
-        for state in states:
-            data.append(-delta(state, probability, mu, dimension, nu, stimulus, model))
-            pos.append(level_position(level, dimension, state))
-    else:
-        for state in states:
-            data.append(-death_delta(state, mu, model))
-            pos.append(level_position(level, dimension, state))
-        
-    md_matrix = coo_matrix((data, (pos, pos)), matrix_shape).tocsc()
-    
-    return md_matrix
 
 
-def death_diagonal_matrices(level, dimension, mu, model):
-    """
-    Creates the sub-diagonal matrix A_{level, level - 1}.
+def rate_list(state, probability, dimension, nu, mu, stimulus):
 
-    Parameters
-    ----------
-    level : int
-        Level in the state space.
-    dimension : int
-        Number of clonotypes.
-    mu : float
-        Single cell death rate.
-    model : int
-        Auxiliary process (0 = X^1, 1 = X^2).
+    rate_list_values = []
 
-    Returns
-    -------
-    dd_matrix : csc_matrix
-        Matrix A_{level, level - 1}.
-    """
-    
-    rows = []
-    cols = []
-    data = []
-    
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 2, dimension - 1)))
-    
-    states = level_states(level, dimension)
-    
-    for state in states:
-        for i in range(len(state)):
-            new_state = state[:]
-            new_state[i] -= 1
-            if new_state.count(0) == 0:
-                data.append(death_rate(state, i, mu, model))
-                cols.append(level_position(level - 1, dimension, new_state))
-                rows.append(level_position(level, dimension, state))
-    
-    dd_matrix = coo_matrix((data, (rows, cols)), matrix_shape).tocsc()
-    
-    return dd_matrix
+    for clone in range(dimension):
+        rate_list_values.append(float(birth_rate(state, probability, clone, dimension, nu, stimulus)))
+        rate_list_values.append(state[clone] * mu)
 
+    return np.array(rate_list_values)
 
-def birth_diagonal_matrices(level, dimension, probability, nu, stimulus):
-    """
-    Creates the diagonal matrix A_{level, level + 1}.
-
-    Parameters
-    ----------
-    level : int
-        Level in the state space.
-    dimension : int
-        Number of clonotypes.
-    probability : numpy.ndarray
-        Probability matrix.
-    nu : numpy.ndarray
-        Niche overlap matrix.
-    stimulus : List[float]
-        Stimulus parameters.
-
-    Returns
-    -------
-    bd_matrix : csc_matrix
-        Matrix A_{level, level + 1}.
-    """
-    
-    rows = []
-    cols = []
-    data = []
-    
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level, dimension - 1)))
-    
-    states = level_states(level, dimension)
-    
-    for state in states:
-        for i in range(len(state)):
-            new_state = state[:]
-            new_state[i] += 1
-            
-            data.append(birth_rate(state, probability, i, dimension, nu, stimulus))
-            cols.append(level_position(level + 1, dimension, new_state))
-            rows.append(level_position(level, dimension, state))
-    
-    bd_matrix = coo_matrix((data, (rows, cols)), matrix_shape).tocsc()
-    
-    return bd_matrix
 
 #%% Linear level reduction algorithm
 
+clone_states = [[] for _ in range(realisations)]
+times = [[] for _ in range(realisations)]
 
-matrices = [[], [], []]
+for current_realisation in range(realisations):
 
-# Calculating main diagonal matrices
-for level_value in range(dimension_value, max_level_value + 1):
-    matrix = main_diagonal_matrices(level_value, max_level_value, dimension_value, probability_values, mu_value, nu_value, stimulus_value, model_value)
-    matrices[0].append(matrix)
+    current_state = deepcopy(initial_state)
+    current_time = 0.0
 
-# Calculating lower diagonal matrices
-for level_value in range(dimension_value + 1, max_level_value + 1):
-    matrix = death_diagonal_matrices(level_value, dimension_value, mu_value, model_value)
-    matrices[1].append(matrix)
+    while current_time <= time_max:
 
-# Calculating upper diagonal matrices
-for level_value in range(dimension_value, max_level_value):
-    matrix = birth_diagonal_matrices(level_value, dimension_value, probability_values, nu_value, stimulus_value)
-    matrices[2].append(matrix)
+        if current_state.count(0)== dimension_value:
+            break
 
-# Calculating the inverses of H matrices, and storing them in inverse order
-h_matrices = [inv(matrices[0][-1])]
+        r1 = random.uniform(0.0, 1.0)
+        r2 = random.uniform(0.0, 1.0)
+        alpha = rate_list(current_state, probability_values, dimension_value, nu_value, mu_value, stimulus_value)
 
-for level_value in range(len(matrices[0]) - 1):
-    gc.collect()
-    matrix = matrices[0][-(level_value + 2)]
-    matrix_term = matrices[2][-(level_value + 1)].dot(h_matrices[-1].dot(matrices[1][-(level_value + 1)]))
-    matrix -= matrix_term
-    matrix = np.linalg.inv(matrix.todense())
-    h_matrices.append(csc_matrix(matrix))
+        alpha_sum = alpha.sum()
 
+        dt = -math.log(r1) / alpha_sum
+        current_time += dt
 
-# Calculating the relative values of the distribution
-distribution = [np.array([1])]
+        for current_rate in range(alpha.size):
+            if (sum(alpha[:current_rate]) / alpha_sum) <= r2 < (sum(alpha[:current_rate + 1]) / alpha_sum):
+                current_clone = int(current_rate / 2)
+                if current_rate % 2 == 0:
+                    current_state[current_clone] += 1
+                else:
+                    current_state[current_clone] -= 1
+                clone_states[current_realisation].append(deepcopy(current_state))
+                times[current_realisation].append(deepcopy(current_time))
 
-for level_value in range(len(h_matrices) - 1):
-    value = (distribution[level_value] * (-1)) * matrices[2][level_value].dot(h_matrices[-(level_value + 2)])
-    distribution.append(value.flatten())
-
-# Normalising the values of the distribution
-subTotals = [level.sum() for level in distribution]
-total = sum(subTotals)
-
-for level_value in range(len(distribution)):
-    distribution[level_value] = distribution[level_value] / total
-
-#%% Storing results
-
-
-file = open('Parameters.bin', 'wb')
-parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value", "model_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value, model_value)
-pickle.dump(parameters, file)
-file.close()
-
-file = open('Data-{0}-{1}.bin'.format(model_value, sample_value), 'wb')
-pickle.dump(distribution, file)
-file.close()
+with open('Data.bin', 'wb') as file:
+    data = (clone_states, times, realisations)
+    pickle.dump(data, file)

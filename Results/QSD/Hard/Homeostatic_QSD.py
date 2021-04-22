@@ -20,15 +20,15 @@ n_mean_value = 10
 gamma_value = 1.0
 stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
 model_value = ModelHolder  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
-sample_value = SampleHolder
 
 #%% Reading Samples and variables [Paper results]
 
 
-probability_values = np.genfromtxt("../../Matrix-{}.csv".format(sample_value), delimiter=",")
+# probability_values = np.genfromtxt("../../Samples/Matrix-established-{}.csv".format(SampleHolder), delimiter=",")
+probability_values = np.genfromtxt("../../Matrix-{}.csv".format(SampleHolder), delimiter=",")
 dimension_value = probability_values.shape[0]
 
-if sample_value < 3:
+if SampleHolder < 3:
     if new_clone_is_soft:
         nu_value = np.genfromtxt("../../Nu-Matrix-Soft.csv", delimiter=",")
     else:
@@ -56,7 +56,7 @@ nu_value = nu_value * n_mean_value
 #%% Creating Probability matrix [LHS]
 
 
-# sample_values = list(samples[sample_value])
+# sample_values = list(samples[SampleHolder])
 # probability_values = probability_matrix(dimension_value, stimulus_value, sample_values)
 
 #%% Functions
@@ -152,7 +152,7 @@ def level_states(level, dimension):
 
     Returns
     -------
-    state_list : List
+    state_list : List[int]
         List of all states in level.
     """
 
@@ -447,8 +447,8 @@ def main_diagonal_matrices(level, max_level, dimension, probability, mu, nu, sti
         Probability matrix.
     mu : float
         Single cell death rate.
-    nu : numpy.ndarray
-        Niche overlap matrix.
+    nu : float
+        Niche overlap.
     stimulus : List[float]
         Stimulus parameters.
     model : int
@@ -535,8 +535,8 @@ def birth_diagonal_matrices(level, dimension, probability, nu, stimulus):
         Number of clonotypes.
     probability : numpy.ndarray
         Probability matrix.
-    nu : numpy.ndarray
-        Niche overlap matrix.
+    nu : float
+        Niche overlap.
     stimulus : List[float]
         Stimulus parameters.
 
@@ -621,6 +621,6 @@ parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", 
 pickle.dump(parameters, file)
 file.close()
 
-file = open('Data-{0}-{1}.bin'.format(model_value, sample_value), 'wb')
+file = open('Data-{0}-{1}.bin'.format(model_value, SampleHolder), 'wb')
 pickle.dump(distribution, file)
 file.close()

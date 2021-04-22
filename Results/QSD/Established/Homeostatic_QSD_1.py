@@ -18,26 +18,17 @@ max_level_value = 179
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
-stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
-model_value = ModelHolder  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
-sample_value = SampleHolder
+stimulus_value = [10 * gamma_value, 10 * gamma_value]
+model_value = 1  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
+sample_value = 0
 
 #%% Reading Samples and variables [Paper results]
 
 
-probability_values = np.genfromtxt("../../Matrix-{}.csv".format(sample_value), delimiter=",")
+probability_values = np.genfromtxt("Matrix-2C.csv", delimiter=",")
 dimension_value = probability_values.shape[0]
 
-if sample_value < 3:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Soft.csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Hard.csv", delimiter=",")
-else:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Soft-(D).csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Hard-(D).csv", delimiter=",")
+nu_value = np.genfromtxt("Nu-Matrix-2C.csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
 #%% Reading samples and variables [LHS]

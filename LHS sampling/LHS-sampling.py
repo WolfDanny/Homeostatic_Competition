@@ -1,5 +1,6 @@
 #%% Packages
 
+
 from pyDOE import *
 import numpy as np
 import pickle
@@ -11,15 +12,18 @@ strata = 20
 
 #%% LHS sampling
 
-samples = lhs((2 ** dimension) - dimension - 1, samples=strata, criterion='center')
+samples = lhs(5, samples=50, criterion='center')
+np.savetxt("LHS-samples-5.csv", samples, delimiter=",")
 
-sort_column = 0
-samples = samples[np.argsort(samples[:, sort_column])]
-
-samples = samples[::-1]  # Reverse the order
+# samples = lhs((2 ** dimension) - dimension - 1, samples=strata, criterion='center')
+#
+# sort_column = 0
+# samples = samples[np.argsort(samples[:, sort_column])]
+#
+# samples = samples[::-1]  # Reverse the order
 
 #%% Storing data
 
-file = open('Samples.bin', 'wb')
-pickle.dump((dimension, strata, samples), file)
-file.close()
+# file = open('Samples.bin', 'wb')
+# pickle.dump((dimension, strata, samples), file)
+# file.close()

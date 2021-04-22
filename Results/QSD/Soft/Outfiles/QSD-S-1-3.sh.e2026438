@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "Homeostatic_QSD.py", line 598, in <module>
+    matrix = np.linalg.inv(matrix.todense())
+  File "<__array_function__ internals>", line 6, in inv
+  File "/home/home01/mmdfld/.conda/envs/fs/lib/python3.7/site-packages/numpy/linalg/linalg.py", line 546, in inv
+    ainv = _umath_linalg.inv(a, signature=signature, extobj=extobj)
+  File "/home/home01/mmdfld/.conda/envs/fs/lib/python3.7/site-packages/numpy/linalg/linalg.py", line 88, in _raise_linalgerror_singular
+    raise LinAlgError("Singular matrix")
+numpy.linalg.LinAlgError: Singular matrix

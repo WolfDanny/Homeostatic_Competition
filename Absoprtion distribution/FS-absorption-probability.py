@@ -1,14 +1,47 @@
 #%% Packages
 
+
 from scipy.special import comb
-from scipy.stats import uniform
 from scipy.sparse import coo_matrix, identity, csc_matrix, dok_matrix
 from itertools import chain, combinations
 import numpy as np
 import pickle
 import gc
-import random
-import math
+import os
+
+#%% Global parameters
+
+
+new_clone_is_soft = False
+mu_value = 1.0
+n_mean_value = 10
+gamma_value = 1.0
+stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
+
+#%% Reading Samples and Variables [Paper results]
+
+
+SampleHolder = 0
+probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(SampleHolder), delimiter=",")
+dimension_value = probability_values.shape[0]
+
+if SampleHolder < 3:
+    if new_clone_is_soft:
+        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+    else:
+        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+else:
+    if new_clone_is_soft:
+        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+    else:
+        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+nu_value = nu_value * n_mean_value
+
+with open('../Truncated_levels.bin', 'rb') as file:
+    truncated_levels = np.array(pickle.load(file))
+    truncated_levels = [max(truncated_levels[:, i]) for i in range(truncated_levels.shape[1])]
+
+max_level_value = max(truncated_levels) + 15  # truncated_levels[SampleHolder]
 
 #%% Functions
 
@@ -92,7 +125,7 @@ def level_position(level, dimension, state):
 
 def level_states(level, dimension):
     """
-    Creates a list of all states in *level*.
+    Creates a list of all non-absorbed states in *level*.
 
     Parameters
     ----------
@@ -130,103 +163,6 @@ def level_states(level, dimension):
     return state_list
 
 
-def probability_matrix(dimension, stimulus, sample):
-    """
-    Creates the probability matrix from *stimulus* and *sample*.
-
-    Parameters
-    ----------
-    dimension : int
-        Number of clonotypes.
-    stimulus : List[int]
-        Stimulus parameters.
-    sample : List[float]
-        List of probability values sampled.
-
-    Returns
-    -------
-    p_matrix : numpy.ndarray
-        List expression of the probability matrix.
-    """
-
-    sets = []
-    set_matrix = [[0 for _ in range(2 ** (dimension - 1))] for _ in range(dimension)]
-    sample_matrix = [[None for _ in range(2 ** (dimension - 1))] for _ in range(dimension)]
-    p_matrix = np.zeros(shape=(dimension, 2 ** (dimension - 1)))
-
-    # Creating set matrix
-    for i in range(dimension):
-        sets.append(clone_sets(dimension, i))
-
-    for row in range(len(set_matrix)):
-        for col in range(len(set_matrix[row])):
-            for i in range(len(set_matrix)):
-                for j in range(len(set_matrix[i])):
-                    if set_matrix[row][col] == 0 and sets[row][col] == sets[i][j]:
-                        set_matrix[row][col] = [i, j]
-                        break
-                else:
-                    continue
-                break
-    del sets
-
-    # Creating sample matrix
-    sample_pos = 0
-    for row in range(len(set_matrix)):
-        for col in range(1, len(set_matrix[row])):
-            if set_matrix[row][-col] == [row, len(set_matrix[row]) - col]:
-                sample_matrix[row][-col] = sample_pos
-                for i in [x for x in range(len(set_matrix)) if x != row]:
-                    try:
-                        sample_matrix[i][set_matrix[i].index(set_matrix[row][-col])] = sample_pos
-                    except ValueError:
-                        pass
-                sample_pos += 1
-
-    # Creating probability matrix
-    max_sample = 0
-    for pos, sample_number in reversed(list(enumerate(sample_matrix[0]))):
-        if sample_number is not None:
-            p_matrix[0][pos] = uniform(loc=0, scale=1 - p_matrix[0].sum()).ppf(sample[sample_number])
-            for row in range(1, p_matrix.shape[0]):
-                try:
-                    position = sample_matrix[row].index(sample_number)
-                    p_matrix[row][position] = p_matrix[0][pos] * (stimulus[0] / stimulus[row])
-                except ValueError:
-                    pass
-            if sample_number > max_sample:
-                max_sample = sample_number
-        else:
-            p_matrix[0][pos] = 1 - p_matrix[0].sum()
-
-    for sample_number in range(max_sample + 1, len(sample)):
-        rows = []
-        row_totals = []
-        for row in range(1, p_matrix.shape[0]):
-            if sample_number in sample_matrix[row]:
-                rows.append(row)
-                row_totals.append(p_matrix[row].sum())
-        for row in rows:
-            value = uniform(loc=0, scale=1 - row_totals[rows.index(row)]).ppf(sample[sample_number])
-            remaining_values = []
-            for row_test in [x for x in rows if x != row]:
-                if row_totals[rows.index(row_test)] + (value * (stimulus[row] / stimulus[row_test])) > 1:
-                    break
-                else:
-                    remaining_values.append(value * (stimulus[row] / stimulus[row_test]))
-            else:
-                p_matrix[row][sample_matrix[row].index(sample_number)] = value
-                remaining_values = remaining_values[::-1]
-                for remaining_rows in [x for x in rows if x != row]:
-                    p_matrix[remaining_rows][sample_matrix[remaining_rows].index(sample_number)] = remaining_values.pop()
-                break
-
-    for row in range(1, p_matrix.shape[0]):
-        p_matrix[row][0] = 1 - p_matrix[row].sum()
-
-    return p_matrix
-
-
 def sum_clones(subset, state):
     """
     Sums the number of cells in clones belonging to *subset* for *state*.
@@ -252,7 +188,7 @@ def sum_clones(subset, state):
     return float(total_cells)
 
 
-def birth_rate(state, probability, clone, dimension, stimulus):
+def birth_rate(state, probability, clone, dimension, nu, stimulus):
     """
     Calculates the birth rate for *clone* in *state*.
 
@@ -266,6 +202,8 @@ def birth_rate(state, probability, clone, dimension, stimulus):
         Specified clone.
     dimension : int
         Number of clonotypes.
+    nu : numpy.ndarray
+        Niche overlap matrix.
     stimulus : List[float]
         Stimulus parameters.
 
@@ -280,34 +218,12 @@ def birth_rate(state, probability, clone, dimension, stimulus):
 
     for i in range(len(sets)):
         if sum_clones(sets[i], state) != 0:
-            rate += probability[clone][i] / sum_clones(sets[i], state)
+            rate += probability[clone][i] / (sum_clones(sets[i], state) + nu[clone][i])
 
     return rate * state[clone] * stimulus[clone]
 
 
-def death_rate(state, clone, mu):
-    """
-    Calculates the death rate for *clone* in *state*.
-
-    Parameters
-    ----------
-    state : List[int]
-        Number of cells per clonotype.
-    clone : int
-        Specified clone.
-    mu : float
-        Single cell death rate.
-
-    Returns
-    -------
-    float
-        Death rate for clone in state.
-    """
-
-    return state[clone] * mu
-
-
-def delta(state, probability, mu, dimension, stimulus):
+def delta(state, probability, mu, dimension, nu, stimulus):
     """
     Calculates the sum of all birth and death rates for *state*.
 
@@ -321,6 +237,8 @@ def delta(state, probability, mu, dimension, stimulus):
         Single cell death rate.
     dimension : int
         Number of clonotypes.
+    nu : numpy.ndarray
+        Niche overlap matrix.
     stimulus : List[float]
         Stimulus parameters.
 
@@ -333,10 +251,10 @@ def delta(state, probability, mu, dimension, stimulus):
     delta_value = 0.0
 
     for i in range(len(state)):
-        delta_value += death_rate(state, i, mu)
+        delta_value += state[i] * mu
 
     for i in range(len(state)):
-        delta_value += birth_rate(state, probability, i, dimension, stimulus)
+        delta_value += birth_rate(state, probability, i, dimension, nu, stimulus)
 
     return delta_value
 
@@ -361,12 +279,12 @@ def death_delta(state, mu):
     delta_value = 0.0
 
     for i in range(len(state)):
-        delta_value += death_rate(state, i, mu)
+        delta_value += state[i] * mu
 
     return delta_value
 
 
-def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, mu):
+def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, mu, nu):
     """
     Creates the sub-diagonal matrix A_{level, level - 1}.
 
@@ -384,6 +302,8 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
         Stimulus parameters.
     mu : float
         Single cell death rate.
+    nu : numpy.ndarray
+        Niche overlap matrix.
 
     Returns
     -------
@@ -405,7 +325,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 0:
-                    data.append(death_rate(state, i, mu) / delta(state, probability, mu, dimension, stimulus))
+                    data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
                     cols.append(level_position(level - 1, dimension, new_state))
                     rows.append(level_position(level, dimension, state))
     else:
@@ -414,7 +334,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 0:
-                    data.append(death_rate(state, i, mu) / death_delta(state, mu))
+                    data.append((state[i] * mu) / death_delta(state, mu))
                     cols.append(level_position(level - 1, dimension, new_state))
                     rows.append(level_position(level, dimension, state))
 
@@ -423,7 +343,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
     return dd_matrix
 
 
-def birth_diagonal_matrices(level, dimension, probability, stimulus, mu):
+def birth_diagonal_matrices(level, dimension, probability, stimulus, mu, nu):
     """
     Creates the diagonal matrix A_{level, level + 1}.
 
@@ -439,6 +359,8 @@ def birth_diagonal_matrices(level, dimension, probability, stimulus, mu):
         Stimulus parameters.
     mu : float
         Single cell death rate.
+    nu : numpy.ndarray
+        Niche overlap matrix.
 
     Returns
     -------
@@ -459,7 +381,7 @@ def birth_diagonal_matrices(level, dimension, probability, stimulus, mu):
             new_state = state[:]
             new_state[i] += 1
 
-            data.append(birth_rate(state, probability, i, dimension, stimulus) / delta(state, probability, mu, dimension, stimulus))
+            data.append(birth_rate(state, probability, i, dimension, nu, stimulus) / delta(state, probability, mu, dimension, nu, stimulus))
             cols.append(level_position(level + 1, dimension, new_state))
             rows.append(level_position(level, dimension, state))
 
@@ -468,9 +390,9 @@ def birth_diagonal_matrices(level, dimension, probability, stimulus, mu):
     return bd_matrix
 
 
-def absorption_matrix(level, clone, max_level, dimension, mu, probability, stimulus):
+def absorption_matrix(level, clone, max_level, dimension, mu, nu, probability, stimulus):
     """
-    Creates the transition matrix R^{*clone*}_{*level*, *level* - 1} in the embedded Markov chain as a csc_matrix
+    Creates the transition matrix R^{*clone*}_{*level*, *level* - 1} in the embedded Markov chain as a csc_matrix.
 
     Parameters
     ----------
@@ -484,6 +406,8 @@ def absorption_matrix(level, clone, max_level, dimension, mu, probability, stimu
         Number of clonotypes.
     mu : float
         Single cell death rate.
+    nu : numpy.ndarray
+        Niche overlap matrix.
     probability : numpy.ndarray
         Probability matrix.
     stimulus : List[float]
@@ -494,7 +418,7 @@ def absorption_matrix(level, clone, max_level, dimension, mu, probability, stimu
     a_matrix : csc_matrix
         Transition matrix R^{*clone*}_{*level*, *level - 1*} in the embedded Markov process.
     """
-    
+
     rows = []
     cols = []
     data = []
@@ -502,7 +426,7 @@ def absorption_matrix(level, clone, max_level, dimension, mu, probability, stimu
     matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 2, dimension - 2)))
 
     states = level_states(level, dimension)
-        
+
     if level < max_level:
         for state in states:
             for i in range(len(state)):
@@ -512,7 +436,7 @@ def absorption_matrix(level, clone, max_level, dimension, mu, probability, stimu
                     projection = new_state[:]
                     projection.pop(projection.index(0))
 
-                    data.append(death_rate(state, i, mu) / delta(state, probability, mu, dimension, stimulus))
+                    data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
                     cols.append(level_position(level - 1, dimension - 1, projection))
                     rows.append(level_position(level, dimension, state))
     else:
@@ -524,49 +448,16 @@ def absorption_matrix(level, clone, max_level, dimension, mu, probability, stimu
                     projection = new_state[:]
                     projection.pop(projection.index(0))
 
-                    data.append(death_rate(state, i, mu) / death_delta(state, mu))
+                    data.append((state[i] * mu) / death_delta(state, mu))
                     cols.append(level_position(level - 1, dimension - 1, projection))
                     rows.append(level_position(level, dimension, state))
 
     a_matrix = coo_matrix((data, (rows, cols)), matrix_shape).tocsc()
-    
+
     return a_matrix
-
-#%% Reading samples and variables
-
-
-# Reading
-file = open('Samples.bin', 'rb')
-load_data = pickle.load(file)
-
-dimension_value = load_data[0]
-strata_number = load_data[1]
-samples = load_data[2]
-
-del load_data
-file.close()
-
-file = open('Truncated_levels.bin', 'rb')
-
-truncated_levels = np.array(pickle.load(file))
-truncated_levels = [max(truncated_levels[:, i]) for i in range(truncated_levels.shape[1])]
-
-file.close()
-del file
-
-#%% Variables
-
-
-mu_value = 1.0
-gamma_value = 1.0
-stimulus_value = [20 * gamma_value, 20 * gamma_value, 20 * gamma_value]
 
 #%% Solving the matrix equations
 
-sample_values = list(samples[SampleHolder])
-max_level_value = truncated_levels[SampleHolder]
-
-probability_values = probability_matrix(dimension_value, stimulus_value, sample_values)
 
 b_matrices = []  # Lis of upper diagonal (birth) matrices
 d_matrices = []  # List of lower diagonal (death) matrices
@@ -575,11 +466,11 @@ distribution = [[] for _ in range(dimension_value)]  # Distribution of absorptio
 
 # Calculating upper diagonal (birth) matrices
 for level_value in range(dimension_value, max_level_value):
-    b_matrices.append(birth_diagonal_matrices(level_value, dimension_value, probability_values, stimulus_value, mu_value))
+    b_matrices.append(birth_diagonal_matrices(level_value, dimension_value, probability_values, stimulus_value, mu_value, nu_value))
 
 # Calculating lower diagonal (death) matrices
 for level_value in range(dimension_value + 1, max_level_value + 1):
-    d_matrices.append(death_diagonal_matrices(level_value, max_level_value, dimension_value, probability_values, stimulus_value, mu_value))
+    d_matrices.append(death_diagonal_matrices(level_value, max_level_value, dimension_value, probability_values, stimulus_value, mu_value, nu_value))
 
 # Calculating absorption matrices, all zero matrices are stored too
 for clone_number in range(dimension_value):
@@ -589,7 +480,7 @@ for clone_number in range(dimension_value):
             if absorbing_level_value != level_value - 1:
                 block_column.append(dok_matrix((int(comb(level_value - 1, dimension_value - 1)), int(comb(absorbing_level_value - 1, dimension_value - 2)))).tocsc())
             else:
-                block_column.append(absorption_matrix(level_value, clone_number, max_level_value, dimension_value, mu_value, probability_values, stimulus_value))
+                block_column.append(absorption_matrix(level_value, clone_number, max_level_value, dimension_value, mu_value, nu_value, probability_values, stimulus_value))
         a_matrices[clone_number].append(block_column)
 
 # Calculating the inverses of H matrices, and storing them in inverse order
@@ -617,11 +508,18 @@ for clone_number in range(dimension_value):
 
 #%% Storing Data
 
-file = open('Parameters.bin', 'wb')
-parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value", "strata_number"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value, strata_number)
-pickle.dump(parameters, file)
-file.close()
+if new_clone_is_soft:
+    folder = 'Soft'
+else:
+    folder = 'Hard'
 
-file = open('Data.bin', 'wb')
-pickle.dump(distribution, file)
-file.close()
+filename = '../Results/Absorption distribution/{0}/Parameters-{1}.bin'.format(folder, SampleHolder)
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+with open(filename, 'wb') as file:
+    parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
+    pickle.dump(parameters, file)
+
+filename = '../Results/Absorption distribution/{0}/Data-{1}.bin'.format(folder, SampleHolder)
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+with open(filename, 'wb') as file:
+    pickle.dump(distribution, file)

@@ -11,10 +11,11 @@
 .AppleDouble
 .LSOverride
 
+test.py
 *.bin
-!Samples/*.bin
 *.zip
 *.pdf
+*.tex
 
 # Icon must end with two \r
 Icon
