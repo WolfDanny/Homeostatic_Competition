@@ -57,7 +57,7 @@ def level_position(level, dimension, state):
         Level of the state space.
     dimension : int
         Number of clonotypes.
-    state : List[int]
+    state : list[int]
         List of number of cells per clonotype.
 
     Returns
@@ -106,7 +106,7 @@ def level_states(level, dimension):
 
     Returns
     -------
-    state_list : List
+    state_list : list
         List of all states in level.
     """
 
@@ -141,9 +141,9 @@ def probability_matrix(dimension, stimulus, sample):
     ----------
     dimension : int
         Number of clonotypes.
-    stimulus : List[int]
+    stimulus : list[int]
         Stimulus parameters.
-    sample : List[float]
+    sample : list[float]
         List of probability values sampled.
 
     Returns
@@ -238,7 +238,7 @@ def sum_clones(subset, state):
     ----------
     subset : tuple
         Clonotypes in the subset.
-    state : List[int]
+    state : list[int]
         Number of cells per clonotype.
 
     Returns
@@ -261,7 +261,7 @@ def birth_rate(state, probability, clone, dimension, nu, stimulus):
 
     Parameters
     ----------
-    state : List[int]
+    state : list[int]
         Number of cells per clonotype.
     probability : numpy.ndarray
         Probability matrix.
@@ -271,7 +271,7 @@ def birth_rate(state, probability, clone, dimension, nu, stimulus):
         Number of clonotypes.
     nu : numpy.ndarray
         Niche overlap matrix.
-    stimulus : List[float]
+    stimulus : list[float]
         Stimulus parameters.
 
     Returns
@@ -296,9 +296,9 @@ def delta(state, probability, mu, dimension, nu, stimulus):
 
     Parameters
     ----------
-    state : List[int]
+    state : list[int]
         Number of cells per clonotype.
-    probability : List[float]
+    probability : list[float]
         Probability matrix.
     mu : float
         Single cell death rate.
@@ -306,7 +306,7 @@ def delta(state, probability, mu, dimension, nu, stimulus):
         Number of clonotypes.
     nu : numpy.ndarray
         Niche overlap matrix.
-    stimulus : List[float]
+    stimulus : list[float]
         Stimulus parameters.
 
     Returns
@@ -332,7 +332,7 @@ def death_delta(state, mu):
 
     Parameters
     ----------
-    state : List[int]
+    state : list[int]
         Number of cells per clonotype.
     mu : float
         Single cell death rate.
@@ -365,7 +365,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
         Number of clonotypes.
     probability : numpy.ndarray
         Probability matrix.
-    stimulus : List[float]
+    stimulus : list[float]
         Stimulus parameters.
     mu : float
         Single cell death rate.
@@ -424,7 +424,7 @@ def birth_diagonal_matrices(level, clone, dimension, probability, stimulus, mu, 
         Number of clonotypes.
     probability : numpy.ndarray
         Probability matrix.
-    stimulus : List[float]
+    stimulus : list[float]
         Stimulus parameters.
     mu : float
         Single cell death rate.
@@ -485,13 +485,13 @@ def division_vector(level, clone, divisions, max_level, dimension, probability, 
         Number of clonotypes.
     probability : numpy.ndarray
         Probability matrix.
-    stimulus : List[float]
+    stimulus : list[float]
         Stimulus parameters.
     mu : float
         Single cell death rate.
     nu : numpy.ndarray
         Niche overlap matrix.
-    probability_previous_division : List[csc_matrix]
+    probability_previous_division : list[csc_matrix]
         Division probability vector for (divisions - 1), for divisions = 0 this parameter is not required.
 
     Returns

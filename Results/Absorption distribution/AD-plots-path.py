@@ -4,15 +4,17 @@
 
 
 from scipy.special import comb
+from copy import deepcopy
 import numpy as np
 import pickle
 import tikzplotlib
-import seaborn as sns
 import matplotlib.pyplot as plt
 
-# sns.set(font='serif')
-# plt.rcParams['font.family'] = 'serif'
-# plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+plt.rcParams.update({"text.usetex": True})
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
+lw = 1.0
 
 
 # %% Functions
@@ -108,6 +110,9 @@ initial_state = [8, 8]
 experiments = ['Hard', 'Soft']
 matrices = 4
 
+hard_data = []
+soft_data = []
+
 for current_matrix in range(matrices):
 
     absorption_values_hard = [[], [], []]
@@ -148,28 +153,138 @@ for current_matrix in range(matrices):
                 absorption_values_soft[1].append(absorption_c2_value)
                 absorption_values_soft[2].append(absorption_c3_value)
 
-    fig, graph = plt.subplots()
-    graph.plot(absorption_index, absorption_values_hard[0], '--', color="b", label='Clonotype 1 H')
-    graph.plot(absorption_index, absorption_values_hard[1], '-', color="b", label='Clonotype 2 H ')
-    graph.plot(absorption_index, absorption_values_hard[2], '.', color="b", label='Clonotype 3 H ')
-    graph.plot(absorption_index, absorption_values_soft[0], '--', color="g", label='Clonotype 1 S')
-    graph.plot(absorption_index, absorption_values_soft[1], '-', color="g", label='Clonotype 2 S')
-    graph.plot(absorption_index, absorption_values_soft[2], '.', color="g", label='Clonotype 3 S')
-    graph.set_ylabel('Probability of extinction')
-    graph.set_xlabel('$n_{1}$')
-    graph.set_facecolor('white')
-    graph.legend(loc='upper right')
-    graph.set_ylim(0, 1)
-    graph.set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-    graph.spines['bottom'].set_color('gray')
-    graph.spines['top'].set_color('gray')
-    graph.spines['right'].set_color('gray')
-    graph.spines['left'].set_color('gray')
+        if folder == 'Hard':
+            hard_data.append(deepcopy(absorption_values_hard))
+        else:
+            soft_data.append(deepcopy(absorption_values_soft))
 
-    fig.savefig('AL-{0}-[-,{1},{2}]-FE.pdf'.format(current_matrix, initial_state[0], initial_state[1]))
-    tikzplotlib.clean_figure()
-    tikzplotlib.save('AL-{0}-[-,{1},{2}]-FE.tex'.format(current_matrix, initial_state[0], initial_state[1]))
+fig, graphs = plt.subplots(2, 2, figsize=(7, 7), constrained_layout=True)
 
-    graph.clear()
-    fig.clear()
-    plt.close(fig='all')
+graphs[0, 0].plot(absorption_index, hard_data[0][0], '-', lw=lw, color="b")
+graphs[0, 0].plot(absorption_index, hard_data[1][0], '--', lw=lw, color="b")
+graphs[0, 0].plot(absorption_index, hard_data[2][0], '-.', lw=lw, color="b")
+graphs[0, 0].plot(absorption_index, hard_data[3][0], ':', lw=lw, color="b")
+graphs[0, 0].plot(absorption_index, soft_data[0][0], '-', lw=lw, color="g")
+graphs[0, 0].plot(absorption_index, soft_data[1][0], '--', lw=lw, color="g")
+graphs[0, 0].plot(absorption_index, soft_data[2][0], '-.', lw=lw, color="g")
+graphs[0, 0].plot(absorption_index, soft_data[3][0], ':', lw=lw, color="g")
+graphs[0, 0].set_title('Probability of extinction of clonotype 1')
+graphs[0, 0].set_xlabel('$n_{1}$')
+graphs[0, 0].set_facecolor('white')
+graphs[0, 0].set_ylim(0, 1)
+graphs[0, 0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
+# graphs[0, 0].spines['bottom'].set_color('gray')
+# graphs[0, 0].spines['top'].set_color('gray')
+# graphs[0, 0].spines['right'].set_color('gray')
+# graphs[0, 0].spines['left'].set_color('gray')
+
+graphs[0, 1].plot(absorption_index, hard_data[0][1], '-', lw=lw, color="b")
+graphs[0, 1].plot(absorption_index, hard_data[1][1], '--', lw=lw, color="b")
+graphs[0, 1].plot(absorption_index, hard_data[2][1], '-.', lw=lw, color="b")
+graphs[0, 1].plot(absorption_index, hard_data[3][1], ':', lw=lw, color="b")
+graphs[0, 1].plot(absorption_index, soft_data[0][1], '-', lw=lw, color="g")
+graphs[0, 1].plot(absorption_index, soft_data[1][1], '--', lw=lw, color="g")
+graphs[0, 1].plot(absorption_index, soft_data[2][1], '-.', lw=lw, color="g")
+graphs[0, 1].plot(absorption_index, soft_data[3][1], ':', lw=lw, color="g")
+graphs[0, 1].set_title('Probability of extinction of clonotype 2')
+graphs[0, 1].set_xlabel('$n_{1}$')
+graphs[0, 1].set_facecolor('white')
+graphs[0, 1].set_ylim(0, 1)
+graphs[0, 1].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
+# graphs[0, 1].spines['bottom'].set_color('gray')
+# graphs[0, 1].spines['top'].set_color('gray')
+# graphs[0, 1].spines['right'].set_color('gray')
+# graphs[0, 1].spines['left'].set_color('gray')
+
+graphs[1, 0].plot(absorption_index, hard_data[0][2], '-', lw=lw, color="b")
+graphs[1, 0].plot(absorption_index, hard_data[1][2], '--', lw=lw, color="b")
+graphs[1, 0].plot(absorption_index, hard_data[2][2], '-.', lw=lw, color="b")
+graphs[1, 0].plot(absorption_index, hard_data[3][2], ':', lw=lw, color="b")
+graphs[1, 0].plot(absorption_index, soft_data[0][2], '-', lw=lw, color="g")
+graphs[1, 0].plot(absorption_index, soft_data[1][2], '--', lw=lw, color="g")
+graphs[1, 0].plot(absorption_index, soft_data[2][2], '-.', lw=lw, color="g")
+graphs[1, 0].plot(absorption_index, soft_data[3][2], ':', lw=lw, color="g")
+graphs[1, 0].set_title('Probability of extinction of clonotype 3')
+graphs[1, 0].set_xlabel('$n_{1}$')
+graphs[1, 0].set_facecolor('white')
+graphs[1, 0].set_ylim(0, 1)
+graphs[1, 0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
+# graphs[1, 0].spines['bottom'].set_color('gray')
+# graphs[1, 0].spines['top'].set_color('gray')
+# graphs[1, 0].spines['right'].set_color('gray')
+# graphs[1, 0].spines['left'].set_color('gray')
+
+graphs[1, 1].axis('off')
+graphs[1, 1].plot([], [], '-', color="k", label='$\\textrm{Scenario } (a)$')
+graphs[1, 1].plot([], [], '--', color="k", label='$\\textrm{Scenario } (b)$')
+graphs[1, 1].plot([], [], '-.', color="k", label='$\\textrm{Scenario } (c)$')
+graphs[1, 1].plot([], [], ':', color="k", label='$\\textrm{Scenario } (d)$')
+graphs[1, 1].plot([], [], 's', color="b", label='$\\textrm{Hard niche}$')
+graphs[1, 1].plot([], [], 's', color="g", label='$\\textrm{Soft niche}$')
+
+# graphs[1, 1].plot([], [], '-', color="k", label='Scenario $(a)$')
+# graphs[1, 1].plot([], [], '--', color="k", label='Scenario $(b)$')
+# graphs[1, 1].plot([], [], '-.', color="k", label='Scenario $(c)$')
+# graphs[1, 1].plot([], [], ':', color="k", label='Scenario $(d)$')
+# graphs[1, 1].plot([], [], 's', color="b", label='Hard niche')
+# graphs[1, 1].plot([], [], 's', color="g", label='Soft niche')
+graphs[1, 1].legend(loc='center', fontsize='xx-large')
+# prop={'size': 25}
+
+fig.savefig('First-extinction.pdf')
+
+# tikzplotlib.clean_figure()
+# tikzplotlib.save('First-extinction.tex')
+
+for row in range(2):
+    for col in range(2):
+        graphs[row, col].clear()
+fig.clear()
+plt.close(fig='all')
+
+fig, graphs = plt.subplots(1, 4, figsize=(12, 3), constrained_layout=True)
+
+graphs[0].plot(absorption_index, hard_data[0][0], '-', lw=lw, color="b")
+graphs[0].plot(absorption_index, hard_data[3][0], ':', lw=lw, color="b")
+graphs[0].plot(absorption_index, soft_data[0][0], '-', lw=lw, color="g")
+graphs[0].plot(absorption_index, soft_data[3][0], ':', lw=lw, color="g")
+graphs[0].set_title('Probability of extinction of clonotype 1')
+graphs[0].set_xlabel('$n_{1}$')
+graphs[0].set_facecolor('white')
+graphs[0].set_ylim(0, 1)
+graphs[0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
+
+graphs[1].plot(absorption_index, hard_data[0][1], '-', lw=lw, color="b")
+graphs[1].plot(absorption_index, hard_data[3][1], ':', lw=lw, color="b")
+graphs[1].plot(absorption_index, soft_data[0][1], '-', lw=lw, color="g")
+graphs[1].plot(absorption_index, soft_data[3][1], ':', lw=lw, color="g")
+graphs[1].set_title('Probability of extinction of clonotype 2')
+graphs[1].set_xlabel('$n_{1}$')
+graphs[1].set_facecolor('white')
+graphs[1].set_ylim(0, 1)
+graphs[1].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
+
+graphs[2].plot(absorption_index, hard_data[0][2], '-', lw=lw, color="b")
+graphs[2].plot(absorption_index, hard_data[3][2], ':', lw=lw, color="b")
+graphs[2].plot(absorption_index, soft_data[0][2], '-', lw=lw, color="g")
+graphs[2].plot(absorption_index, soft_data[3][2], ':', lw=lw, color="g")
+graphs[2].set_title('Probability of extinction of clonotype 3')
+graphs[2].set_xlabel('$n_{1}$')
+graphs[2].set_facecolor('white')
+graphs[2].set_ylim(0, 1)
+graphs[2].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
+
+graphs[3].axis('off')
+graphs[3].plot([], [], '-', color="k", label='$\\textrm{Symmetric}$')
+graphs[3].plot([], [], ':', color="k", label='$\\textrm{Overlapping}$')
+graphs[3].plot([], [], 's', color="b", label='$\\textrm{Hard niche}$')
+graphs[3].plot([], [], 's', color="g", label='$\\textrm{Soft niche}$')
+graphs[3].legend(loc='center', fontsize='xx-large')
+
+fig.savefig('First-extinction-smb.pdf')
+
+for col in range(4):
+    graphs[col].clear()
+fig.clear()
+plt.close(fig='all')
+
