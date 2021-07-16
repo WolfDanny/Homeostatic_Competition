@@ -72,6 +72,9 @@ def level_position(level, dimension, state):
 plotted_state = [4, 8, 8]
 experiments = ['Hard', 'Soft']
 
+label_size = 16
+title_size = 18
+
 for folder in experiments:
     fig, graphs = plt.subplots(2, 2, constrained_layout=True)
     matrices = 4
@@ -123,11 +126,14 @@ for folder in experiments:
         graphs[row, col].plot(indexes, division_distributions[0], color='black', linestyle='solid', label='$\mathcal{D}_{1}$')
         graphs[row, col].plot(indexes, division_distributions[1], color='red', linestyle='dashed', label='$\mathcal{D}_{2}$')
         graphs[row, col].plot(indexes, division_distributions[2], color='blue', linestyle='dotted', label='$\mathcal{D}_{3}$')
-        graphs[row, col].legend(loc='best', facecolor='white', framealpha=1, fontsize=13)
-        if folder == 'Hard':
-            graphs[row, col].set_ylim(0, 0.2)
-        if folder == 'Soft':
-            graphs[row, col].set_ylim(0, 0.3)
+        graphs[row, col].legend(loc='best', facecolor='white', framealpha=1, fontsize=label_size)
+        # if folder == 'Hard':
+        #     graphs[row, col].set_ylim(0, 0.2)
+        # if folder == 'Soft':
+        #     graphs[row, col].set_ylim(0, 0.3)
+        if row == 1:
+            graphs[row, col].set_xlabel('$\\textrm{Number of divisions}$', fontsize=label_size)
+        graphs[row, col].set_ylim(0, 0.3)
         graphs[row, col].set_xlim(0, 35)
         graphs[row, col].set_facecolor('white')
         graphs[row, col].spines['bottom'].set_color('gray')
@@ -146,7 +152,8 @@ for folder in experiments:
 
         # graph.clear()
 
-    fig.suptitle('$\\textrm{Distribution of divisions for }\\mathbf{n}_{0}=(' + '{0}, {1}, {2})$ [{3} niche]'.format(plotted_state[0], plotted_state[1], plotted_state[2], folder))
+    # fig.suptitle('$\\textrm{Distribution of divisions for the ' + folder.lower() + ' niche case}$')
+    fig.suptitle('$\\textrm{' + folder + ' niche case}$', fontsize=title_size)
 
     fig.savefig('DD-{}.pdf'.format(folder[0]))
 

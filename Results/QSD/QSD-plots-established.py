@@ -115,7 +115,7 @@ for model in range(2):
     all_marginals.append(deepcopy(marginals))
     all_means.append(deepcopy(means))
 
-    fig, graph = plt.subplots(1, 1, constrained_layout=True)
+    fig, graph = plt.subplots(1, 1, tight_layout=True)
 
     # ticks = np.arange(-1, captured_range, 5)
     ticks = np.arange(-1, 18, 5)
