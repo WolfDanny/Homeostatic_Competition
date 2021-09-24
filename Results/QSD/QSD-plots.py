@@ -1,16 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # %% Packages
 
 
-from scipy.special import comb
-from copy import deepcopy
-import numpy as np
 import pickle
-import tikzplotlib
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from scipy.special import comb
+from copy import deepcopy
 
 sns.set(font='serif')
 sns.set_style("ticks")
@@ -75,7 +71,6 @@ original_means = pickle.load(file)
 file.close()
 
 max_values = [[np.array([]), np.array([])], [np.array([]), np.array([])]]
-# max_values = [[[np.array([]), np.array([])], [np.array([]), np.array([])]], [[np.array([]), np.array([])], [np.array([]), np.array([])]]]
 max_levels = []
 marginals = []
 histograms = []
@@ -149,15 +144,11 @@ for folder in experiments:
                 else:
                     max_values[current_model][0] = np.append(max_values[current_model][0], marginal_distribution.max())
                 max_values[current_model][1] = np.append(max_values[current_model][1], n1_distribution.max())
-                # max_values[folder_number][current_model][0] = np.append(max_values[folder_number][current_model][0], marginal_distribution.max())
-                # max_values[folder_number][current_model][1] = np.append(max_values[folder_number][current_model][1], n1_distribution.max())
                 model_marginals.append(deepcopy(marginal_distribution))
                 model_histograms.append(deepcopy(n1_distribution))
 
             except FileNotFoundError:
                 max_values[current_model][0] = np.append(max_values[current_model][0], 0)
-                # max_values[folder_number][current_model][0] = np.append(max_values[folder_number][current_model][0], 0)
-                # max_values[folder_number][current_model][1] = np.append(max_values[folder_number][current_model][1], 0)
                 model_max_levels.append(0)
                 model_marginals.append([])
                 model_histograms.append([])
@@ -175,9 +166,6 @@ for folder in experiments:
 
 
 marginal_colour_max = [max_values[0][0].max(), max_values[1][0].max()]
-# marginal_colour_hard = [max_values[0][0][0].max(), max_values[0][1][0].max()]
-# marginal_colour_soft = [max_values[1][0][0].max(), max_values[1][1][0].max()]
-# histogram_max = [max_values[0][0][1].max(), max_values[0][1][1].max()]
 
 ticks = np.arange(-1, 15, 5)
 ticks[0] = 0
@@ -220,22 +208,6 @@ for current_model in range(2):
                     c_bar = fig.colorbar(h_map, ax=graphs[:, :2], location='bottom', shrink=1)
                     c_bar.outline.set_visible(False)
 
-                # if folder == 'Soft':
-                #     h_map = graphs[row, col].imshow(marginal_distribution, cmap="Blues", interpolation='none', vmin=0, vmax=marginal_colour_soft[current_model])
-                #     graphs[row, col].plot(mean_value[1] - 1, mean_value[2] - 1, "d", color="black")
-                #     graphs[row, col].plot(original_means[current_model][0] - 1, original_means[current_model][1] - 1, "^", color="black")
-                # else:
-                #     h_map = graphs[row, col].imshow(marginal_distribution, cmap="Greens", interpolation='none', vmin=0, vmax=marginal_colour_hard[current_model])
-                #     graphs[row, col].plot(mean_value[1] - 1, mean_value[2] - 1, "d", color="blue")
-                #     graphs[row, col].plot(original_means[current_model][0] - 1, original_means[current_model][1] - 1,  "^", color="blue")
-                #
-                # if row == 0 and col == 0:
-                #     c_bar = fig.colorbar(h_map, ax=graphs[:, :2], location='bottom', shrink=1)
-                #     c_bar.outline.set_visible(False)
-                # if row == 1 and col == 0:
-                #     c_bar = fig.colorbar(h_map, ax=graphs[:, 2:], location='bottom', shrink=1)
-                #     c_bar.outline.set_visible(False)
-
                 graphs[row, col].set_facecolor('white')
                 graphs[row, col].spines['bottom'].set_color('white')
                 graphs[row, col].spines['top'].set_color('white')
@@ -250,7 +222,6 @@ for current_model in range(2):
                 graphs[row, col].invert_yaxis()
                 graphs[row, col].set_xlim(-0.5, 15)
                 graphs[row, col].set_ylim(-0.5, 15)
-                # graphs[row, col].set(autoscale_on=False, aspect='equal')
                 if row == 0:
                     graphs[row, col].set_title('Marginal of $n_{2}$, $n_{3}$')
 
@@ -268,14 +239,10 @@ for current_model in range(2):
                 if row == 0:
                     graphs[row, col + 1].set_title('Marginal of $n_{1}$')
 
-                # plt.show()
-
-    # fig.suptitle('$\mathcal{X}^{('+'{}'.format(current_model + 1)+')}$', fontsize=25)
     if current_model == 0:
         graphs[3, 3].axis('off')
         graphs[3, 2].axis('off')
     fig.savefig("QSD-type-{}.pdf".format(current_model + 1))
-    # tikzplotlib.save("QSD-type-{}.tex".format(current_model + 1))
 
     for row in range(4):
         for col in range(4):
@@ -283,18 +250,14 @@ for current_model in range(2):
     fig.clear()
     plt.close(fig='all')
 
-# pickle.dump(max_levels, open('{}/Truncated_levels.bin'.format(folder), 'wb'))
-
 captured_level = 179
 fig, graphs = plt.subplots(4, 4, figsize=(16, 16), constrained_layout=True)
 
 marginal_colour_max = np.array([])
-# marginal_colour_hard = np.array([])
-# marginal_colour_soft = np.array([])
 
 for folder in experiments:
     for current_matrix in range(4):
-        with open('Gillespie/{0}/Data-{1}.bin'.format(folder, current_matrix), 'rb') as file:
+        with open('{0}/Gillespie/Data-{1}.bin'.format(folder, current_matrix), 'rb') as file:
             current_data = pickle.load(file)
 
         marginal = np.zeros((179, 179))
@@ -303,25 +266,16 @@ for folder in experiments:
                 for k in range(current_data.shape[2]):
                     marginal[i, j] += current_data[k, j, i]
         marginal = marginal / marginal.sum()
-        # print('{0} - Matrix-{1} - {2}'.format(folder, current_matrix, marginal.max()))
         if folder == 'Soft' and current_matrix == 3:
             marginal_colour_max = np.append(marginal_colour_max, 0)
         else:
             marginal_colour_max = np.append(marginal_colour_max, marginal.max())
-        # if folder == 'Soft':
-        #     marginal_colour_soft = np.append(marginal_colour_soft, marginal.max())
-        # else:
-        #     marginal_colour_hard = np.append(marginal_colour_hard, marginal.max())
 
 marginal_colour_max = marginal_colour_max.max()
-# marginal_colour_hard = marginal_colour_hard.max()
-# marginal_colour_soft = marginal_colour_soft.max()
-
-# print('H = {0} | S = {1}'.format(marginal_colour_hard, marginal_colour_soft))
 
 for current_matrix in range(4):
     for folder in experiments:
-        with open('Gillespie/{0}/Data-{1}.bin'.format(folder, current_matrix), 'rb') as file:
+        with open('{0}/Gillespie/Data-{1}.bin'.format(folder, current_matrix), 'rb') as file:
             current_data = pickle.load(file)
         if folder == 'Hard':
             row = 2 * int(current_matrix / 2)
@@ -364,20 +318,6 @@ for current_matrix in range(4):
                 c_bar = fig.colorbar(h_map, ax=graphs[:, :2], location='bottom', shrink=1)
                 c_bar.outline.set_visible(False)
 
-            # if folder == 'Soft':
-            #     h_map = graphs[row, col].imshow(marginal_dist, cmap="Blues", interpolation='none', vmin=0, vmax=marginal_colour_soft)
-            #     graphs[row, col].plot(mean_value[1] - 1, mean_value[2] - 1, "d", color="black")
-            # else:
-            #     h_map = graphs[row, col].imshow(marginal_dist, cmap="Greens", interpolation='none', vmin=0, vmax=marginal_colour_hard)
-            #     graphs[row, col].plot(mean_value[1] - 1, mean_value[2] - 1, "d", color="blue")
-            #
-            # if row == 0 and col == 0:
-            #     c_bar = fig.colorbar(h_map, ax=graphs[:, :2], location='bottom', shrink=1)
-            #     c_bar.outline.set_visible(False)
-            # if row == 1 and col == 0:
-            #     c_bar = fig.colorbar(h_map, ax=graphs[:, 2:], location='bottom', shrink=1)
-            #     c_bar.outline.set_visible(False)
-
             graphs[row, col].set_facecolor('white')
             graphs[row, col].spines['bottom'].set_color('white')
             graphs[row, col].spines['top'].set_color('white')
@@ -392,7 +332,6 @@ for current_matrix in range(4):
             graphs[row, col].invert_yaxis()
             graphs[row, col].set_xlim(-0.5, 15)
             graphs[row, col].set_ylim(-0.5, 15)
-            # graphs[row, col].set(autoscale_on=False, aspect='equal')
             if row == 0:
                 graphs[row, col].set_title('Marginal of $n_{2}$, $n_{3}$')
 
@@ -411,7 +350,6 @@ for current_matrix in range(4):
                 graphs[row, col + 1].set_title('Marginal of $n_{1}$')
 
 fig.savefig("QSD-G.pdf")
-# tikzplotlib.save("QSD-type-{}.tex".format(current_model + 1))
 
 for row in range(4):
     for col in range(4):

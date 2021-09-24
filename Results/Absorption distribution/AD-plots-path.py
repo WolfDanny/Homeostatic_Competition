@@ -1,21 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # %% Packages
 
 
 from scipy.special import comb
 from copy import deepcopy
-import numpy as np
 import pickle
-import tikzplotlib
 import matplotlib.pyplot as plt
 
 plt.rcParams.update({"text.usetex": True})
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
-
-lw = 1.0
-
 
 # %% Functions
 
@@ -103,7 +96,7 @@ def level_states(level, dimension):
     return state_list
 
 
-# %% Generating plots
+# %% Loading data
 
 
 initial_state = [8, 8]
@@ -157,9 +150,13 @@ for current_matrix in range(matrices):
             hard_data.append(deepcopy(absorption_values_hard))
         else:
             soft_data.append(deepcopy(absorption_values_soft))
+            
+# %% Generating figure
+
 
 h = 3.5
 w = 3 * h
+lw = 1.0
 displacement = 0.25
 
 fig, graphs = plt.subplots(1, 3, figsize=(w, (1 / (1 - displacement)) * h))
@@ -220,86 +217,12 @@ graphs[2].set_facecolor('white')
 graphs[2].set_ylim(0, 1)
 graphs[2].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
 
-
-
 handles, labels = graphs[0].get_legend_handles_labels()
 fig.legend(handles, labels, ncol=4, loc='upper center', bbox_to_anchor=(0.5, displacement), fontsize='xx-large', borderaxespad=1)
 
 fig.savefig('First-extinction.pdf')
 
-# tikzplotlib.clean_figure()
-# tikzplotlib.save('First-extinction.tex')
-
 for col in range(3):
     graphs[col].clear()
-fig.clear()
-plt.close(fig='all')
-
-fig, graphs = plt.subplots(2, 2, figsize=(5.5, 5.5), tight_layout=True)
-
-graphs[0, 0].plot(absorption_index, hard_data[0][0], '-', lw=lw, color="b")
-graphs[0, 0].plot(absorption_index, hard_data[3][0], ':', lw=lw, color="b")
-graphs[0, 0].plot(absorption_index, soft_data[0][0], '-', lw=lw, color="g")
-graphs[0, 0].plot(absorption_index, soft_data[3][0], ':', lw=lw, color="g")
-graphs[0, 0].set_title('Probability of extinction of clone 1')
-graphs[0, 0].set_xlabel('$n_{1}$')
-graphs[0, 0].set_facecolor('white')
-graphs[0, 0].set_ylim(0, 1)
-graphs[0, 0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-
-graphs[0, 1].plot(absorption_index, hard_data[0][1], '-', lw=lw, color="b")
-graphs[0, 1].plot(absorption_index, hard_data[3][1], ':', lw=lw, color="b")
-graphs[0, 1].plot(absorption_index, soft_data[0][1], '-', lw=lw, color="g")
-graphs[0, 1].plot(absorption_index, soft_data[3][1], ':', lw=lw, color="g")
-graphs[0, 1].set_title('Probability of extinction of clone 2')
-graphs[0, 1].set_xlabel('$n_{1}$')
-graphs[0, 1].set_facecolor('white')
-graphs[0, 1].set_ylim(0, 1)
-graphs[0, 1].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-
-graphs[1, 0].plot(absorption_index, hard_data[0][2], '-', lw=lw, color="b")
-graphs[1, 0].plot(absorption_index, hard_data[3][2], ':', lw=lw, color="b")
-graphs[1, 0].plot(absorption_index, soft_data[0][2], '-', lw=lw, color="g")
-graphs[1, 0].plot(absorption_index, soft_data[3][2], ':', lw=lw, color="g")
-graphs[1, 0].set_title('Probability of extinction of clone 3')
-graphs[1, 0].set_xlabel('$n_{1}$')
-graphs[1, 0].set_facecolor('white')
-graphs[1, 0].set_ylim(0, 1)
-graphs[1, 0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-
-graphs[1, 1].axis('off')
-graphs[1, 1].plot([], [], '-', color="k", label='$\\textrm{Symmetric}$')
-graphs[1, 1].plot([], [], ':', color="k", label='$\\textrm{Overlapping}$')
-graphs[1, 1].plot([], [], 's', color="b", label='$\\textrm{Hard niche}$')
-graphs[1, 1].plot([], [], 's', color="g", label='$\\textrm{Soft niche}$')
-graphs[1, 1].legend(loc='center', fontsize='xx-large')
-
-fig.savefig('First-extinction-smb.pdf')
-
-fig.clear()
-plt.close(fig='all')
-
-fig, graphs = plt.subplots(1, 2, figsize=(5, 2.5), constrained_layout=True)
-
-graphs[0].plot(absorption_index, hard_data[0][0], '-', lw=lw, color="b")
-graphs[0].plot(absorption_index, hard_data[3][0], ':', lw=lw, color="b")
-graphs[0].plot(absorption_index, soft_data[0][0], '-', lw=lw, color="g")
-graphs[0].plot(absorption_index, soft_data[3][0], ':', lw=lw, color="g")
-graphs[0].set_title('$\\textrm{Clonotype 1}$')
-graphs[0].set_ylabel('$\\textrm{Probability of extinction}$')
-graphs[0].set_xlabel('$\\textrm{Initial number of cells}$')
-graphs[0].set_facecolor('white')
-graphs[0].set_ylim(0, 1)
-graphs[0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-
-graphs[1].axis('off')
-graphs[1].plot([], [], '-', color="k", label='$\\textrm{Symmetric}$')
-graphs[1].plot([], [], ':', color="k", label='$\\textrm{Overlapping}$')
-graphs[1].plot([], [], 's', color="b", label='$\\textrm{Hard niche}$')
-graphs[1].plot([], [], 's', color="g", label='$\\textrm{Soft niche}$')
-graphs[1].legend(loc='center', fontsize='large')
-
-fig.savefig('First-extinction-smb-single.pdf')
-
 fig.clear()
 plt.close(fig='all')

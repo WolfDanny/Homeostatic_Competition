@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # %% Packages
 
 
@@ -10,6 +8,7 @@ import pickle
 import tikzplotlib
 import seaborn as sns
 import matplotlib.pyplot as plt
+from skimage import color, io
 
 sns.set(font='serif')
 sns.set_style("ticks")
@@ -115,7 +114,7 @@ for model in range(2):
     all_marginals.append(deepcopy(marginals))
     all_means.append(deepcopy(means))
 
-    fig, graph = plt.subplots(1, 1, tight_layout=True)
+    fig, graph = plt.subplots(1, 1, constrained_layout=True)
 
     # ticks = np.arange(-1, captured_range, 5)
     ticks = np.arange(-1, 18, 5)
@@ -136,7 +135,7 @@ for model in range(2):
     h_map = graph.imshow(distribution, cmap="Greens", interpolation='none')
     c_bar = fig.colorbar(h_map)
     c_bar.outline.set_visible(False)
-    graph.plot(mean_value[0] - 1, mean_value[1] - 1, "^", color="yellow")
+    graph.plot(mean_value[0] - 1, mean_value[1] - 1, "^", color="blue", ms=10)
     graph.set_facecolor('white')
     graph.spines['bottom'].set_color('white')
     graph.spines['top'].set_color('white')
@@ -154,6 +153,14 @@ for model in range(2):
     plt.title('QSD approximation using $\\mathcal{X}^{' + '({})'.format(model + 1) + '}$')
 
     fig.savefig("Established/QSD-{}.pdf".format(model + 1))
+
+    # Colour tests
+    fig.savefig("Established/QSD-{}.png".format(model + 1), dpi=300)
+    test = io.imread("Established/QSD-{}.png".format(model + 1))
+    test = color.rgb2gray(color.rgba2rgb(test))
+    io.imsave("Established/QSD-{}-G.png".format(model + 1), test)
+    # Colour tests end
+
     # tikzplotlib.clean_figure()
     # tikzplotlib.save("Established/QSD-{}.tex".format(model + 1))
 

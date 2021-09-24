@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #%% Packages
 
 
 import math
 import pickle
+import os
 import numpy as np
 from random import uniform
 from itertools import chain, combinations
@@ -17,30 +16,43 @@ max_level_value = 179
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
-stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
 realisations = 1
 time_max = 40
-initial_state = [10, 10, 10]
+clones = 2
+sample_value = 0  # Not used if 'clones' is 2
+base_stimulus = 10
+initial_cells = 10
 
-distribution = np.zeros((max_level_value, max_level_value, max_level_value))
 
-#%% Reading Samples and variables [Paper results]
+#%% Reading Samples
 
 
-SampleHolder = 0
-probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(SampleHolder), delimiter=",")
+if clones == 2:
+    stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value]
+    distribution = np.zeros((max_level_value, max_level_value))
+    initial_state = [initial_cells, initial_cells]
+
+    probability_values = np.genfromtxt("../Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
+    nu_value = np.genfromtxt("../Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
+
+if clones == 3:
+    stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value, base_stimulus * gamma_value]
+    distribution = np.zeros((max_level_value, max_level_value, max_level_value))
+    initial_state = [initial_cells, initial_cells, initial_cells]
+
+    probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+    if sample_value < 3:
+        if new_clone_is_soft:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+        else:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+    else:
+        if new_clone_is_soft:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+        else:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+
 dimension_value = probability_values.shape[0]
-
-if SampleHolder < 3:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
-else:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
 #%% Functions
@@ -59,24 +71,24 @@ def clone_sets(dimension, clone):
 
     Returns
     -------
-    List[int]
+    List
         list of tuples representing all subsets of a set of dimension elements that include the clone-th element.
     """
-    
+
     if clone >= dimension or clone < 0:
         return -1
-    
+
     x = range(dimension)
     sets = list(chain(*[combinations(x, ni) for ni in range(dimension + 1)]))
     d = []
-    
+
     for T in sets:
         if clone not in T:
             d.insert(0, sets.index(T))
-    
+
     for i in d:
         sets.pop(i)
-        
+
     return sets
 
 
@@ -221,18 +233,33 @@ while current_realisation < realisations:
                 continue
             break
     else:
-        distribution[current_state[0] - 1, current_state[1] - 1, current_state[2] - 1] += 1
+        if clones == 2:
+            distribution[current_state[0] - 1, current_state[1] - 1] += 1
+        if clones == 3:
+            distribution[current_state[0] - 1, current_state[1] - 1, current_state[2] - 1] += 1
         current_realisation += 1
     total_realisations += 1
 
 #%% Storing results
 
+if clones == 2:
+    params = '../Results/QSD/Established/Gillespie/Parameters.bin'
+    dat = '../Results/QSD/Established/Gillespie/Data.bin'
+if clones == 3:
+    if new_clone_is_soft:
+        params = '../Results/QSD/Soft/Gillespie/Parameters.bin'
+        dat = '../Results/QSD/Soft/Gillespie/Data.bin'
+    else:
+        params = '../Results/QSD/Hard/Gillespie/Parameters.bin'
+        dat = '../Results/QSD/Hard/Gillespie/Data.bin'
 
-# file = open('Parameters.bin', 'wb')
-# parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
-# pickle.dump(parameters, file)
-# file.close()
+os.makedirs(os.path.dirname(params), exist_ok=True)
+file = open(params, 'wb')
+parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
+pickle.dump(parameters, file)
+file.close()
 
-# file = open('Data.bin', 'wb')
-# pickle.dump(distribution, file)
-# file.close()
+os.makedirs(os.path.dirname(dat), exist_ok=True)
+file = open(dat, 'wb')
+pickle.dump(distribution, file)
+file.close()

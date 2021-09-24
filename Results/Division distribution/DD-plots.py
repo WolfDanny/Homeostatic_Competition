@@ -1,20 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # %% Packages
 
 
 from scipy.special import comb
-import numpy as np
 import pickle
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import tikzplotlib
 
 sns.set(font='serif')
 plt.rcParams.update({"text.usetex": True})
-# plt.rcParams['font.family'] = 'serif'
-# plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
 
 # %% Functions
@@ -66,7 +59,7 @@ def level_position(level, dimension, state):
     return int(position - 1)
 
 
-# %% Generating heatmaps
+# %% Loading data and generating figures
 
 
 plotted_state = [4, 8, 8]
@@ -104,33 +97,14 @@ for folder in experiments:
                 file.close()
 
             normalising_constant = sum(division_distributions[current_clone])
-            # print(normalising_constant)
             for division in range(num_divisions + 1):
                 division_distributions[current_clone][division] = division_distributions[current_clone][division] / normalising_constant
-
-        # fig, graph = plt.subplots(1, 1)
-        # graph.plot(indexes, division_distributions[0], color='black', linestyle='solid', label='$\mathcal{D}_{1}$')
-        # graph.plot(indexes, division_distributions[1], color='red', linestyle='dashed', label='$\mathcal{D}_{2}$')
-        # graph.plot(indexes, division_distributions[2], color='blue', linestyle='dotted', label='$\mathcal{D}_{3}$')
-        # graph.legend(loc='best', facecolor='white', framealpha=1, fontsize=13)
-        # graph.set_ylim(0, 0.4)
-        # graph.set_xlim(0, 50)
-        # graph.set_facecolor('white')
-        # graph.spines['bottom'].set_color('gray')
-        # graph.spines['top'].set_color('gray')
-        # graph.spines['right'].set_color('gray')
-        # graph.spines['left'].set_color('gray')
-        ## graph.yaxis.grid(color='gray')
-        ## graph.xaxis.grid(color='gray')
 
         graphs[row, col].plot(indexes, division_distributions[0], color='black', linestyle='solid', label='$\mathcal{D}_{1}$')
         graphs[row, col].plot(indexes, division_distributions[1], color='red', linestyle='dashed', label='$\mathcal{D}_{2}$')
         graphs[row, col].plot(indexes, division_distributions[2], color='blue', linestyle='dotted', label='$\mathcal{D}_{3}$')
         graphs[row, col].legend(loc='best', facecolor='white', framealpha=1, fontsize=label_size)
-        # if folder == 'Hard':
-        #     graphs[row, col].set_ylim(0, 0.2)
-        # if folder == 'Soft':
-        #     graphs[row, col].set_ylim(0, 0.3)
+
         if row == 1:
             graphs[row, col].set_xlabel('$\\textrm{Number of divisions}$', fontsize=label_size)
         graphs[row, col].set_ylim(0, 0.3)
@@ -141,18 +115,6 @@ for folder in experiments:
         graphs[row, col].spines['right'].set_color('gray')
         graphs[row, col].spines['left'].set_color('gray')
 
-
-        # plt.title('Distribution of divisions for $\\mathbf{n}_{0}=(' + '{0}, {1}, {2})$'.format(plotted_state[0], plotted_state[1], plotted_state[2]))
-
-        # fig.savefig('DD-{0}-{1}-[{2},{3},{4}].pdf'.format(folder[0], current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-
-        # tikzplotlib.save('{0}/Matrix{}/DD-{1}-C-{2}-{3}-{4}.tex'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-        # tikzplotlib.clean_figure()
-        # tikzplotlib.save('DD-{0}-{1}-[{2},{3},{4}].tex'.format(folder[0], current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-
-        # graph.clear()
-
-    # fig.suptitle('$\\textrm{Distribution of divisions for the ' + folder.lower() + ' niche case}$')
     fig.suptitle('$\\textrm{' + folder + ' niche case}$', fontsize=title_size)
 
     fig.savefig('DD-{}.pdf'.format(folder[0]))

@@ -16,32 +16,36 @@ max_level_value = 100
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
-# stimulus_value = [10 * gamma_value, 10 * gamma_value]
-stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
+clones = 2
 sample_value = SampleHolder
 
-#%% Reading Samples and variables [Paper results]
+#%% Reading Samples
 
 
-probability_values = np.genfromtxt("../../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+if clones == 2:
+    stimulus_value = [10 * gamma_value, 10 * gamma_value]
+
+    probability_values = np.genfromtxt("../Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
+    nu_value = np.genfromtxt("../Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
+
+if clones == 3:
+    stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
+
+    probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+    if sample_value < 3:
+        if new_clone_is_soft:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+        else:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+    else:
+        if new_clone_is_soft:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+        else:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+
 dimension_value = probability_values.shape[0]
-
-if sample_value < 3:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
-else:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
-# probability_values = np.genfromtxt("../Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
-# dimension_value = probability_values.shape[0]
-# nu_value = np.genfromtxt("../Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
-# nu_value = nu_value * n_mean_value
 
 #%% Functions
 
@@ -59,7 +63,7 @@ def clone_sets(dimension, clone):
 
     Returns
     -------
-    List[int]
+    List
         list of tuples representing all subsets of a set of dimension elements that include the clone-th element.
     """
 
@@ -338,7 +342,7 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
             new_state[clone] -= 1
 
             if new_state.count(0) == 0:
-                col = previous_level - len(level_states(level - 1, dimension)) + level_position(max_level - 1, dimension, new_state)
+                col = previous_level - len(level_states(max_level - 1, dimension)) + level_position(max_level - 1, dimension, new_state)
                 rows.append(row)
                 cols.append(col)
                 data.append(state[clone] * mu)
@@ -353,6 +357,8 @@ b = [-1] * int(comb(max_level_value, dimension_value))
 
 Solution = spsolve(M, b)
 
+# NEED TO STORE PARAMETERS
+
 # Storing Data
-with open('Data.bin', 'wb') as file:
+with open('../Results/Mean time to extinction/Data.bin', 'wb') as file:
     pickle.dump(Solution, file)

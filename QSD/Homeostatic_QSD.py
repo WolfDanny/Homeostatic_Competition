@@ -9,6 +9,7 @@ from scipy.sparse.linalg import inv
 import numpy as np
 import pickle
 import gc
+import os
 
 #%% Global parameters
 
@@ -18,46 +19,40 @@ max_level_value = 179
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
-stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
+clones = 3
+base_stimulus = 10
 model_value = ModelHolder  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
-sample_value = SampleHolder
+sample_value = SampleHolder  # Not used if 'clones' is 2
 
-#%% Reading Samples and variables [Paper results]
+#%% Reading Samples
 
 
-probability_values = np.genfromtxt("../../Matrix-{}.csv".format(sample_value), delimiter=",")
+if clones == 2:
+    stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value]
+    distribution = np.zeros((max_level_value, max_level_value))
+
+    probability_values = np.genfromtxt("../Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
+    nu_value = np.genfromtxt("../Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
+
+if clones == 3:
+    stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value, base_stimulus * gamma_value]
+    distribution = np.zeros((max_level_value, max_level_value, max_level_value))
+
+    probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+    if sample_value < 3:
+        if new_clone_is_soft:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+        else:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+    else:
+        if new_clone_is_soft:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+        else:
+            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+
 dimension_value = probability_values.shape[0]
-
-if sample_value < 3:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Soft.csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Hard.csv", delimiter=",")
-else:
-    if new_clone_is_soft:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Soft-(D).csv", delimiter=",")
-    else:
-        nu_value = np.genfromtxt("../../Nu-Matrix-Hard-(D).csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
-#%% Reading samples and variables [LHS]
-
-
-# file = open('Samples.bin', 'rb')
-# load_data = pickle.load(file)
-#
-# dimension_value = load_data[0]
-# strata_number = load_data[1]
-# samples = load_data[2]
-#
-# del load_data
-# file.close()
-
-#%% Creating Probability matrix [LHS]
-
-
-# sample_values = list(samples[sample_value])
-# probability_values = probability_matrix(dimension_value, stimulus_value, sample_values)
 
 #%% Functions
 
@@ -75,24 +70,24 @@ def clone_sets(dimension, clone):
 
     Returns
     -------
-    List[int]
+    List
         list of tuples representing all subsets of a set of dimension elements that include the clone-th element.
     """
-    
+
     if clone >= dimension or clone < 0:
         return -1
-    
+
     x = range(dimension)
     sets = list(chain(*[combinations(x, ni) for ni in range(dimension + 1)]))
     d = []
-    
+
     for T in sets:
         if clone not in T:
             d.insert(0, sets.index(T))
-    
+
     for i in d:
         sets.pop(i)
-        
+
     return sets
 
 
@@ -117,25 +112,25 @@ def level_position(level, dimension, state):
 
     if level == dimension and state.count(1) == dimension:
         return 0
-    
+
     if len(state) != dimension or sum(state) != level or state.count(0) > 0:
         return -1
-    
+
     position = 0
-    
+
     max_cells = level - dimension + 1
 
     for i in range(dimension):
         position += (state[i] - 1) * (max_cells ** i)
-        
+
     for i in range(dimension - 2):
         position += (state[dimension - 1 - i] - 1) * (1 - (max_cells ** (dimension - 1 - i)))
-    
+
     position = int(position / (max_cells - 1))
-    
+
     for i in range(dimension - 2):
         position += int(comb(level - 1 - sum(state[dimension - i:dimension]), dimension - 1 - i)) - int(comb(level - sum(state[dimension - i - 1:dimension]), dimension - 1 - i))
-    
+
     return int(position - 1)
 
 
@@ -177,103 +172,6 @@ def level_states(level, dimension):
             break
 
     return state_list
-
-
-def probability_matrix(dimension, stimulus, sample):
-    """
-    Creates the probability matrix from *stimulus* and *sample*.
-
-    Parameters
-    ----------
-    dimension : int
-        Number of clonotypes.
-    stimulus : List[int]
-        Stimulus parameters.
-    sample : List[float]
-        List of probability values sampled.
-
-    Returns
-    -------
-    p_matrix : numpy.ndarray
-        List expression of the probability matrix.
-    """
-
-    sets = []
-    set_matrix = [[0 for _ in range(2 ** (dimension - 1))] for _ in range(dimension)]
-    sample_matrix = [[None for _ in range(2 ** (dimension - 1))] for _ in range(dimension)]
-    p_matrix = np.zeros(shape=(dimension, 2 ** (dimension - 1)))
-
-    # Creating set matrix
-    for i in range(dimension):
-        sets.append(clone_sets(dimension, i))
-
-    for row in range(len(set_matrix)):
-        for col in range(len(set_matrix[row])):
-            for i in range(len(set_matrix)):
-                for j in range(len(set_matrix[i])):
-                    if set_matrix[row][col] == 0 and sets[row][col] == sets[i][j]:
-                        set_matrix[row][col] = [i, j]
-                        break
-                else:
-                    continue
-                break
-    del sets
-
-    # Creating sample matrix
-    sample_pos = 0
-    for row in range(len(set_matrix)):
-        for col in range(1, len(set_matrix[row])):
-            if set_matrix[row][-col] == [row, len(set_matrix[row]) - col]:
-                sample_matrix[row][-col] = sample_pos
-                for i in [x for x in range(len(set_matrix)) if x != row]:
-                    try:
-                        sample_matrix[i][set_matrix[i].index(set_matrix[row][-col])] = sample_pos
-                    except ValueError:
-                        pass
-                sample_pos += 1
-
-    # Creating probability matrix
-    max_sample = 0
-    for pos, sample_number in reversed(list(enumerate(sample_matrix[0]))):
-        if sample_number is not None:
-            p_matrix[0][pos] = uniform(loc=0, scale=1 - p_matrix[0].sum()).ppf(sample[sample_number])
-            for row in range(1, p_matrix.shape[0]):
-                try:
-                    position = sample_matrix[row].index(sample_number)
-                    p_matrix[row][position] = p_matrix[0][pos] * (stimulus[0] / stimulus[row])
-                except ValueError:
-                    pass
-            if sample_number > max_sample:
-                max_sample = sample_number
-        else:
-            p_matrix[0][pos] = 1 - p_matrix[0].sum()
-
-    for sample_number in range(max_sample + 1, len(sample)):
-        rows = []
-        row_totals = []
-        for row in range(1, p_matrix.shape[0]):
-            if sample_number in sample_matrix[row]:
-                rows.append(row)
-                row_totals.append(p_matrix[row].sum())
-        for row in rows:
-            current_value = uniform(loc=0, scale=1 - row_totals[rows.index(row)]).ppf(sample[sample_number])
-            remaining_values = []
-            for row_test in [x for x in rows if x != row]:
-                if row_totals[rows.index(row_test)] + (current_value * (stimulus[row] / stimulus[row_test])) > 1:
-                    break
-                else:
-                    remaining_values.append(current_value * (stimulus[row] / stimulus[row_test]))
-            else:
-                p_matrix[row][sample_matrix[row].index(sample_number)] = current_value
-                remaining_values = remaining_values[::-1]
-                for remaining_rows in [x for x in rows if x != row]:
-                    p_matrix[remaining_rows][sample_matrix[remaining_rows].index(sample_number)] = remaining_values.pop()
-                break
-
-    for row in range(1, p_matrix.shape[0]):
-        p_matrix[row][0] = 1 - p_matrix[row].sum()
-
-    return p_matrix
 
 
 def sum_clones(subset, state):
@@ -615,12 +513,25 @@ for level_value in range(len(distribution)):
 
 #%% Storing results
 
+if clones == 2:
+    params = '../Results/QSD/Established/Model-{0}/Parameters.bin'.format(model_value)
+    dat = '../Results/QSD/Established/Model-{0}/Data.bin'.format(model_value)
 
-file = open('Parameters.bin', 'wb')
+if clones == 3:
+    if new_clone_is_soft:
+        params = '../Results/QSD/Soft/Model-{}/Parameters.bin'.format(model_value)
+        dat = '../Results/QSD/Soft/Model-{0}/QSD-S-{1}/Data.bin'.format(model_value, sample_value)
+    else:
+        params = '../Results/QSD/Hard/Model-{}/Parameters.bin'.format(model_value)
+        dat = '../Results/QSD/Hard/Model-{0}/QSD-S-{1}/Data.bin'.format(model_value, sample_value)
+
+os.makedirs(os.path.dirname(params), exist_ok=True)
+file = open(params, 'wb')
 parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value", "model_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value, model_value)
 pickle.dump(parameters, file)
 file.close()
 
-file = open('Data-{0}-{1}.bin'.format(model_value, sample_value), 'wb')
+os.makedirs(os.path.dirname(dat), exist_ok=True)
+file = open(dat, 'wb')
 pickle.dump(distribution, file)
 file.close()

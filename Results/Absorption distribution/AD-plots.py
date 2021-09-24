@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # %% Packages
 
 
@@ -7,17 +5,23 @@ from scipy.special import comb
 from copy import deepcopy
 import numpy as np
 import pickle
-import tikzplotlib
-import seaborn as sns
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
+from skimage import color, io
 
-# sns.set(font='serif')
-plt.rcParams['text.latex.preamble'] = r"\usepackage{graphicx}"
+# from scipy.special import comb
+# from copy import deepcopy
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import pickle
+# import sys
+# from skimage import color, io
+# sys.path.append('../../Definitions/')
+# from homeostatic import *
+
 plt.rcParams.update({"text.usetex": True})
+plt.rcParams['text.latex.preamble'] = r"\usepackage{graphicx}"
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
-
 
 # %% Functions
 
@@ -105,7 +109,7 @@ def level_states(level, dimension):
     return state_list
 
 
-# %% Generating plots
+# %% Loading data
 
 
 plotted_state = [4, 8, 8]
@@ -202,45 +206,35 @@ ticks = np.arange(-1, 15, 5)
 ticks[0] = 0
 
 h = 9
-# h = 9
-# w = (26 / 14) * h
 w = (38 / 22) * h
-# w = (16 / 9) * h
 
-# Combined figure
-# NEW
+# %% Generating figure
+
+
 wspacing = 0.05
 hspacing = 1.5 * wspacing
 scenario_names = ['$(a)$', '$(b)$', '$(c)$', '$(d)$']
-pie_size = 10
-tick_size = 12
-label_size = 16
-title_size = 18
+pie_size = 10 + 2
+tick_size = 12 + 2
+label_size = 16 + 4
+title_size = 18 + 4
 
-figt = plt.figure(constrained_layout=True, figsize=(w, h))
-LRfigs = figt.subfigures(2, 2, height_ratios=[12, 1], wspace=wspacing)
+fig = plt.figure(constrained_layout=True, figsize=(w, h))
+LRfigs = fig.subfigures(2, 2, height_ratios=[12, 1], wspace=wspacing)
 subfigs = np.array([LRfigs[0, 0].subfigures(2, 1, hspace=hspacing), LRfigs[0, 1].subfigures(2, 1, hspace=hspacing)])
 subfig_list = np.empty(4, dtype=object)
 piefig_list = np.empty(4, dtype=object)
 subfig_h_maps = np.empty(2, dtype=object)
-# WEN
-
-fig, graphs = plt.subplots(4, 8, figsize=(w, h), constrained_layout=True)
-h_maps = np.empty(graphs.shape, dtype=object)
 
 for current_matrix in range(4):
-    # NEW
     fig_row = int((2 * int(current_matrix / 2)) / 2)
     fig_col = int((4 * (current_matrix % 2)) / 4)
     subfigs[fig_col][fig_row].suptitle(scenario_names[current_matrix], fontsize=title_size)
-    # subfig_list[current_matrix] = subfigs[fig_col][fig_row].subplots(2, 4)
     plotfigs, piefigs = subfigs[fig_col][fig_row].subfigures(1, 2, width_ratios=[20, 9])
     subfig_list[current_matrix] = plotfigs.subplots(2, 3)
     piefig_list[current_matrix] = piefigs.subplots(2, 1)
-    # WEN
 
     for folder in experiments:
-        # NEW
         subfig_row = 0
         if folder == 'Hard':
             colour_max = max_values[0]
@@ -254,25 +248,8 @@ for current_matrix in range(4):
             colour_map = 'Blues'
             folder_number = 1
         subfig_col = 0
-        # WEN
-
-        general_row = 2 * int(current_matrix / 2)
-        general_col = 4 * (current_matrix % 2)
-
-        if folder == 'Hard':
-            colour_max = max_values[0]
-            distribution = distributions[0][current_matrix]
-            colour_map = 'Greens'
-            folder_number = 0
-        elif folder == 'Soft':
-            colour_max = max_values[1]
-            distribution = distributions[1][current_matrix]
-            colour_map = 'Blues'
-            folder_number = 1
-            general_row += 1
 
         for clone in range(3):
-            # NEW
             mean_value = means[folder_number][current_matrix][clone]
             row = subfig_row
             col = subfig_col + clone
@@ -318,353 +295,42 @@ for current_matrix in range(4):
             if fig_row == row == 0:
                 subfig_list[current_matrix][row, col].set_title('$\mathbf{U}^'+'{}$'.format(clone + 1), fontsize=title_size)
 
-            if clone == 2:
-                # patches, text, autotext = subfig_list[current_matrix][row, 3].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.09), colors=['r', 'g', 'b'], startangle=20, pctdistance=0.55)
-                # for name in text:
-                #     name.set_fontsize(tick_size)
-                # subfig_list[current_matrix][row, 3].axis('equal')
-                patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.61, radius=1)  # , textprops={'fontsize': label_size})
-                if fig_row == row == 1:
-                    piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
-                for name in text:
-                    name.set_fontsize(tick_size)
-                for name in autotext:
-                    name.set_fontsize(pie_size)
-                piefig_list[current_matrix][row].axis('equal')
-            # WEN [^ REMOVE IF AND CHANGE INDENTATION AFTER TESTS]
+        # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.61, radius=1)
 
-            mean_value = means[folder_number][current_matrix][clone]
-            row = general_row
-            col = general_col + clone
-            labels = [1, 2, 3]
-            labels.pop(labels.index(clone + 1))
-
-            h_maps[row, col] = graphs[row, col].imshow(distribution[clone], cmap=colour_map, interpolation='none', vmin=0, vmax=colour_max)
-
-            if folder == 'Hard':
-                graphs[row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="blue", ms=4)
-                graphs[row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="blue", ms=4)
-            elif folder == 'Soft':
-                graphs[row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="black", ms=4)
-                graphs[row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="black", ms=4)
-
-            if current_matrix == 0 and clone == 0:
-                if folder == 'Hard':
-                    c_bar = fig.colorbar(h_maps[row, col], ax=graphs[:, :4], location='bottom')
-                elif folder == 'Soft':
-                    c_bar = fig.colorbar(h_maps[row, col], ax=graphs[:, 4:], location='bottom')
-                c_bar.outline.set_visible(False)
-
-            graphs[row, col].set_facecolor('white')
-            graphs[row, col].spines['bottom'].set_color('white')
-            graphs[row, col].spines['top'].set_color('white')
-            graphs[row, col].spines['right'].set_color('white')
-            graphs[row, col].spines['left'].set_color('white')
-            graphs[row, col].set_xlim(-0.5, 14.5)
-            graphs[row, col].set_ylim(-0.5, 14.5)
-            graphs[row, col].set_xticks(ticks)
-            if row == 3:
-                graphs[row, col].set_xticklabels(ticks + 1)
-            else:
-                graphs[row, col].set_xticklabels([])
-            graphs[row, col].set_yticks(ticks)
-            graphs[row, col].set_yticklabels(ticks + 1, rotation=90)
-            if col == 0:
-                graphs[row, col].set_yticklabels(ticks + 1, rotation=90)
-            else:
-                graphs[row, col].set_yticklabels([])
-            if row == 0:
-                graphs[row, col].set_title('$\mathbf{U}^'+'{}$'.format(clone + 1), fontsize=18)
-            if row == 3:
-                graphs[row, col].set_xlabel('$n_{}$'.format(labels[1]), fontsize=16)
-            graphs[row, col].set_ylabel('$n_{}$'.format(labels[0]), fontsize=16)
-
-        graphs[general_row, general_col + 3].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.09), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.63)
-        graphs[general_row, general_col + 3].axis('equal')
+        # COLOUR TEST
+        patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61-0.11, radius=1)
+        # COLOUR TEST
+        if fig_row == row == 1:
+            piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
+            piefig_list[current_matrix][row].set_xticks([0])
+            piefig_list[current_matrix][row].set_xticklabels([0], fontsize=tick_size, color='w')
+            piefig_list[current_matrix][row].tick_params(colors='w', which='both')
+        for name in text:
+            name.set_fontsize(tick_size)
+        for name in autotext:
+            name.set_fontsize(pie_size)
+        piefig_list[current_matrix][row].axis('equal')
 
 left_axis = LRfigs[1, 0].subplots(1)
 left_axis.axis('off')
-c_bar_l = figt.colorbar(subfig_h_maps[0], ax=left_axis, orientation='horizontal', fraction=0.975, aspect=40)
+c_bar_l = fig.colorbar(subfig_h_maps[0], ax=left_axis, orientation='horizontal', fraction=0.975, aspect=40)
 c_bar_l.ax.tick_params(labelsize=tick_size)
 c_bar_l.outline.set_visible(False)
 
 right_axis = LRfigs[1, 1].subplots(1)
 right_axis.axis('off')
-c_bar_r = figt.colorbar(subfig_h_maps[1], ax=right_axis, orientation='horizontal', fraction=0.975, aspect=40)
+c_bar_r = fig.colorbar(subfig_h_maps[1], ax=right_axis, orientation='horizontal', fraction=0.975, aspect=40)
 c_bar_r.ax.tick_params(labelsize=tick_size)
 c_bar_r.outline.set_visible(False)
 
-figt.savefig('AD-t.pdf')
 fig.savefig('AD.pdf')
-# tikzplotlib.save('AD.tex')
 
-for row in range(4):
-    for col in range(8):
-        graphs[row][col].clear()
-fig.clear()
+# Colour tests
+fig.savefig("AD.png", dpi=300)
+test = io.imread("AD.png")
+test = color.rgb2gray(color.rgba2rgb(test))
+io.imsave("AD-G.png", test)
+# Colour tests end
+
+# fig.clear()  # CONFLICTS WITH SKIMAGE
 plt.close(fig='all')
-
-
-# Single-scenario figures
-for current_matrix in range(4):
-    fig, graphs = plt.subplots(2, 4, figsize=(w / 2, h / 2), constrained_layout=True)
-    h_maps = np.empty(graphs.shape, dtype=object)
-    for folder in experiments:
-        general_row = 0  # 2 * int(current_matrix / 2)
-        general_col = 0  # 4 * (current_matrix % 2)
-        if folder == 'Hard':
-            colour_max = max_values[0]
-            distribution = distributions[0][current_matrix]
-            colour_map = 'Greens'
-            folder_number = 0
-        elif folder == 'Soft':
-            colour_max = max_values[1]
-            distribution = distributions[1][current_matrix]
-            colour_map = 'Blues'
-            folder_number = 1
-            general_row += 1
-
-        for clone in range(3):
-            mean_value = means[folder_number][current_matrix][clone]
-            row = general_row
-            col = general_col + clone
-            labels = [1, 2, 3]
-            labels.pop(labels.index(clone + 1))
-
-            h_maps[row, col] = graphs[row, col].imshow(distribution[clone], cmap=colour_map, interpolation='none', vmin=0, vmax=colour_max)
-
-            if folder == 'Hard':
-                graphs[row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="blue", ms=4)
-                graphs[row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="blue", ms=4)
-            elif folder == 'Soft':
-                graphs[row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="black", ms=4)
-                graphs[row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="black", ms=4)
-
-            if clone == 0:  # current_matrix == 0 and
-                if folder == 'Hard':
-                    c_bar = fig.colorbar(h_maps[row, col], ax=graphs[:, :2], location='bottom')  # , shrink=1)  , ax=graphs[:, :4]
-                elif folder == 'Soft':
-                    c_bar = fig.colorbar(h_maps[row, col], ax=graphs[:, 2:], location='bottom')
-                c_bar.outline.set_visible(False)
-
-            graphs[row, col].set_facecolor('white')
-            graphs[row, col].spines['bottom'].set_color('white')
-            graphs[row, col].spines['top'].set_color('white')
-            graphs[row, col].spines['right'].set_color('white')
-            graphs[row, col].spines['left'].set_color('white')
-            graphs[row, col].set_xlim(-0.5, 14.5)
-            graphs[row, col].set_ylim(-0.5, 14.5)
-            # graphs[row, col].set_xlim(-0.5, 34.5)
-            # graphs[row, col].set_ylim(-0.5, 34.5)
-            graphs[row, col].set_xticks(ticks)
-            # graphs[row, col].set_xticklabels(ticks + 1)
-            if row == 3:
-                graphs[row, col].set_xticklabels(ticks + 1)
-            else:
-                graphs[row, col].set_xticklabels([])
-            graphs[row, col].set_yticks(ticks)
-            graphs[row, col].set_yticklabels(ticks + 1, rotation=90)
-            if col == 0:
-                graphs[row, col].set_yticklabels(ticks + 1, rotation=90)
-            else:
-                graphs[row, col].set_yticklabels([])
-            if row == 0:
-                graphs[row, col].set_title('$\mathbf{U}^'+'{}$'.format(clone + 1))
-            if row == 1:  # 0
-                graphs[row, col].set_xlabel('$n_{}$'.format(labels[1]), fontsize=12)
-            graphs[row, col].set_ylabel('$n_{}$'.format(labels[0]), fontsize=12)
-
-        graphs[general_row, general_col + 3].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], autopct='$%.1f\%%$', wedgeprops=dict(width=0.09), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.63)
-        graphs[general_row, general_col + 3].axis('equal')
-
-    fig.savefig('AD-{}.pdf'.format(current_matrix + 1))
-    for row in range(2):
-        for col in range(4):
-            graphs[row][col].clear()
-    fig.clear()
-
-plt.close(fig='all')
-
-# h_map0 = graphs[0].imshow(absorption_distribution[0], cmap="Greens", interpolation='none', vmin=0, vmax=colour_max)
-# graphs[0].set_facecolor('white')
-# graphs[0].spines['bottom'].set_color('white')
-# graphs[0].spines['top'].set_color('white')
-# graphs[0].spines['right'].set_color('white')
-# graphs[0].spines['left'].set_color('white')
-# graphs[0].set_xlabel('$n_{2}$')
-# graphs[0].set_ylabel('$n_{3}$')
-# graphs[0].set_xlim(-0.5, 14.5)
-# graphs[0].set_ylim(-0.5, 14.5)
-# graphs[0].set_xticks(ticks)
-# graphs[0].set_xticklabels(ticks + 1)
-# graphs[0].set_yticks(ticks)
-# graphs[0].set_yticklabels(ticks + 1, rotation=90)
-# graphs[0].set_title('Clonotype 1')
-#
-# h_map1 = graphs[1].imshow(absorption_distribution[1], cmap="Greens", interpolation='none', vmin=0, vmax=colour_max)
-# graphs[1].set_facecolor('white')
-# graphs[1].spines['bottom'].set_color('white')
-# graphs[1].spines['top'].set_color('white')
-# graphs[1].spines['right'].set_color('white')
-# graphs[1].spines['left'].set_color('white')
-# graphs[1].set_xlabel('$n_{1}$')
-# graphs[1].set_ylabel('$n_{3}$')
-# graphs[1].set_xlim(-0.5, 14.5)
-# graphs[1].set_ylim(-0.5, 14.5)
-# graphs[1].set_xticks(ticks)
-# graphs[1].set_xticklabels(ticks + 1)
-# graphs[1].set_yticks(ticks)
-# graphs[1].set_yticklabels(ticks + 1, rotation=90)
-# graphs[1].set_title('Clonotype 2')
-#
-# h_map2 = graphs[2].imshow(absorption_distribution[2], cmap="Greens", interpolation='none', vmin=0, vmax=colour_max)
-# graphs[2].set_facecolor('white')
-# c_bar = fig.colorbar(h_map2, ax=graphs[:])
-# c_bar.outline.set_visible(False)
-# graphs[2].spines['bottom'].set_color('white')
-# graphs[2].spines['top'].set_color('white')
-# graphs[2].spines['right'].set_color('white')
-# graphs[2].spines['left'].set_color('white')
-# graphs[2].set_xlabel('$n_{1}$')
-# graphs[2].set_ylabel('$n_{2}$')
-# graphs[2].set_xlim(-0.5, 14.5)
-# graphs[2].set_ylim(-0.5, 14.5)
-# graphs[2].set_xticks(ticks)
-# graphs[2].set_xticklabels(ticks + 1)
-# graphs[2].set_yticks(ticks)
-# graphs[2].set_yticklabels(ticks + 1, rotation=90)
-# graphs[2].set_title('Clonotype 3')
-
-# fig.savefig('AD-{0}-{1}.pdf'.format(current_matrix, folder[0]))
-# # tikzplotlib.save('{0}/AD-{1}.tex'.format(folder, current_matrix))
-#
-# for col in range(3):
-#     graphs[col].clear()
-# fig.clear()
-# plt.close(fig='all')
-
-#%% Combined plot
-
-        # h_map0 = graphs[0].imshow(absorption_distribution[0], cmap="Greens", interpolation='none', vmin=0, vmax=colour_max)
-        # graphs[0].set_facecolor('white')
-        # graphs[0].spines['bottom'].set_color('white')
-        # graphs[0].spines['top'].set_color('white')
-        # graphs[0].spines['right'].set_color('white')
-        # graphs[0].spines['left'].set_color('white')
-        # graphs[0].set_xlabel('$n_{2}$')
-        # graphs[0].set_ylabel('$n_{3}$')
-        # graphs[0].set_xticks(ticks)
-        # graphs[0].set_xticklabels(ticks + 1)
-        # graphs[0].set_yticks(ticks)
-        # graphs[0].set_yticklabels(ticks + 1, rotation=90)
-        # graphs[0].invert_yaxis()
-        # graphs[0].set_title('$\mathbf{U}^{1} =' + '{:.3f}$'.format(absorption_values[0]))
-        #
-        # h_map1 = graphs[1].imshow(absorption_distribution[1], cmap="Greens", interpolation='none', vmin=0, vmax=colour_max)
-        # graphs[1].set_facecolor('white')
-        # graphs[1].spines['bottom'].set_color('white')
-        # graphs[1].spines['top'].set_color('white')
-        # graphs[1].spines['right'].set_color('white')
-        # graphs[1].spines['left'].set_color('white')
-        # graphs[1].set_xlabel('$n_{1}$')
-        # graphs[1].set_ylabel('$n_{3}$')
-        # graphs[1].set_xticks(ticks)
-        # graphs[1].set_xticklabels(ticks + 1)
-        # graphs[1].set_yticks(ticks)
-        # graphs[1].set_yticklabels(ticks + 1, rotation=90)
-        # graphs[1].invert_yaxis()
-        # graphs[1].set_title('$\mathbf{U}^{2} =' + '{:.3f}$'.format(absorption_values[1]))
-        #
-        # h_map2 = graphs[2].imshow(absorption_distribution[2], cmap="Greens", interpolation='none', vmin=0, vmax=colour_max)
-        # graphs[2].set_facecolor('white')
-        # graphs[2].spines['bottom'].set_color('white')
-        # graphs[2].spines['top'].set_color('white')
-        # graphs[2].spines['right'].set_color('white')
-        # graphs[2].spines['left'].set_color('white')
-        # graphs[2].set_xlabel('$n_{1}$')
-        # graphs[2].set_ylabel('$n_{2}$')
-        # graphs[2].set_xticks(ticks)
-        # graphs[2].set_xticklabels(ticks + 1)
-        # graphs[2].set_yticks(ticks)
-        # graphs[2].set_yticklabels(ticks + 1, rotation=90)
-        # graphs[2].invert_yaxis()
-        # graphs[2].set_title('$\mathbf{U}^{3} =' + '{:.3f}$'.format(absorption_values[2]))
-
-        # c_bar = fig.colorbar(h_map0, ax=graphs[2])
-        # c_bar.outline.set_visible(False)
-
-        # fig.savefig('{0}/AD-{1}-C-[{2},{3},{4}].pdf'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-        # # tikzplotlib.save('{0}/AD-{1}-C-[{2},{3},{4}].tex'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-        #
-        # graphs.clear()
-        # fig.clear()
-        # plt.close(fig='all')
-
-        # for i in range(len(absorption_distribution)):
-        #     raw_levels = np.linspace(absorption_distribution[i].min(), absorption_distribution[i].max(), 5000)
-        #     level_values = [0.15, 0.35, 0.55, 0.75, 0.95]
-        #     refined_levels = []
-        #     for current_raw_level in range(raw_levels.shape[0]):
-        #         total = 0.0
-        #         for row in range(len(absorption_distribution[i])):
-        #             for col in range(len(absorption_distribution[i][row])):
-        #                 if absorption_distribution[i][row][col] <= raw_levels[current_raw_level]:
-        #                     total += absorption_distribution[i][row][col]
-        #         if len(refined_levels) != len(level_values):
-        #             if level_values[len(refined_levels)] <= total:
-        #                 refined_levels.append(raw_levels[current_raw_level])
-        #     level_lists.append(refined_levels)
-
-        # fig, graph = plt.subplots(1, 1)
-        # CS = graph.contour(X, Y, absorption_distribution[0], level_lists[0], colors='black', linestyles='solid', alpha=1)
-        # CS1 = graph.contour(X, Y, absorption_distribution[1], level_lists[1], colors='red', linestyles='dashed', alpha=1)
-        # CS2 = graph.contour(X, Y, absorption_distribution[2], level_lists[2], colors='blue', linestyles='dotted', alpha=1)
-
-        # h1, _ = CS.legend_elements()
-        # h2, _ = CS1.legend_elements()
-        # h3, _ = CS2.legend_elements()
-        # graph.legend([h1[0], h2[0], h3[0]], ['$\mathbf{U}^{1}$', '$\mathbf{U}^{2}$', '$\mathbf{U}^{3}$'], facecolor='white', framealpha=1, fontsize=13)
-        # graph.set_facecolor('white')
-        # graph.spines['bottom'].set_color('gray')
-        # graph.spines['top'].set_color('gray')
-        # graph.spines['right'].set_color('gray')
-        # graph.spines['left'].set_color('gray')
-        # plt.title('Absorption distribution for $\\mathbf{n}_{0}=(' + '{0}, {1}, {2})$'.format(plotted_state[0], plotted_state[1], plotted_state[2]))
-
-        # fig.savefig('{0}/AD-{1}-C-[{2},{3},{4}].pdf'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-        # tikzplotlib.save('{0}/AD-{1}-C-[{2},{3},{4}].tex'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-
-        # graph.clear()
-        # fig.clear()
-        # plt.close(fig='all')
-        #
-        # absorption_values_plot = tuple([tuple([value, value, value]) for value in absorption_values])
-        # labels = ['Label 1', 'Label 2', 'Label 3']
-        #
-        # dim = len(absorption_values_plot[0])
-        # w = 0.75
-        # dimw = w / dim
-        #
-        # fig, graph = plt.subplots()
-        # x = np.arange(len(absorption_values_plot))
-        # for i in range(len(absorption_values_plot[0])):
-        #     y = [d[i] for d in absorption_values_plot]
-        #     b = graph.bar(x + i * dimw, y, dimw, bottom=0.001, label=labels[i])
-        #
-        # graph.set_xticks(x + dimw)
-        # graph.set_xticklabels(map(str, x))
-        # graph.legend(facecolor='white', framealpha=1, fontsize=13)
-        # graph.set_facecolor('white')
-        # graph.spines['bottom'].set_color('gray')
-        # graph.spines['top'].set_color('gray')
-        # graph.spines['right'].set_color('gray')
-        # graph.spines['left'].set_color('gray')
-        #
-        # plt.title('Probability of first extinction')
-        #
-        # fig.savefig('{0}/AD-{1}-C-[{2},{3},{4}]-FE.pdf'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-        # tikzplotlib.save('{0}/AD-{1}-C-[{2},{3},{4}]-FE.tex'.format(folder, current_matrix, plotted_state[0], plotted_state[1], plotted_state[2]))
-        #
-        # graph.clear()
-        # fig.clear()
-        # plt.close(fig='all')
