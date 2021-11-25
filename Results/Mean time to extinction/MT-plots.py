@@ -93,10 +93,10 @@ graph = fig.add_subplot(111)
 #graph.set_title('$\eta=${0}, $\mu=${1}'.format(eta,mu))
 #for i in range(states_number):
 #    plot(prob,[n for n in solG[i]],'x',color='black')
-plot(prob,[n for n in sol1],'.-',label='(5,5,5)') #,fillstyle='none'
-plot(prob,[n for n in sol2],'.:',label='(10,10,10)')
-plot(prob,[n for n in sol3],'.-.',label='(20,20,20)')
-plot(prob,[n for n in sol4],'.--',label='(30,30,30)')
+plot(prob, sol1, '.-', label='(5,5,5)') #,fillstyle='none'
+plot(prob, sol2, '.:', label='(10,10,10)')
+plot(prob, sol3, '.-.', label='(20,20,20)')
+plot(prob, sol4, '.--', label='(30,30,30)')
 ylabel('$\hat{\\tau}_{n_{1},n_{2},n_{3}}}$')
 xlabel('$p_{1,2}$')
 xlim(0,1)

@@ -115,7 +115,7 @@ for folder in experiments:
         graphs[row, col].spines['right'].set_color('gray')
         graphs[row, col].spines['left'].set_color('gray')
 
-    fig.suptitle('$\\textrm{' + folder + ' niche case}$', fontsize=title_size)
+    # fig.suptitle('$\\textrm{' + folder + ' niche case}$', fontsize=title_size)
 
     fig.savefig('DD-{}.pdf'.format(folder[0]))
 

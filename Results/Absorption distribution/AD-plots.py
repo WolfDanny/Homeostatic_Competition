@@ -205,32 +205,31 @@ max_values = [max_values[0].max(), max_values[1].max()]
 ticks = np.arange(-1, 15, 5)
 ticks[0] = 0
 
-h = 9
-w = (38 / 22) * h
+h = 8
+w = 1.3 * h
 
 # %% Generating figure
 
 
 wspacing = 0.05
 hspacing = 1.5 * wspacing
-scenario_names = ['$(a)$', '$(b)$', '$(c)$', '$(d)$']
+scenario_names = ['$\\textrm{(a)}$', '$\\textrm{(b)}$', '$\\textrm{(c)}$', '$\\textrm{(d)}$']
 pie_size = 10 + 2
 tick_size = 12 + 2
 label_size = 16 + 4
 title_size = 18 + 4
 
-fig = plt.figure(constrained_layout=True, figsize=(w, h))
-LRfigs = fig.subfigures(2, 2, height_ratios=[12, 1], wspace=wspacing)
-subfigs = np.array([LRfigs[0, 0].subfigures(2, 1, hspace=hspacing), LRfigs[0, 1].subfigures(2, 1, hspace=hspacing)])
+fig = plt.figure(constrained_layout=True, figsize=(w, 2 * h))
+TBfigs = fig.subfigures(2, 1, height_ratios=[24, 1], hspace=0)
+subfigs = TBfigs[0].subfigures(4, 1, hspace=hspacing)
+barfigs = TBfigs[1].subfigures(1, 2, hspace=hspacing)
 subfig_list = np.empty(4, dtype=object)
 piefig_list = np.empty(4, dtype=object)
 subfig_h_maps = np.empty(2, dtype=object)
 
 for current_matrix in range(4):
-    fig_row = int((2 * int(current_matrix / 2)) / 2)
-    fig_col = int((4 * (current_matrix % 2)) / 4)
-    subfigs[fig_col][fig_row].suptitle(scenario_names[current_matrix], fontsize=title_size)
-    plotfigs, piefigs = subfigs[fig_col][fig_row].subfigures(1, 2, width_ratios=[20, 9])
+    subfigs[current_matrix].suptitle(scenario_names[current_matrix], fontsize=title_size, horizontalalignment='left')
+    plotfigs, piefigs = subfigs[current_matrix].subfigures(1, 2, width_ratios=[20, 7])
     subfig_list[current_matrix] = plotfigs.subplots(2, 3)
     piefig_list[current_matrix] = piefigs.subplots(2, 1)
 
@@ -256,19 +255,20 @@ for current_matrix in range(4):
             labels = [1, 2, 3]
             labels.pop(labels.index(clone + 1))
 
-            if fig_col == fig_row == folder_number == clone == 0:
+            if current_matrix == folder_number == clone == 0:
                 subfig_h_maps[0] = subfig_list[current_matrix][row, col].imshow(distribution[clone], cmap=colour_map, interpolation='none', vmin=0, vmax=colour_max)
-            elif fig_col == fig_row == clone == 0 and folder_number == 1:
+            elif current_matrix == clone == 0 and folder_number == 1:
                 subfig_h_maps[1] = subfig_list[current_matrix][row, col].imshow(distribution[clone], cmap=colour_map, interpolation='none', vmin=0, vmax=colour_max)
             else:
                 subfig_list[current_matrix][row, col].imshow(distribution[clone], cmap=colour_map, interpolation='none', vmin=0, vmax=colour_max)
 
             if folder_number == 0:
-                subfig_list[current_matrix][row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="blue", ms=4)
-                subfig_list[current_matrix][row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="blue", ms=4)
+                subfig_list[current_matrix][row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="#133317", ms=4)
+                subfig_list[current_matrix][row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="#133317", ms=4)
+                # #911C37
             elif folder_number == 1:
-                subfig_list[current_matrix][row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="black", ms=4)
-                subfig_list[current_matrix][row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="black", ms=4)
+                subfig_list[current_matrix][row, col].plot(plotted_state[labels[1] - 1] - 1, plotted_state[labels[0] - 1] - 1, "^", color="#664C12", ms=4)
+                subfig_list[current_matrix][row, col].plot(mean_value[1] - 1, mean_value[0] - 1, "d", color="#664C12", ms=4)
 
             subfig_list[current_matrix][row, col].set_facecolor('white')
             subfig_list[current_matrix][row, col].spines['bottom'].set_color('white')
@@ -279,7 +279,7 @@ for current_matrix in range(4):
             subfig_list[current_matrix][row, col].set_ylim(-0.5, 14.5)
             subfig_list[current_matrix][row, col].set_xticks(ticks)
 
-            if fig_row == row == 1:
+            if current_matrix == 3 and row == 1:
                 subfig_list[current_matrix][row, col].set_xticklabels(ticks + 1, fontsize=tick_size)
                 subfig_list[current_matrix][row, col].set_xlabel('$n_{}$'.format(labels[1]), fontsize=label_size)
             else:
@@ -287,20 +287,20 @@ for current_matrix in range(4):
             subfig_list[current_matrix][row, col].set_ylabel('$n_{}$'.format(labels[0]), fontsize=label_size)
 
             subfig_list[current_matrix][row, col].set_yticks(ticks)
-            if fig_col == col == 0:
+            if col == 0:
                 subfig_list[current_matrix][row, col].set_yticklabels(ticks + 1, fontsize=tick_size, rotation=90)
             else:
                 subfig_list[current_matrix][row, col].set_yticklabels([])
 
-            if fig_row == row == 0:
+            if current_matrix == row == 0:
                 subfig_list[current_matrix][row, col].set_title('$\mathbf{U}^'+'{}$'.format(clone + 1), fontsize=title_size)
 
         # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.61, radius=1)
 
-        # COLOUR TEST
-        patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61-0.11, radius=1)
-        # COLOUR TEST
-        if fig_row == row == 1:
+        # NEW COLOURS
+        patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\mathcal{U}^{1}$', '$\mathcal{U}^{2}$', '$\mathcal{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61-0.11, radius=1)
+        # NEW COLOURS
+        if current_matrix == 3 and row == 1:
             piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
             piefig_list[current_matrix][row].set_xticks([0])
             piefig_list[current_matrix][row].set_xticklabels([0], fontsize=tick_size, color='w')
@@ -311,13 +311,13 @@ for current_matrix in range(4):
             name.set_fontsize(pie_size)
         piefig_list[current_matrix][row].axis('equal')
 
-left_axis = LRfigs[1, 0].subplots(1)
+left_axis = barfigs[0].subplots(1)
 left_axis.axis('off')
 c_bar_l = fig.colorbar(subfig_h_maps[0], ax=left_axis, orientation='horizontal', fraction=0.975, aspect=40)
 c_bar_l.ax.tick_params(labelsize=tick_size)
 c_bar_l.outline.set_visible(False)
 
-right_axis = LRfigs[1, 1].subplots(1)
+right_axis = barfigs[1].subplots(1)
 right_axis.axis('off')
 c_bar_r = fig.colorbar(subfig_h_maps[1], ax=right_axis, orientation='horizontal', fraction=0.975, aspect=40)
 c_bar_r.ax.tick_params(labelsize=tick_size)
@@ -325,12 +325,12 @@ c_bar_r.outline.set_visible(False)
 
 fig.savefig('AD.pdf')
 
-# Colour tests
-fig.savefig("AD.png", dpi=300)
-test = io.imread("AD.png")
-test = color.rgb2gray(color.rgba2rgb(test))
-io.imsave("AD-G.png", test)
-# Colour tests end
+# # Colour tests
+# fig.savefig("AD.png", dpi=300)
+# test = io.imread("AD.png")
+# test = color.rgb2gray(color.rgba2rgb(test))
+# io.imsave("AD-G.png", test)
+# # Colour tests end
 
 # fig.clear()  # CONFLICTS WITH SKIMAGE
 plt.close(fig='all')

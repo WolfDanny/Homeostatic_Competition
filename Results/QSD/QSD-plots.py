@@ -66,9 +66,8 @@ def level_position(level, dimension, state):
 experiments = ['Hard', 'Soft']
 epsilon = 0.0001
 
-file = open("Established/Means.bin", 'rb')
-original_means = pickle.load(file)
-file.close()
+with open("Established/Means.bin", 'rb') as file:
+    original_means = pickle.load(file)
 
 max_values = [[np.array([]), np.array([])], [np.array([]), np.array([])]]
 max_levels = []
@@ -108,6 +107,8 @@ for folder in experiments:
                 file.close()
 
                 captured = 0
+                captured_level = 0  # So that it is not undefined
+
                 for captured_level in range(len(data)):
                     captured += sum(data[captured_level])
                     if captured >= 1 - epsilon:
@@ -356,3 +357,6 @@ for row in range(4):
         graphs[row, col].clear()
 fig.clear()
 plt.close(fig='all')
+
+with open('Truncated_levels.bin', 'wb') as file:
+    pickle.dump(max_levels, file)
