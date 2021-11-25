@@ -15,6 +15,7 @@ test.py
 *.bin
 *.zip
 *.pdf
+*.png
 *.tex
 
 # Icon must end with two \r
