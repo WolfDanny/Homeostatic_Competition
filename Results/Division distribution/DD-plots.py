@@ -5,59 +5,10 @@ from scipy.special import comb
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
+from homeostatic import level_position_full_space
 
 sns.set(font='serif')
 plt.rcParams.update({"text.usetex": True})
-
-
-# %% Functions
-
-
-def level_position(level, dimension, state):
-    """
-    Calculates the position of *state* in *level*
-
-    Parameters
-    ----------
-    level : int
-        Level of the state space.
-    dimension : int
-        Number of clonotypes.
-    state : List[int]
-        List of number of cells per clonotype.
-
-    Returns
-    -------
-    int
-        Position of state in level, or -1 if state is not in level.
-    """
-
-    level += dimension
-    state = [clone + 1 for clone in state]
-
-    if level == dimension and state.count(1) == dimension:
-        return 0
-
-    if len(state) != dimension or sum(state) != level or state.count(0) > 0:
-        return -1
-
-    position = 0
-
-    max_cells = level - dimension + 1
-
-    for i in range(dimension):
-        position += (state[i] - 1) * (max_cells ** i)
-
-    for i in range(dimension - 2):
-        position += (state[dimension - 1 - i] - 1) * (1 - (max_cells ** (dimension - 1 - i)))
-
-    position = int(position / (max_cells - 1))
-
-    for i in range(dimension - 2):
-        position += int(comb(level - 1 - sum(state[dimension - i:dimension]), dimension - 1 - i)) - int(comb(level - sum(state[dimension - i - 1:dimension]), dimension - 1 - i))
-
-    return int(position - 1)
-
 
 # %% Loading data and generating figures
 
@@ -92,7 +43,7 @@ for folder in experiments:
                 file = open("{0}/Matrix-{1}/Clone-{2}/Data-{3}.bin".format(folder, current_matrix, current_clone + 1, current_division), 'rb')
                 data = pickle.load(file)
 
-                probability_value = data[sum(plotted_state)].todense()[level_position(sum(plotted_state), dimension_value, plotted_state)].tolist()[0][0]
+                probability_value = data[sum(plotted_state)].todense()[level_position_full_space(sum(plotted_state), dimension_value, plotted_state)].tolist()[0][0]
                 division_distributions[current_clone].append(probability_value)
                 file.close()
 

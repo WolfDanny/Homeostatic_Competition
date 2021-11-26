@@ -1,11 +1,12 @@
 # %% Packages
 
 
-from scipy.special import comb
-from copy import deepcopy
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
+from scipy.special import comb
+from copy import deepcopy
+from homeostatic import level_position, level_states
 from skimage import color, io
 
 # from scipy.special import comb
@@ -22,92 +23,6 @@ plt.rcParams.update({"text.usetex": True})
 plt.rcParams['text.latex.preamble'] = r"\usepackage{graphicx}"
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
-
-# %% Functions
-
-
-def level_position(level, dimension, state):
-    """
-    Calculates the position of *state* in *level*.
-
-    Parameters
-    ----------
-    level : int
-        Level of the state space.
-    dimension : int
-        Number of clonotypes.
-    state : List[int]
-        List of number of cells per clonotype.
-
-    Returns
-    -------
-    int
-        Position of state in level, or -1 if state is not in the level.
-    """
-
-    if level == dimension and state.count(1) == dimension:
-        return 0
-
-    if len(state) != dimension or sum(state) != level or state.count(0) > 0:
-        return -1
-
-    position = 0
-
-    max_cells = level - dimension + 1
-
-    for i in range(dimension):
-        position += (state[i] - 1) * (max_cells ** i)
-
-    for i in range(dimension - 2):
-        position += (state[dimension - 1 - i] - 1) * (1 - (max_cells ** (dimension - 1 - i)))
-
-    position = int(position / (max_cells - 1))
-
-    for i in range(dimension - 2):
-        position += int(comb(level - 1 - sum(state[dimension - i:dimension]), dimension - 1 - i)) - int(comb(level - sum(state[dimension - i - 1:dimension]), dimension - 1 - i))
-
-    return int(position - 1)
-
-
-def level_states(level, dimension):
-    """
-    Creates a list of all non-absorbed states in *level*.
-
-    Parameters
-    ----------
-    level : int
-        Level of the state space.
-    dimension : int
-        Number of clonotypes.
-
-    Returns
-    -------
-    state_list : List
-        List of all states in level.
-    """
-
-    state_list = []
-    n = [1 for _ in range(dimension)]
-
-    while True:
-
-        if len(n) == dimension and sum(n) == level and (n.count(0) == 0):
-            state_list.append(n[:])
-
-        n[0] += 1
-        for i in range(len(n)):
-            if n[i] > level - dimension + 1:
-                if (i + 1) < len(n):
-                    n[i+1] += 1
-                    n[i] = 1
-                for j in range(i):
-                    n[j] = 1
-
-        if n[-1] > level - dimension + 1:
-            break
-
-    return state_list
-
 
 # %% Loading data
 
