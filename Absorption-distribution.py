@@ -22,22 +22,22 @@ sample_value = 0
 #%% Reading Samples and Variables
 
 
-probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
+probability_values = np.genfromtxt(f"Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
 dimension_value = probability_values.shape[0]
 
 if SampleHolder < 3:
     if new_clone_is_soft:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
     else:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
 else:
     if new_clone_is_soft:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
     else:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
-with open('../Results/QSD/Truncated_levels.bin', 'rb') as file:
+with open('Results/QSD/Truncated_levels.bin', 'rb') as file:
     truncated_levels = np.array(pickle.load(file))
 
 niche = 0
@@ -97,18 +97,17 @@ for clone_number in range(dimension_value):
 
 #%% Storing Data
 
+folder = 'Hard'
 if new_clone_is_soft:
     folder = 'Soft'
-else:
-    folder = 'Hard'
 
-filename = f'../Results/Absorption distribution/{folder}/Parameters-{sample_value}.bin'
+filename = f'Results/Absorption distribution/{folder}/Parameters-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
     pickle.dump(parameters, file)
 
-filename = f'../Results/Absorption distribution/{folder}/Data-{sample_value}.bin'
+filename = f'Results/Absorption distribution/{folder}/Data-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     pickle.dump(distribution, file)

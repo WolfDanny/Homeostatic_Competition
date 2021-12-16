@@ -32,25 +32,25 @@ if clones == 2:
     distribution = np.zeros((max_level_value, max_level_value))
     initial_state = [initial_cells, initial_cells]
 
-    probability_values = np.genfromtxt("../Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
-    nu_value = np.genfromtxt("../Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
+    probability_values = np.genfromtxt("Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
+    nu_value = np.genfromtxt("Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
 
 if clones == 3:
     stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value, base_stimulus * gamma_value]
     distribution = np.zeros((max_level_value, max_level_value, max_level_value))
     initial_state = [initial_cells, initial_cells, initial_cells]
 
-    probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
+    probability_values = np.genfromtxt(f"Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
     if sample_value < 3:
         if new_clone_is_soft:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
         else:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
     else:
         if new_clone_is_soft:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
         else:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 
 dimension_value = probability_values.shape[0]
 nu_value = nu_value * n_mean_value
@@ -105,15 +105,15 @@ while current_realisation < realisations:
 #%% Storing results
 
 if clones == 2:
-    params = '../Results/QSD/Established/Gillespie/Parameters.bin'
-    dat = '../Results/QSD/Established/Gillespie/Data.bin'
+    params = 'Results/QSD/Established/Gillespie/Parameters.bin'
+    dat = 'Results/QSD/Established/Gillespie/Data.bin'
 if clones == 3:
     if new_clone_is_soft:
-        params = '../Results/QSD/Soft/Gillespie/Parameters.bin'
-        dat = '../Results/QSD/Soft/Gillespie/Data.bin'
+        params = 'Results/QSD/Soft/Gillespie/Parameters.bin'
+        dat = 'Results/QSD/Soft/Gillespie/Data.bin'
     else:
-        params = '../Results/QSD/Hard/Gillespie/Parameters.bin'
-        dat = '../Results/QSD/Hard/Gillespie/Data.bin'
+        params = 'Results/QSD/Hard/Gillespie/Parameters.bin'
+        dat = 'Results/QSD/Hard/Gillespie/Data.bin'
 
 os.makedirs(os.path.dirname(params), exist_ok=True)
 file = open(params, 'wb')

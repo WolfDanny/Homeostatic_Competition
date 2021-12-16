@@ -23,30 +23,30 @@ sample_value = 0
 #%% Reading Samples [Paper results]
 
 
-probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
+probability_values = np.genfromtxt(f"Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
 dimension_value = probability_values.shape[0]
 
 if SampleHolder < 3:
     if new_clone_is_soft:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
     else:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
 else:
     if new_clone_is_soft:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
     else:
-        nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+        nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
+folder = 'Hard'
 if new_clone_is_soft:
     folder = 'Soft'
-else:
-    folder = 'Hard'
 
-with open('../Results/QSD/Truncated_levels.bin', 'rb') as file:
+with open('Results/QSD/Truncated_levels.bin', 'rb') as file:
     truncated_levels = np.array(pickle.load(file))
 
 max_level_value = truncated_levels.max()
+
 #%% Solving the matrix equations
 
 
@@ -77,7 +77,7 @@ for current_division in range(num_divisions + 1):
     # Calculating division vectors
     d_vectors = []
     if current_division != 0:
-        file = open(f'../Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division - 1}.bin', 'rb')
+        file = open(f'Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division - 1}.bin', 'rb')
         previous_division = pickle.load(file)
         file.close()
         for current_level in range(max_level_value + 1):
@@ -105,14 +105,14 @@ for current_division in range(num_divisions + 1):
         distribution.append(distribution_value)
 
     # Storing current division number results
-    filename = f'../Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division}.bin'
+    filename = f'Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division}.bin'
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, 'wb') as file:
         pickle.dump(distribution, file)
 
 #%% Storing Data
 
-filename = f'../Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Parameters-{sample_value}.bin'
+filename = f'Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Parameters-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value", "num_divisions"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value, num_divisions)

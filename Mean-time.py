@@ -25,23 +25,23 @@ sample_value = 0
 if clones == 2:
     stimulus_value = [10 * gamma_value, 10 * gamma_value]
 
-    probability_values = np.genfromtxt("../Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
-    nu_value = np.genfromtxt("../Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
+    probability_values = np.genfromtxt("Samples/Established-Matrix/Matrix-2C.csv", delimiter=",")
+    nu_value = np.genfromtxt("Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=",")
 
 if clones == 3:
     stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
 
-    probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+    probability_values = np.genfromtxt("Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
     if sample_value < 3:
         if new_clone_is_soft:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
         else:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard.csv", delimiter=",")
     else:
         if new_clone_is_soft:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft-(D).csv", delimiter=",")
         else:
-            nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
+            nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 
 dimension_value = probability_values.shape[0]
 nu_value = nu_value * n_mean_value
@@ -57,11 +57,11 @@ Solution = spsolve(M, b)
 #%% Storing Data
 
 
-os.makedirs(os.path.dirname('../Results/Mean time to extinction/Data.bin'), exist_ok=True)
-with open('../Results/Mean time to extinction/Data.bin', 'wb') as file:
+os.makedirs(os.path.dirname('Results/Mean time to extinction/Data.bin'), exist_ok=True)
+with open('Results/Mean time to extinction/Data.bin', 'wb') as file:
     pickle.dump(Solution, file)
 
 params = [new_clone_is_soft, max_level_value, mu_value, n_mean_value, gamma_value, clones, sample_value, dimension_value, nu_value]
-os.makedirs(os.path.dirname('../Results/Mean time to extinction/Parameters.bin'), exist_ok=True)
-with open('../Results/Mean time to extinction/Parameters.bin', 'wb') as file:
+os.makedirs(os.path.dirname('Results/Mean time to extinction/Parameters.bin'), exist_ok=True)
+with open('Results/Mean time to extinction/Parameters.bin', 'wb') as file:
     pickle.dump(params, file)
