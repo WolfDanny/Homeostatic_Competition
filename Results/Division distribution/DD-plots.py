@@ -1,7 +1,6 @@
 # %% Packages
 
 
-from scipy.special import comb
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -65,8 +64,6 @@ for folder in experiments:
         graphs[row, col].spines['top'].set_color('gray')
         graphs[row, col].spines['right'].set_color('gray')
         graphs[row, col].spines['left'].set_color('gray')
-
-    # fig.suptitle('$\\textrm{' + folder + ' niche case}$', fontsize=title_size)
 
     fig.savefig(f'DD-{folder[0]}.pdf')
 

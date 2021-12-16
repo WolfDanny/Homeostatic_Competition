@@ -2,16 +2,13 @@
 
 
 from homeostatic import *
-from scipy.special import comb
-from scipy.stats import uniform
 from scipy.sparse import coo_matrix, identity, csc_matrix
-from itertools import chain, combinations
 import numpy as np
 import pickle
 import gc
 import os
 
-#%% Variables
+#%% Parameters
 
 
 new_clone_is_soft = False

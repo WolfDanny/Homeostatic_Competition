@@ -5,7 +5,6 @@ import pickle
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.special import comb
 from copy import deepcopy
 from homeostatic import level_position
 

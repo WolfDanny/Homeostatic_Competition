@@ -7,9 +7,8 @@ import pickle
 import os
 import numpy as np
 from random import uniform
-from itertools import chain, combinations
 
-#%% Global parameters
+#%% Parameters
 
 
 new_clone_is_soft = False

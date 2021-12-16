@@ -3,14 +3,13 @@
 
 from homeostatic import *
 from scipy.special import comb
-from scipy.sparse import coo_matrix, identity, csc_matrix, dok_matrix
-from itertools import chain, combinations
+from scipy.sparse import identity, csc_matrix, dok_matrix
 import numpy as np
 import pickle
 import gc
 import os
 
-#%% Global parameters
+#%% Parameters
 
 
 new_clone_is_soft = False
@@ -38,19 +37,6 @@ else:
         nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Hard-(D).csv", delimiter=",")
 nu_value = nu_value * n_mean_value
 
-# if new_clone_is_soft:
-#     with open('../Results/QSD/Soft/Truncated_levels.bin', 'rb') as file:
-#         truncated_levels = np.array(pickle.load(file))
-#         truncated_levels = [max(truncated_levels[:, i]) for i in range(truncated_levels.shape[1])]
-# else:
-#     with open('../Results/QSD/Hard/Truncated_levels.bin', 'rb') as file:
-#         truncated_levels = np.array(pickle.load(file))
-#         truncated_levels = [max(truncated_levels[:, i]) for i in range(truncated_levels.shape[1])]
-
-# with open('../Truncated_levels.bin', 'rb') as file:
-#     truncated_levels = np.array(pickle.load(file))
-#     truncated_levels = [max(truncated_levels[:, i]) for i in range(truncated_levels.shape[1])]
-
 with open('../Results/QSD/Truncated_levels.bin', 'rb') as file:
     truncated_levels = np.array(pickle.load(file))
 
@@ -58,8 +44,6 @@ niche = 0
 if new_clone_is_soft:
     niche = 1
 max_level_value = max([max(truncated_levels[niche, :, i]) for i in range(truncated_levels.shape[2])]) + 15
-
-# Truncated_levels.bin is now created by QSD-plots.py and it works properly
 
 #%% Solving matrix equations
 
@@ -118,15 +102,13 @@ if new_clone_is_soft:
 else:
     folder = 'Hard'
 
-# filename = f'../Results/Absorption distribution/{folder}/Parameters-{sample_value}.bin'
-filename = f'../Results/Test/{folder}/Parameters-{sample_value}.bin'
+filename = f'../Results/Absorption distribution/{folder}/Parameters-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
     pickle.dump(parameters, file)
 
-# filename = f'../Results/Absorption distribution/{folder}/Data-{sample_value}.bin'
-filename = f'../Results/Test/{folder}/Data-{sample_value}.bin'
+filename = f'../Results/Absorption distribution/{folder}/Data-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     pickle.dump(distribution, file)

@@ -3,14 +3,12 @@
 
 from homeostatic import *
 from scipy.special import comb
-from itertools import chain, combinations
-from scipy.sparse import coo_matrix, csc_matrix
 from scipy.sparse.linalg import spsolve
 import numpy as np
 import pickle
 import os
 
-#%% Global parameters
+#%% Parameters
 
 
 new_clone_is_soft = False
@@ -19,7 +17,7 @@ mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
 clones = 2
-sample_value = SampleHolder
+sample_value = 0
 
 #%% Reading Samples
 
@@ -56,14 +54,14 @@ b = [-1] * int(comb(max_level_value, dimension_value))
 
 Solution = spsolve(M, b)
 
-# NEED TO STORE PARAMETERS
+#%% Storing Data
 
-# Storing Data
-os.makedirs(os.path.dirname('../Results/Test/Mean time to extinction/Data.bin'), exist_ok=True)
-with open('../Results/Test/Mean time to extinction/Data.bin', 'wb') as file:
+
+os.makedirs(os.path.dirname('../Results/Mean time to extinction/Data.bin'), exist_ok=True)
+with open('../Results/Mean time to extinction/Data.bin', 'wb') as file:
     pickle.dump(Solution, file)
 
-params = [1]
-os.makedirs(os.path.dirname('../Results/Test/Mean time to extinction/Parameters.bin'), exist_ok=True)
-with open('../Results/Test/Mean time to extinction/Parameters.bin', 'wb') as file:
+params = [new_clone_is_soft, max_level_value, mu_value, n_mean_value, gamma_value, clones, sample_value, dimension_value, nu_value]
+os.makedirs(os.path.dirname('../Results/Mean time to extinction/Parameters.bin'), exist_ok=True)
+with open('../Results/Mean time to extinction/Parameters.bin', 'wb') as file:
     pickle.dump(params, file)

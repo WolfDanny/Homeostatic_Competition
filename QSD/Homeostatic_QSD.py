@@ -2,10 +2,7 @@
 
 
 from homeostatic import *
-from scipy.special import comb
-from scipy.stats import uniform
-from itertools import chain, combinations
-from scipy.sparse import coo_matrix, csc_matrix
+from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import inv
 import numpy as np
 import pickle
@@ -22,8 +19,8 @@ n_mean_value = 10
 gamma_value = 1.0
 clones = 3
 base_stimulus = 10
-model_value = ModelHolder  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
-sample_value = SampleHolder  # Not used if 'clones' is 2
+model_value = 1  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
+sample_value = 0  # Not used if 'clones' is 2
 
 #%% Reading Samples
 

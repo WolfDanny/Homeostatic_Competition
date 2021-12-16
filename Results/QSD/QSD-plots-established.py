@@ -4,10 +4,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
-import tikzplotlib
 import seaborn as sns
 from skimage import color, io
-from scipy.special import comb
 from copy import deepcopy
 from homeostatic import level_position
 
@@ -70,22 +68,9 @@ for model in range(2):
 
     fig, graph = plt.subplots(1, 1, constrained_layout=True)
 
-    # ticks = np.arange(-1, captured_range, 5)
     ticks = np.arange(-1, 18, 5)
     ticks[0] = 0
 
-    # # Seaborn
-    # h_map = sns.heatmap(distribution, cmap="Greens")
-    # h_map.set_xlabel('$n_{2}$')
-    # h_map.set_ylabel('$n_{3}$')
-    # h_map.set_xticks(ticks + 0.5)
-    # h_map.set_xticklabels(ticks + 1)
-    # h_map.set_yticks(ticks + 0.5)
-    # h_map.set_yticklabels(ticks + 1)  # , rotation=0)
-    # h_map.scatter(mean_value[0] - 1, mean_value[1] - 1, marker='s', s=50, color='yellow')
-    # h_map.invert_yaxis()
-
-    # # Plot
     h_map = graph.imshow(distribution, cmap="Greens", interpolation='none')
     c_bar = fig.colorbar(h_map)
     c_bar.outline.set_visible(False)
@@ -103,20 +88,9 @@ for model in range(2):
     graph.set_xticklabels(ticks + 1)
     graph.set_yticks(ticks)
     graph.set_yticklabels(ticks + 1, rotation=90)
-    # graph.invert_yaxis()
     plt.title('QSD approximation using $\\mathcal{X}^{' + f'({model + 1})' + '}$')
 
     fig.savefig(f"Established/QSD-{model + 1}.pdf")
-
-    # Colour tests
-    fig.savefig(f"Established/QSD-{model + 1}.png", dpi=300)
-    test = io.imread(f"Established/QSD-{model + 1}.png")
-    test = color.rgb2gray(color.rgba2rgb(test))
-    io.imsave(f"Established/QSD-{model + 1}-G.png", test)
-    # Colour tests end
-
-    # tikzplotlib.clean_figure()
-    # tikzplotlib.save(f"Established/QSD-{model + 1}.tex")
 
     graph.clear()
     fig.clear()
@@ -143,9 +117,6 @@ ticks = np.arange(0, 18)
 ticks_1 = np.arange(0, all_marginals[0][0].shape[0])
 ticks_2 = np.arange(0, all_marginals[1][0].shape[0])
 ticks_g = np.arange(0, marginal_g1.shape[0])
-# bars_1 = graph.bar(ticks_1 - width, all_marginals[0][0], width, label='$\mathcal{X}^{(1)}$', color='Green')
-# gill = graph.bar(ticks_g, marginal_g1, width, label='Gillespie', color='red')
-# bars_2 = graph.bar(ticks_2 + width, all_marginals[1][0], width, label='$\mathcal{X}^{(2)}$', color='blue')
 bars_1 = graph.bar(ticks_1 - (3/2) * width, all_marginals[0][0], width, label='$\mathcal{X}^{(1)}$', color='Green', linewidth=0.8)
 gill = graph.bar(ticks_g - width/2, marginal_g1, width, label='$\\textrm{Gillespie}$', color='red', linewidth=0.8)
 bars_2s = graph.bar(ticks_2 - 1 + width/2, all_marginals[1][0], width, label='$\\textrm{Shifted } \mathcal{X}^{(2)}$', color='blue', hatch='///', linewidth=0.8)
@@ -154,7 +125,7 @@ graph.set_xticks(ticks)
 graph.set_xticklabels(ticks + 1)
 graph.set_xlim(-1, 18)
 graph.set_ylim(0, 0.2)
-graph.legend(loc='upper right')  # , fontsize='large')
+graph.legend(loc='upper right')
 graph.set_xlabel('$n_{2}$')
 graph.set_title('$\\textrm{Marginal distribution of } n_{2}$')
 
@@ -163,14 +134,6 @@ fig.clear()
 plt.close(fig='all')
 
 fig, graph = plt.subplots(1, 1, constrained_layout=True, figsize=(4.5, 3.5))
-
-# width = 1/3
-# ticks = np.arange(0, 18)
-# ticks_1 = np.arange(0, all_marginals[0][1].shape[0])
-# ticks_2 = np.arange(0, all_marginals[1][1].shape[0])
-# bars_1 = graph.bar(ticks_1 - width, all_marginals[0][1], width, label='$\mathcal{X}^{(1)}$', color='Green')
-# bars_2 = graph.bar(ticks_2, all_marginals[1][1], width, label='$\mathcal{X}^{(2)}$', color='blue')
-# bars_3 = graph.bar(ticks_2 + width, all_marginals[1][1], width, label='$\mathcal{X}^{(2)}$', color='blue')
 
 width = 0.25
 ticks = np.arange(0, 18)

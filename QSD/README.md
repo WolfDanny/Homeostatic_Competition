@@ -1,7 +1,0 @@
-# Approximating the QSD of the competition process
-
-This script calculates the stationary distribution of 2 approximating processes that cannot go extinct, ![equation](https://latex.codecogs.com/svg.latex?%5Cmathcal%7BX%7D%5E%7B%281%29%7D) where the last remaining cell of a clonotype has death rate zero, and ![equation](https://latex.codecogs.com/svg.latex?%5Cmathcal%7BX%7D%5E%7B%282%29%7D) where there is an immortal cell in each clonotype. 
-
-The stationary distribution of these processes is calculated by slecting an arbitrary value for the probability of the state in the ![equation](https://latex.codecogs.com/svg.latex?%5Ceta) level of the space, say ![equation](https://latex.codecogs.com/svg.latex?%5Cpi%5E%7B*%7D_%7B%5Ceta%7D%3D1), then calculating the relative values for the other states using the quasi birth and death structure of the infinitesimal generator matrix, and finally normalising the values, *i.e.*, ![equation](https://latex.codecogs.com/svg.latex?%5Cpi_%7Bk%7D%3D%5Cfrac%7B%5Cpi%5E%7B*%7D_%7Bk%7D%7D%7B%5Csum%5Climits_%7Bi%3D%5Ceta%7D%5E%7BN%7D%5Csum%5Climits_%7Bj%3D1%7D%5E%7BL_%7Bi%7D%7D%5Cpi%5E%7B*%7D_%7Bi%2Cj%7D%7D)
-
-When running this script include `Samples.bin` in the same directory, replace `SampleHolder` with the desired sample number, and `ModelHolder` with 0 for ![equation](https://latex.codecogs.com/svg.latex?%5Cmathcal%7BX%7D%5E%7B%281%29%7D) and 1 for ![equation](https://latex.codecogs.com/svg.latex?%5Cmathcal%7BX%7D%5E%7B%282%29%7D).

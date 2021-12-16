@@ -4,20 +4,8 @@
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-from scipy.special import comb
 from copy import deepcopy
 from homeostatic import level_position, level_states
-from skimage import color, io
-
-# from scipy.special import comb
-# from copy import deepcopy
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import pickle
-# import sys
-# from skimage import color, io
-# sys.path.append('../../Definitions/')
-# from homeostatic import *
 
 plt.rcParams.update({"text.usetex": True})
 plt.rcParams['text.latex.preamble'] = r"\usepackage{graphicx}"
@@ -210,11 +198,8 @@ for current_matrix in range(4):
             if current_matrix == row == 0:
                 subfig_list[current_matrix][row, col].set_title('$\mathbf{U}^'+f'{clone + 1}$', fontsize=title_size)
 
-        # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.61, radius=1)
-
-        # NEW COLOURS
         patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\mathcal{U}^{1}$', '$\mathcal{U}^{2}$', '$\mathcal{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61-0.11, radius=1)
-        # NEW COLOURS
+
         if current_matrix == 3 and row == 1:
             piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
             piefig_list[current_matrix][row].set_xticks([0])
@@ -239,13 +224,4 @@ c_bar_r.ax.tick_params(labelsize=tick_size)
 c_bar_r.outline.set_visible(False)
 
 fig.savefig('AD.pdf')
-
-# # Colour tests
-# fig.savefig("AD.png", dpi=300)
-# test = io.imread("AD.png")
-# test = color.rgb2gray(color.rgba2rgb(test))
-# io.imsave("AD-G.png", test)
-# # Colour tests end
-
-# fig.clear()  # CONFLICTS WITH SKIMAGE
 plt.close(fig='all')
