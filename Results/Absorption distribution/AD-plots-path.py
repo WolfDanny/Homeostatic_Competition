@@ -27,7 +27,7 @@ for current_matrix in range(matrices):
     absorption_values_soft = [[], [], []]
 
     for folder in experiments:
-        file = open("{0}/Parameters-{1}.bin".format(folder, current_matrix), 'rb')
+        file = open(f"{folder}/Parameters-{current_matrix}.bin", 'rb')
         load_data = pickle.load(file)
         file.close()
 
@@ -37,7 +37,7 @@ for current_matrix in range(matrices):
 
         del load_data
 
-        file = open("{0}/Data-{1}.bin".format(folder, current_matrix), 'rb')
+        file = open(f"{folder}/Data-{current_matrix}.bin", 'rb')
         distribution = pickle.load(file)
         file.close()
 

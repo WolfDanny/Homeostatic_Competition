@@ -102,7 +102,7 @@ xlabel('$p_{1,2}$')
 xlim(0,1)
 legend(loc='best')
 #legend(loc='upper right')
-savefig('Graph-N{0}-eta{1}-mu{2}.pdf'.format(N,eta,int(mu)))
+savefig(f'Graph-N{N}-eta{eta}-mu{int(mu)}.pdf')
 
 
 #%% 3D plot

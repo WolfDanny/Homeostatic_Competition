@@ -39,7 +39,7 @@ if clones == 3:
     stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value, base_stimulus * gamma_value]
     distribution = np.zeros((max_level_value, max_level_value, max_level_value))
 
-    probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+    probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
     if sample_value < 3:
         if new_clone_is_soft:
             nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
@@ -102,16 +102,16 @@ for level_value in range(len(distribution)):
 #%% Storing results
 
 if clones == 2:
-    params = '../Results/QSD/Established/Model-{0}/Parameters.bin'.format(model_value)
-    dat = '../Results/QSD/Established/Model-{0}/Data.bin'.format(model_value)
+    params = f'../Results/QSD/Established/Model-{model_value}/Parameters.bin'
+    dat = f'../Results/QSD/Established/Model-{model_value}/Data.bin'
 
 if clones == 3:
     if new_clone_is_soft:
-        params = '../Results/QSD/Soft/Model-{}/Parameters.bin'.format(model_value)
-        dat = '../Results/QSD/Soft/Model-{0}/QSD-S-{1}/Data.bin'.format(model_value, sample_value)
+        params = f'../Results/QSD/Soft/Model-{model_value}/Parameters.bin'
+        dat = f'../Results/QSD/Soft/Model-{model_value}/QSD-S-{sample_value}/Data.bin'
     else:
-        params = '../Results/QSD/Hard/Model-{}/Parameters.bin'.format(model_value)
-        dat = '../Results/QSD/Hard/Model-{0}/QSD-S-{1}/Data.bin'.format(model_value, sample_value)
+        params = f'../Results/QSD/Hard/Model-{model_value}/Parameters.bin'
+        dat = f'../Results/QSD/Hard/Model-{model_value}/QSD-S-{sample_value}/Data.bin'
 
 os.makedirs(os.path.dirname(params), exist_ok=True)
 file = open(params, 'wb')

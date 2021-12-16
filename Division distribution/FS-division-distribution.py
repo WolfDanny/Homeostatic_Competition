@@ -19,14 +19,14 @@ mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
 stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
-dividing_clone = 2
+dividing_clone = 0
 num_divisions = 200
+sample_value = 0
 
 #%% Reading Samples [Paper results]
 
 
-SampleHolder = 3
-probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(SampleHolder), delimiter=",")
+probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
 dimension_value = probability_values.shape[0]
 
 if SampleHolder < 3:
@@ -46,11 +46,10 @@ if new_clone_is_soft:
 else:
     folder = 'Hard'
 
-with open('../Truncated_levels.bin', 'rb') as file:
+with open('../Results/QSD/Truncated_levels.bin', 'rb') as file:
     truncated_levels = np.array(pickle.load(file))
-    truncated_levels = [max(truncated_levels[:, i]) for i in range(truncated_levels.shape[1])]
 
-max_level_value = max(truncated_levels)  # truncated_levels[SampleHolder]
+max_level_value = truncated_levels.max()
 #%% Solving the matrix equations
 
 
@@ -63,7 +62,7 @@ for level_value in range(max_level_value):
 
 # Calculating lower diagonal (death) matrices, and storing them in order
 for level_value in range(1, max_level_value + 1):
-    d_matrices.append(death_diagonal_matrices_full_space(level_value, max_level_value, dimension_value, probability_values, stimulus_value, mu_value, nu_value))
+    d_matrices.append(death_diagonal_matrices_division(level_value, max_level_value, dividing_clone, dimension_value, probability_values, stimulus_value, mu_value, nu_value))
 
 # Calculating the inverses of H matrices, and storing them in inverse order
 h_matrices = [identity(d_matrices[-1].shape[0], format="csc")]
@@ -81,7 +80,7 @@ for current_division in range(num_divisions + 1):
     # Calculating division vectors
     d_vectors = []
     if current_division != 0:
-        file = open('../Results/Division distribution/{0}/Matrix-{1}/Clone-{2}/Data-{3}.bin'.format(folder, SampleHolder, dividing_clone + 1, current_division - 1), 'rb')
+        file = open(f'../Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division - 1}.bin', 'rb')
         previous_division = pickle.load(file)
         file.close()
         for current_level in range(max_level_value + 1):
@@ -109,14 +108,14 @@ for current_division in range(num_divisions + 1):
         distribution.append(distribution_value)
 
     # Storing current division number results
-    filename = '../Results/Division distribution/{0}/Matrix-{1}/Clone-{2}/Data-{3}.bin'.format(folder, SampleHolder, dividing_clone + 1, current_division)
+    filename = f'../Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division}.bin'
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, 'wb') as file:
         pickle.dump(distribution, file)
 
 #%% Storing Data
 
-filename = '../Results/Division distribution/{0}/Matrix-{1}/Clone-{2}/Parameters-{3}.bin'.format(folder, SampleHolder, dividing_clone + 1, SampleHolder)
+filename = f'../Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Parameters-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value", "num_divisions"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value, num_divisions)

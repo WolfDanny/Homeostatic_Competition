@@ -27,7 +27,7 @@ for folder in experiments:
         col = current_matrix % 2
         division_distributions = [[] for _ in range(3)]
         for current_clone in range(3):
-            file = open("{0}/Matrix-{1}/Clone-{2}/Parameters-{3}.bin".format(folder, current_matrix, current_clone + 1, current_matrix), 'rb')
+            file = open(f"{folder}/Matrix-{current_matrix}/Clone-{current_clone + 1}/Parameters-{current_matrix}.bin", 'rb')
             load_data = pickle.load(file)
             file.close()
 
@@ -40,7 +40,7 @@ for folder in experiments:
             indexes = [i for i in range(num_divisions + 1)]
 
             for current_division in range(num_divisions + 1):
-                file = open("{0}/Matrix-{1}/Clone-{2}/Data-{3}.bin".format(folder, current_matrix, current_clone + 1, current_division), 'rb')
+                file = open(f"{folder}/Matrix-{current_matrix}/Clone-{current_clone + 1}/Data-{current_division}.bin", 'rb')
                 data = pickle.load(file)
 
                 probability_value = data[sum(plotted_state)].todense()[level_position_full_space(sum(plotted_state), dimension_value, plotted_state)].tolist()[0][0]
@@ -68,7 +68,7 @@ for folder in experiments:
 
     # fig.suptitle('$\\textrm{' + folder + ' niche case}$', fontsize=title_size)
 
-    fig.savefig('DD-{}.pdf'.format(folder[0]))
+    fig.savefig(f'DD-{folder[0]}.pdf')
 
     for row in range(2):
         for col in range(2):

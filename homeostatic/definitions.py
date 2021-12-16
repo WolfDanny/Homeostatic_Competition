@@ -577,7 +577,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
     return dd_matrix
 
 
-def death_diagonal_matrices_full_space(level, max_level, dimension, probability, stimulus, mu, nu):
+def death_diagonal_matrices_division(level, max_level, clone, dimension, probability, stimulus, mu, nu):
     """
     Creates the sub-diagonal matrix A_{level, level - 1}.
 
@@ -587,6 +587,8 @@ def death_diagonal_matrices_full_space(level, max_level, dimension, probability,
         Level in the state space.
     max_level : int
         Maximum level of the state space.
+    clone : int
+        Dividing clonotype.
     dimension : int
         Number of clonotypes.
     probability : numpy.ndarray
@@ -614,22 +616,24 @@ def death_diagonal_matrices_full_space(level, max_level, dimension, probability,
 
     if level < max_level:
         for state in states:
-            for i in range(len(state)):
-                new_state = state[:]
-                new_state[i] -= 1
-                if new_state.count(-1) == 0:
-                    data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
-                    cols.append(level_position_full_space(level - 1, dimension, new_state))
-                    rows.append(level_position_full_space(level, dimension, state))
+            if state[clone] != 0:
+                for i in range(len(state)):
+                    new_state = state[:]
+                    new_state[i] -= 1
+                    if new_state.count(-1) == 0:
+                        data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
+                        cols.append(level_position_full_space(level - 1, dimension, new_state))
+                        rows.append(level_position_full_space(level, dimension, state))
     else:
         for state in states:
-            for i in range(len(state)):
-                new_state = state[:]
-                new_state[i] -= 1
-                if new_state.count(-1) == 0:
-                    data.append((state[i] * mu) / death_delta(state, mu))
-                    cols.append(level_position_full_space(level - 1, dimension, new_state))
-                    rows.append(level_position_full_space(level, dimension, state))
+            if state[clone] != 0:
+                for i in range(len(state)):
+                    new_state = state[:]
+                    new_state[i] -= 1
+                    if new_state.count(-1) == 0:
+                        data.append((state[i] * mu) / death_delta(state, mu))
+                        cols.append(level_position_full_space(level - 1, dimension, new_state))
+                        rows.append(level_position_full_space(level, dimension, state))
 
     dd_matrix = coo_matrix((data, (rows, cols)), matrix_shape).tocsc()
 
@@ -773,7 +777,7 @@ def birth_diagonal_matrices_division(level, clone, dimension, probability, stimu
                     try:
                         data.append(birth_rate(state, probability, i, dimension, nu, stimulus) / delta(state, probability, mu, dimension, nu, stimulus))
                     except ZeroDivisionError:
-                        print(level)
+                        print(f'Error in {level}, {state}')
                         if level == 0:
                             cols.pop()
                             rows.pop()

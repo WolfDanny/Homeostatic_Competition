@@ -18,12 +18,12 @@ mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
 stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
+sample_value = 0
 
 #%% Reading Samples and Variables
 
 
-SampleHolder = 0
-probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(SampleHolder), delimiter=",")
+probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
 dimension_value = probability_values.shape[0]
 
 if SampleHolder < 3:
@@ -118,15 +118,15 @@ if new_clone_is_soft:
 else:
     folder = 'Hard'
 
-# filename = '../Results/Absorption distribution/{0}/Parameters-{1}.bin'.format(folder, SampleHolder)
-filename = '../Results/Test/{0}/Parameters-{1}.bin'.format(folder, SampleHolder)
+# filename = f'../Results/Absorption distribution/{folder}/Parameters-{sample_value}.bin'
+filename = f'../Results/Test/{folder}/Parameters-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
     pickle.dump(parameters, file)
 
-# filename = '../Results/Absorption distribution/{0}/Data-{1}.bin'.format(folder, SampleHolder)
-filename = '../Results/Test/{0}/Data-{1}.bin'.format(folder, SampleHolder)
+# filename = f'../Results/Absorption distribution/{folder}/Data-{sample_value}.bin'
+filename = f'../Results/Test/{folder}/Data-{sample_value}.bin'
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 with open(filename, 'wb') as file:
     pickle.dump(distribution, file)

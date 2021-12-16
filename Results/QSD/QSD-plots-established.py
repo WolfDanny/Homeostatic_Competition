@@ -36,7 +36,7 @@ all_marginals = []
 all_means = []
 
 for model in range(2):
-    with open("Established/Data-{}-0.bin".format(model + 1), 'rb') as file:
+    with open(f"Established/Data-{model + 1}-0.bin", 'rb') as file:
         data = pickle.load(file)
 
     captured = 0
@@ -104,19 +104,19 @@ for model in range(2):
     graph.set_yticks(ticks)
     graph.set_yticklabels(ticks + 1, rotation=90)
     # graph.invert_yaxis()
-    plt.title('QSD approximation using $\\mathcal{X}^{' + '({})'.format(model + 1) + '}$')
+    plt.title('QSD approximation using $\\mathcal{X}^{' + f'({model + 1})' + '}$')
 
-    fig.savefig("Established/QSD-{}.pdf".format(model + 1))
+    fig.savefig(f"Established/QSD-{model + 1}.pdf")
 
     # Colour tests
-    fig.savefig("Established/QSD-{}.png".format(model + 1), dpi=300)
-    test = io.imread("Established/QSD-{}.png".format(model + 1))
+    fig.savefig(f"Established/QSD-{model + 1}.png", dpi=300)
+    test = io.imread(f"Established/QSD-{model + 1}.png")
     test = color.rgb2gray(color.rgba2rgb(test))
-    io.imsave("Established/QSD-{}-G.png".format(model + 1), test)
+    io.imsave(f"Established/QSD-{model + 1}-G.png", test)
     # Colour tests end
 
     # tikzplotlib.clean_figure()
-    # tikzplotlib.save("Established/QSD-{}.tex".format(model + 1))
+    # tikzplotlib.save(f"Established/QSD-{model + 1}.tex")
 
     graph.clear()
     fig.clear()

@@ -46,7 +46,7 @@ for folder in experiments:
 
         for current_matrix in range(4):
             try:
-                file = open("{0}/Model-{1}/QSD-{2}-{3}/Parameters.bin".format(folder, current_model + 1, folder[0], current_matrix), 'rb')
+                file = open(f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Parameters.bin", 'rb')
                 load_data = pickle.load(file)
                 file.close()
 
@@ -56,7 +56,7 @@ for folder in experiments:
 
                 del load_data
 
-                file = open("{0}/Model-{1}/QSD-{2}-{3}/Data-{4}-{5}.bin".format(folder, current_model + 1, folder[0], current_matrix, current_model + 1, current_matrix), 'rb')
+                file = open(f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Data-{current_model + 1}-{current_matrix}.bin", 'rb')
                 data = pickle.load(file)
                 file.close()
 
@@ -197,7 +197,7 @@ for current_model in range(2):
     if current_model == 0:
         graphs[3, 3].axis('off')
         graphs[3, 2].axis('off')
-    fig.savefig("QSD-type-{}.pdf".format(current_model + 1))
+    fig.savefig(f"QSD-type-{current_model + 1}.pdf")
 
     for row in range(4):
         for col in range(4):
@@ -212,7 +212,7 @@ marginal_colour_max = np.array([])
 
 for folder in experiments:
     for current_matrix in range(4):
-        with open('{0}/Gillespie/Data-{1}.bin'.format(folder, current_matrix), 'rb') as file:
+        with open(f'{folder}/Gillespie/Data-{current_matrix}.bin', 'rb') as file:
             current_data = pickle.load(file)
 
         marginal = np.zeros((179, 179))
@@ -230,7 +230,7 @@ marginal_colour_max = marginal_colour_max.max()
 
 for current_matrix in range(4):
     for folder in experiments:
-        with open('{0}/Gillespie/Data-{1}.bin'.format(folder, current_matrix), 'rb') as file:
+        with open(f'{folder}/Gillespie/Data-{current_matrix}.bin', 'rb') as file:
             current_data = pickle.load(file)
         if folder == 'Hard':
             row = 2 * int(current_matrix / 2)

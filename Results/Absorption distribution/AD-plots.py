@@ -42,7 +42,7 @@ for folder in experiments:
     folder_pie_values = []
 
     for current_matrix in range(matrices):
-        file = open("{0}/Parameters-{1}.bin".format(folder, current_matrix), 'rb')
+        file = open(f"{folder}/Parameters-{current_matrix}.bin", 'rb')
         load_data = pickle.load(file)
         file.close()
 
@@ -52,7 +52,7 @@ for folder in experiments:
 
         del load_data
 
-        file = open("{0}/Data-{1}.bin".format(folder, current_matrix), 'rb')
+        file = open(f"{folder}/Data-{current_matrix}.bin", 'rb')
         distribution = pickle.load(file)
         file.close()
 
@@ -196,10 +196,10 @@ for current_matrix in range(4):
 
             if current_matrix == 3 and row == 1:
                 subfig_list[current_matrix][row, col].set_xticklabels(ticks + 1, fontsize=tick_size)
-                subfig_list[current_matrix][row, col].set_xlabel('$n_{}$'.format(labels[1]), fontsize=label_size)
+                subfig_list[current_matrix][row, col].set_xlabel(f'$n_{labels[1]}$', fontsize=label_size)
             else:
                 subfig_list[current_matrix][row, col].set_xticklabels([])
-            subfig_list[current_matrix][row, col].set_ylabel('$n_{}$'.format(labels[0]), fontsize=label_size)
+            subfig_list[current_matrix][row, col].set_ylabel(f'$n_{labels[0]}$', fontsize=label_size)
 
             subfig_list[current_matrix][row, col].set_yticks(ticks)
             if col == 0:
@@ -208,7 +208,7 @@ for current_matrix in range(4):
                 subfig_list[current_matrix][row, col].set_yticklabels([])
 
             if current_matrix == row == 0:
-                subfig_list[current_matrix][row, col].set_title('$\mathbf{U}^'+'{}$'.format(clone + 1), fontsize=title_size)
+                subfig_list[current_matrix][row, col].set_title('$\mathbf{U}^'+f'{clone + 1}$', fontsize=title_size)
 
         # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\sum\mathbf{U}^{1}$', '$\sum\mathbf{U}^{2}$', '$\sum\mathbf{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['r', 'g', 'b'], startangle=30, pctdistance=0.61, radius=1)
 

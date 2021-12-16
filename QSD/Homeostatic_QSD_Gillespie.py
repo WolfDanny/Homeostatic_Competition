@@ -41,7 +41,7 @@ if clones == 3:
     distribution = np.zeros((max_level_value, max_level_value, max_level_value))
     initial_state = [initial_cells, initial_cells, initial_cells]
 
-    probability_values = np.genfromtxt("../Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=",")
+    probability_values = np.genfromtxt(f"../Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
     if sample_value < 3:
         if new_clone_is_soft:
             nu_value = np.genfromtxt("../Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
