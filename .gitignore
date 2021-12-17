@@ -11,7 +11,6 @@
 .AppleDouble
 .LSOverride
 
-test.py
 *.bin
 *.zip
 *.pdf

@@ -16,9 +16,9 @@ max_level_value = 179
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
-realisations = 1
+realisations = 10000
 time_max = 40
-clones = 2
+clones = 3
 sample_value = 0  # Not used if 'clones' is 2
 base_stimulus = 10
 initial_cells = 10
@@ -110,10 +110,10 @@ if clones == 2:
 if clones == 3:
     if new_clone_is_soft:
         params = 'Results/QSD/Soft/Gillespie/Parameters.bin'
-        dat = 'Results/QSD/Soft/Gillespie/Data.bin'
+        dat = f'Results/QSD/Soft/Gillespie/Data-{sample_value}.bin'
     else:
         params = 'Results/QSD/Hard/Gillespie/Parameters.bin'
-        dat = 'Results/QSD/Hard/Gillespie/Data.bin'
+        dat = f'Results/QSD/Hard/Gillespie/Data-{sample_value}.bin'
 
 os.makedirs(os.path.dirname(params), exist_ok=True)
 file = open(params, 'wb')

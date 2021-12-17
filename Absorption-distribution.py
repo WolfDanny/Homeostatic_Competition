@@ -25,7 +25,7 @@ sample_value = 0
 probability_values = np.genfromtxt(f"Samples/Matrices/Matrix-{sample_value}.csv", delimiter=",")
 dimension_value = probability_values.shape[0]
 
-if SampleHolder < 3:
+if sample_value < 3:
     if new_clone_is_soft:
         nu_value = np.genfromtxt("Samples/Nu-Matrices/Nu-Matrix-Soft.csv", delimiter=",")
     else:

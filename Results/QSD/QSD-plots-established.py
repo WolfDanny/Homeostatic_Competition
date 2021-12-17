@@ -97,7 +97,7 @@ for model in range(2):
     plt.close(fig='all')
 
 
-with open("Established/Data.bin", 'rb') as file:
+with open("Established/Gillespie/Data.bin", 'rb') as file:
     data = pickle.load(file)
 
 marginal_g1 = np.zeros(179)
