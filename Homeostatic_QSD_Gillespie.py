@@ -116,12 +116,10 @@ if clones == 3:
         dat = f'Results/QSD/Hard/Gillespie/Data-{sample_value}.bin'
 
 os.makedirs(os.path.dirname(params), exist_ok=True)
-file = open(params, 'wb')
-parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
-pickle.dump(parameters, file)
-file.close()
+with open(params, 'wb') as file:
+    parameters = (["dimension_value", "max_level_value", "mu_value", "gamma_value", "stimulus_value"], dimension_value, max_level_value, mu_value, gamma_value, stimulus_value)
+    pickle.dump(parameters, file)
 
 os.makedirs(os.path.dirname(dat), exist_ok=True)
-file = open(dat, 'wb')
-pickle.dump(distribution, file)
-file.close()
+with open(dat, 'wb') as file:
+    pickle.dump(distribution, file)

@@ -1,4 +1,4 @@
-# %% Packages
+#%% Packages
 
 
 import pickle
@@ -13,7 +13,7 @@ sns.set_style("ticks")
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
-# %% Plotting distributions
+#%% Plotting distributions
 
 
 experiments = ['Hard', 'Soft']
@@ -196,7 +196,7 @@ for current_model in range(2):
     if current_model == 0:
         graphs[3, 3].axis('off')
         graphs[3, 2].axis('off')
-    fig.savefig(f"QSD-type-{current_model + 1}.pdf")
+    fig.savefig(f"QSD-3-clones-type-{current_model + 1}.pdf")
 
     for row in range(4):
         for col in range(4):
@@ -303,7 +303,7 @@ for current_matrix in range(4):
             if row == 0:
                 graphs[row, col + 1].set_title('Marginal of $n_{1}$')
 
-fig.savefig("QSD-G.pdf")
+fig.savefig("QSD-3-clones-G.pdf")
 
 for row in range(4):
     for col in range(4):

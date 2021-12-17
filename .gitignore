@@ -16,6 +16,10 @@
 *.pdf
 *.png
 *.tex
+*.csv
+
+!Results/QSD/**/*.bin
+!Results/Mean time to extinction/Results.csv
 
 # Icon must end with two \r
 Icon

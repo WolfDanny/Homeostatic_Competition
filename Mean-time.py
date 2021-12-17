@@ -56,12 +56,23 @@ Solution = spsolve(M, b)
 
 #%% Storing Data
 
+if clones == 2:
+    params = 'Results/Mean time to extinction/Established/Parameters.bin'
+    dat = 'Results/Mean time to extinction/Established/Data.bin'
+if clones == 3:
+    if new_clone_is_soft:
+        params = f'Results/Mean time to extinction/Soft/Matrix-{sample_value}/Parameters.bin'
+        dat = f'Results/Mean time to extinction/Soft/Matrix-{sample_value}/Data.bin'
+    else:
+        params = f'Results/Mean time to extinction/Hard/Matrix-{sample_value}/Parameters.bin'
+        dat = f'Results/Mean time to extinction/Hard/Matrix-{sample_value}/Data.bin'
 
-os.makedirs(os.path.dirname('Results/Mean time to extinction/Data.bin'), exist_ok=True)
-with open('Results/Mean time to extinction/Data.bin', 'wb') as file:
+
+os.makedirs(os.path.dirname(dat), exist_ok=True)
+with open(dat, 'wb') as file:
     pickle.dump(Solution, file)
 
-params = [new_clone_is_soft, max_level_value, mu_value, n_mean_value, gamma_value, clones, sample_value, dimension_value, nu_value]
-os.makedirs(os.path.dirname('Results/Mean time to extinction/Parameters.bin'), exist_ok=True)
-with open('Results/Mean time to extinction/Parameters.bin', 'wb') as file:
-    pickle.dump(params, file)
+param_data = [new_clone_is_soft, max_level_value, mu_value, n_mean_value, gamma_value, clones, sample_value, dimension_value, nu_value]
+os.makedirs(os.path.dirname(params), exist_ok=True)
+with open(params, 'wb') as file:
+    pickle.dump(param_data, file)

@@ -90,7 +90,7 @@ for model in range(2):
     graph.set_yticklabels(ticks + 1, rotation=90)
     plt.title('QSD approximation using $\\mathcal{X}^{' + f'({model + 1})' + '}$')
 
-    fig.savefig(f"Established/QSD-{model + 1}.pdf")
+    fig.savefig(f"QSD-2-clones-{model + 1}.pdf")
 
     graph.clear()
     fig.clear()
@@ -129,7 +129,7 @@ graph.legend(loc='upper right')
 graph.set_xlabel('$n_{2}$')
 graph.set_title('$\\textrm{Marginal distribution of } n_{2}$')
 
-fig.savefig("Established/QSD-n2.pdf")
+fig.savefig("QSD-2-clones-n2.pdf")
 fig.clear()
 plt.close(fig='all')
 
@@ -152,7 +152,7 @@ graph.legend(loc='upper right')
 graph.set_xlabel('$n_{3}$')
 graph.set_title('$\\textrm{Marginal distribution of } n_{3}$')
 
-fig.savefig("Established/QSD-n3.pdf")
+fig.savefig("QSD-2-clones-n3.pdf")
 fig.clear()
 plt.close(fig='all')
 

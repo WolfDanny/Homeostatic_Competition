@@ -27,4 +27,4 @@ Due to space limitations only the results of `Homeostatic-QSD.py`, `Homeostatic-
 1. Run `QSD-plots-established.py` in `Results/QSD` to generate the figures for the QSD of the established clonotypes and `Means.bin`.
 2. Run `QSD-plots.py` in `Results/QSD` to generate the figures for the QSD of the three clonotypes and `Truncated_levels.bin`.
 3. Run `Absorption-distribution.py`, and `Division-distribution.py` to generate the data.
-4. Run `AD-plots.py`, `AD-plots-path.py`, and `DD-plots.py` to generate the figures for the absorption distribution and the distribution of divisions.
+4. Run `Results/Absorption distribution/AD-plots.py`, `Results/Absorption distribution/AD-plots-path.py`, and `Results/Division distribution/DD-plots.py` to generate the figures for the absorption distribution and the distribution of divisions.
