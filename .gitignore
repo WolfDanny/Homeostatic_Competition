@@ -17,12 +17,14 @@
 *.png
 *.tex
 *.csv
-Results/QSD/Established/Means.bin
 
 !Results/QSD/**/*.bin
 !Results/Mean time to extinction/**/*.bin
 !Results/Mean time to extinction/Results.csv
 !Samples/**/*.csv
+
+Results/QSD/Established/Means.bin
+Results/QSD/Truncated_levels.bin
 
 # Icon must end with two \r
 Icon

@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/282223835.svg)](https://zenodo.org/badge/latestdoi/282223835)
 # Python scripts used to calculate stochastic descriptors of the homeostatic competition model 
 
 This repository contains the codes used to calculate the QSD, absorption distribution, distribution of divisions, and mean time to extinction for the homeostatic competition model.
