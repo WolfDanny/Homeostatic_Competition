@@ -1,6 +1,12 @@
 # Created by https://www.gitignore.io/api/macos,python
 # Edit at https://www.gitignore.io/?templates=macos,python
 
+### Instructions and tests ###
+
+Parameter_tests/**
+arc.md
+.pre-commit-config.yaml
+
 ### PyCharm ###
 
 .idea
