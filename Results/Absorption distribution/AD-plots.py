@@ -1,14 +1,18 @@
 # %% Packages
 
 
-import numpy as np
 import pickle
-import matplotlib.pyplot as plt
 from copy import deepcopy
+from distutils.spawn import find_executable
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 from homeostatic import level_position, level_states
 
-plt.rcParams.update({"text.usetex": True})
-plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}"
+if find_executable("latex"):
+    plt.rcParams.update({"text.usetex": True})
+    plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}"
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 
@@ -165,10 +169,10 @@ scenario_names = [
     "$\\textrm{(c)}$",
     "$\\textrm{(d)}$",
 ]
-pie_size = 10 + 2
-tick_size = 12 + 2
-label_size = 16 + 4
-title_size = 18 + 4
+pie_size = 12
+tick_size = 14
+label_size = 20
+title_size = 22
 
 fig = plt.figure(constrained_layout=True, figsize=(w, 2 * h))
 TBfigs = fig.subfigures(2, 1, height_ratios=[24, 1], hspace=0)
@@ -301,7 +305,7 @@ for current_matrix in range(matrices):
             wedgeprops=dict(width=0.08),
             colors=["#B3784B", "#78FF78", "#A591FF"],
             startangle=30,
-            pctdistance=0.61 - 0.11,
+            pctdistance=0.5,
             radius=1,
         )
         # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\mathcal{U}^{1}$', '$\mathcal{U}^{2}$', '$\mathcal{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61 - 0.11, radius=1)

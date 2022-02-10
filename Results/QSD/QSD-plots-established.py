@@ -1,17 +1,21 @@
 # %% Packages
 
 
+import pickle
+from copy import deepcopy
+from distutils.spawn import find_executable
+
 import matplotlib.pyplot as plt
 import numpy as np
-import pickle
 import seaborn as sns
 from skimage import color, io
-from copy import deepcopy
+
 from homeostatic import level_position
 
+if find_executable("latex"):
+    plt.rcParams.update({"text.usetex": True})
 sns.set(font="serif")
 sns.set_style("ticks")
-plt.rcParams.update({"text.usetex": True})
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 

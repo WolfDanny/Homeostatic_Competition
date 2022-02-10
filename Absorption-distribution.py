@@ -1,13 +1,15 @@
 #%% Packages
 
 
-from homeostatic import *
-from scipy.special import comb
-from scipy.sparse import identity, csc_matrix, dok_matrix
-import numpy as np
-import pickle
 import gc
 import os
+import pickle
+
+import numpy as np
+from scipy.sparse import csc_matrix, dok_matrix, identity
+from scipy.special import comb
+
+from homeostatic import *
 
 #%% Parameters
 

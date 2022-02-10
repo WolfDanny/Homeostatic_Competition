@@ -2,12 +2,16 @@
 
 
 import pickle
-import seaborn as sns
+from distutils.spawn import find_executable
+
 import matplotlib.pyplot as plt
+import seaborn as sns
+
 from homeostatic import level_position_full_space
 
+if find_executable("latex"):
+    plt.rcParams.update({"text.usetex": True})
 sns.set(font="serif")
-plt.rcParams.update({"text.usetex": True})
 
 # %% Loading data and generating figures
 
@@ -26,12 +30,11 @@ for folder in experiments:
         col = current_matrix % 2
         division_distributions = [[] for _ in range(3)]
         for current_clone in range(3):
-            file = open(
+            with open(
                 f"{folder}/Matrix-{current_matrix}/Clone-{current_clone + 1}/Parameters-{current_matrix}.bin",
                 "rb",
-            )
-            load_data = pickle.load(file)
-            file.close()
+            ) as file:
+                load_data = pickle.load(file)
 
             dimension_value = load_data[1]
             max_level_value = load_data[2]
@@ -42,11 +45,11 @@ for folder in experiments:
             indexes = [i for i in range(num_divisions + 1)]
 
             for current_division in range(num_divisions + 1):
-                file = open(
+                with open(
                     f"{folder}/Matrix-{current_matrix}/Clone-{current_clone + 1}/Data-{current_division}.bin",
                     "rb",
-                )
-                data = pickle.load(file)
+                ) as file:
+                    data = pickle.load(file)
 
                 probability_value = (
                     data[sum(plotted_state)]
@@ -58,7 +61,6 @@ for folder in experiments:
                     .tolist()[0][0]
                 )
                 division_distributions[current_clone].append(probability_value)
-                file.close()
 
             normalising_constant = sum(division_distributions[current_clone])
             for division in range(num_divisions + 1):

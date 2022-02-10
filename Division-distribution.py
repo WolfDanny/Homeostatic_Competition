@@ -1,12 +1,14 @@
 #%% Packages
 
 
-from homeostatic import *
-from scipy.sparse import coo_matrix, identity, csc_matrix
-import numpy as np
-import pickle
 import gc
 import os
+import pickle
+
+import numpy as np
+from scipy.sparse import coo_matrix, csc_matrix, identity
+
+from homeostatic import *
 
 #%% Parameters
 
@@ -119,12 +121,12 @@ for new_clone_is_soft in [True, False]:
 
                 d_vectors = []
                 if current_division != 0:
-                    file = open(
+                    with open(
                         f"Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division - 1}.bin",
                         "rb",
-                    )
-                    previous_division = pickle.load(file)
-                    file.close()
+                    ) as file:
+                        previous_division = pickle.load(file)
+
                     for current_level in range(max_level_value + 1):
                         d_vectors.append(
                             division_vector(
@@ -191,7 +193,7 @@ for new_clone_is_soft in [True, False]:
                 with open(filename, "wb") as file:
                     pickle.dump(distribution, file)
 
-            # Storing Data
+            # Storing Parameters
 
             filename = f"Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Parameters-{sample_value}.bin"
             os.makedirs(os.path.dirname(filename), exist_ok=True)

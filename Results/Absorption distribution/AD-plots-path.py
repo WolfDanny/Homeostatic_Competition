@@ -2,11 +2,15 @@
 
 
 import pickle
-import matplotlib.pyplot as plt
 from copy import deepcopy
+from distutils.spawn import find_executable
+
+import matplotlib.pyplot as plt
+
 from homeostatic import level_position
 
-plt.rcParams.update({"text.usetex": True})
+if find_executable("latex"):
+    plt.rcParams.update({"text.usetex": True})
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 

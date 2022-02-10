@@ -2,12 +2,17 @@
 
 
 import pickle
+from copy import deepcopy
+from distutils.spawn import find_executable
+
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
-from copy import deepcopy
+
 from homeostatic import level_position
 
+if find_executable("latex"):
+    plt.rcParams.update({"text.usetex": True})
 sns.set(font="serif")
 sns.set_style("ticks")
 plt.rcParams["font.family"] = "serif"
@@ -45,12 +50,11 @@ for folder in experiments:
 
         for current_matrix in range(4):
             try:
-                file = open(
+                with open(
                     f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Parameters.bin",
                     "rb",
-                )
-                load_data = pickle.load(file)
-                file.close()
+                ) as file:
+                    load_data = pickle.load(file)
 
                 dimension_value = load_data[1]
                 max_level_value = load_data[2]
@@ -58,12 +62,11 @@ for folder in experiments:
 
                 del load_data
 
-                file = open(
+                with open(
                     f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Data-{current_model + 1}-{current_matrix}.bin",
                     "rb",
-                )
-                data = pickle.load(file)
-                file.close()
+                ) as file:
+                    data = pickle.load(file)
 
                 captured = 0
                 captured_level = 0  # So that it is not undefined
