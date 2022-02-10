@@ -1,11 +1,11 @@
-[![DOI](https://zenodo.org/badge/282223835.svg)](https://zenodo.org/badge/latestdoi/282223835)
-# Python scripts used to calculate stochastic descriptors of the homeostatic competition model 
+[![DOI](https://zenodo.org/badge/282223835.svg)](https://zenodo.org/badge/latestdoi/282223835) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+# Python scripts used to calculate stochastic descriptors of the homeostatic competition model
 
 This repository contains the codes used to calculate the QSD, absorption distribution, distribution of divisions, and mean time to extinction for the homeostatic competition model.
 
 ## Scripts included in ths repository
 
-* `Homeostatic_QSD.py`: used to approximate the QSD of the process using 2 approximating processes where there is no extinction. 
+* `Homeostatic_QSD.py`: used to approximate the QSD of the process using 2 approximating processes where there is no extinction.
 * `Homeostatic_QSD_Gillespie.py`: used to approximate the QSD by simulating the stochastic process multiple times using the Gillespie algorithm.
 * `Absorption-distribution.py`: used to calculate the distribution of absorption probabilities from all starting states using a first step argument.
 * `Division-distribution.py`: used to calculate the distribution of divisions before extinction from all starting states using first step analysis.

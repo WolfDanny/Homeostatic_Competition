@@ -71,15 +71,21 @@ def level_position(level, dimension, state):
     max_cells = level - dimension + 1
 
     for i in range(dimension):
-        position += (state[i] - 1) * (max_cells ** i)
+        position += (state[i] - 1) * (max_cells**i)
 
     for i in range(dimension - 2):
-        position += (state[dimension - 1 - i] - 1) * (1 - (max_cells ** (dimension - 1 - i)))
+        position += (state[dimension - 1 - i] - 1) * (
+            1 - (max_cells ** (dimension - 1 - i))
+        )
 
     position = int(position / (max_cells - 1))
 
     for i in range(dimension - 2):
-        position += int(comb(level - 1 - sum(state[dimension - i:dimension]), dimension - 1 - i)) - int(comb(level - sum(state[dimension - i - 1:dimension]), dimension - 1 - i))
+        position += int(
+            comb(level - 1 - sum(state[dimension - i : dimension]), dimension - 1 - i)
+        ) - int(
+            comb(level - sum(state[dimension - i - 1 : dimension]), dimension - 1 - i)
+        )
 
     return int(position - 1)
 
@@ -117,15 +123,21 @@ def level_position_full_space(level, dimension, state):
     max_cells = level - dimension + 1
 
     for i in range(dimension):
-        position += (state[i] - 1) * (max_cells ** i)
+        position += (state[i] - 1) * (max_cells**i)
 
     for i in range(dimension - 2):
-        position += (state[dimension - 1 - i] - 1) * (1 - (max_cells ** (dimension - 1 - i)))
+        position += (state[dimension - 1 - i] - 1) * (
+            1 - (max_cells ** (dimension - 1 - i))
+        )
 
     position = int(position / (max_cells - 1))
 
     for i in range(dimension - 2):
-        position += int(comb(level - 1 - sum(state[dimension - i:dimension]), dimension - 1 - i)) - int(comb(level - sum(state[dimension - i - 1:dimension]), dimension - 1 - i))
+        position += int(
+            comb(level - 1 - sum(state[dimension - i : dimension]), dimension - 1 - i)
+        ) - int(
+            comb(level - sum(state[dimension - i - 1 : dimension]), dimension - 1 - i)
+        )
 
     return int(position - 1)
 
@@ -159,7 +171,7 @@ def level_states(level, dimension):
         for i in range(len(n)):
             if n[i] > level - dimension + 1:
                 if (i + 1) < len(n):
-                    n[i+1] += 1
+                    n[i + 1] += 1
                     n[i] = 1
                 for j in range(i):
                     n[j] = 1
@@ -199,7 +211,7 @@ def level_states_full_space(level, dimension):
         for i in range(len(n)):
             if n[i] > level:
                 if (i + 1) < len(n):
-                    n[i+1] += 1
+                    n[i + 1] += 1
                     n[i] = 0
                 for j in range(i):
                     n[j] = 0
@@ -334,7 +346,9 @@ def rate_list(state, probability, mu, nu, dimension, stimulus, max_level):
 
     if sum(state) < max_level:
         for i in range(dimension):
-            rates.append(float(birth_rate(state, probability, i, dimension, nu, stimulus)))
+            rates.append(
+                float(birth_rate(state, probability, i, dimension, nu, stimulus))
+            )
             rates.append(float(state[i] * mu))
     else:
         for i in range(dimension):
@@ -469,7 +483,9 @@ def death_delta_approximation(state, mu, model):
     return delta_value
 
 
-def main_diagonal_matrices_approximation(level, max_level, dimension, probability, mu, nu, stimulus, model):
+def main_diagonal_matrices_approximation(
+    level, max_level, dimension, probability, mu, nu, stimulus, model
+):
     """
     Creates the diagonal matrix A_{level, level} in the approximating process X^ *model*.
 
@@ -500,13 +516,20 @@ def main_diagonal_matrices_approximation(level, max_level, dimension, probabilit
 
     pos = []
     data = []
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 1, dimension - 1)))
+    matrix_shape = (
+        int(comb(level - 1, dimension - 1)),
+        int(comb(level - 1, dimension - 1)),
+    )
 
     states = level_states(level, dimension)
 
     if level < max_level:
         for state in states:
-            data.append(-delta_approximation(state, probability, mu, dimension, nu, stimulus, model))
+            data.append(
+                -delta_approximation(
+                    state, probability, mu, dimension, nu, stimulus, model
+                )
+            )
             pos.append(level_position(level, dimension, state))
     else:
         for state in states:
@@ -549,7 +572,10 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 2, dimension - 1)))
+    matrix_shape = (
+        int(comb(level - 1, dimension - 1)),
+        int(comb(level - 2, dimension - 1)),
+    )
 
     states = level_states(level, dimension)
 
@@ -559,7 +585,10 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 0:
-                    data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
+                    data.append(
+                        (state[i] * mu)
+                        / delta(state, probability, mu, dimension, nu, stimulus)
+                    )
                     cols.append(level_position(level - 1, dimension, new_state))
                     rows.append(level_position(level, dimension, state))
     else:
@@ -577,7 +606,9 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
     return dd_matrix
 
 
-def death_diagonal_matrices_division(level, max_level, clone, dimension, probability, stimulus, mu, nu):
+def death_diagonal_matrices_division(
+    level, max_level, clone, dimension, probability, stimulus, mu, nu
+):
     """
     Creates the sub-diagonal matrix A_{level, level - 1}.
 
@@ -610,7 +641,10 @@ def death_diagonal_matrices_division(level, max_level, clone, dimension, probabi
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level + dimension - 1, dimension - 1)), int(comb(level + dimension - 2, dimension - 1)))
+    matrix_shape = (
+        int(comb(level + dimension - 1, dimension - 1)),
+        int(comb(level + dimension - 2, dimension - 1)),
+    )
 
     states = level_states_full_space(level, dimension)
 
@@ -621,8 +655,13 @@ def death_diagonal_matrices_division(level, max_level, clone, dimension, probabi
                     new_state = state[:]
                     new_state[i] -= 1
                     if new_state.count(-1) == 0:
-                        data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
-                        cols.append(level_position_full_space(level - 1, dimension, new_state))
+                        data.append(
+                            (state[i] * mu)
+                            / delta(state, probability, mu, dimension, nu, stimulus)
+                        )
+                        cols.append(
+                            level_position_full_space(level - 1, dimension, new_state)
+                        )
                         rows.append(level_position_full_space(level, dimension, state))
     else:
         for state in states:
@@ -632,7 +671,9 @@ def death_diagonal_matrices_division(level, max_level, clone, dimension, probabi
                     new_state[i] -= 1
                     if new_state.count(-1) == 0:
                         data.append((state[i] * mu) / death_delta(state, mu))
-                        cols.append(level_position_full_space(level - 1, dimension, new_state))
+                        cols.append(
+                            level_position_full_space(level - 1, dimension, new_state)
+                        )
                         rows.append(level_position_full_space(level, dimension, state))
 
     dd_matrix = coo_matrix((data, (rows, cols)), matrix_shape).tocsc()
@@ -665,7 +706,10 @@ def death_diagonal_matrices_approximation(level, dimension, mu, model):
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 2, dimension - 1)))
+    matrix_shape = (
+        int(comb(level - 1, dimension - 1)),
+        int(comb(level - 2, dimension - 1)),
+    )
 
     states = level_states(level, dimension)
 
@@ -712,7 +756,10 @@ def birth_diagonal_matrices(level, dimension, probability, stimulus, mu, nu):
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level, dimension - 1)))
+    matrix_shape = (
+        int(comb(level - 1, dimension - 1)),
+        int(comb(level, dimension - 1)),
+    )
 
     states = level_states(level, dimension)
 
@@ -721,7 +768,10 @@ def birth_diagonal_matrices(level, dimension, probability, stimulus, mu, nu):
             new_state = state[:]
             new_state[i] += 1
 
-            data.append(birth_rate(state, probability, i, dimension, nu, stimulus) / delta(state, probability, mu, dimension, nu, stimulus))
+            data.append(
+                birth_rate(state, probability, i, dimension, nu, stimulus)
+                / delta(state, probability, mu, dimension, nu, stimulus)
+            )
             cols.append(level_position(level + 1, dimension, new_state))
             rows.append(level_position(level, dimension, state))
 
@@ -730,7 +780,9 @@ def birth_diagonal_matrices(level, dimension, probability, stimulus, mu, nu):
     return bd_matrix
 
 
-def birth_diagonal_matrices_division(level, clone, dimension, probability, stimulus, mu, nu):
+def birth_diagonal_matrices_division(
+    level, clone, dimension, probability, stimulus, mu, nu
+):
     """
     Creates the superdiagonal matrix A^{clone}_{level, level + 1}.
 
@@ -761,7 +813,10 @@ def birth_diagonal_matrices_division(level, clone, dimension, probability, stimu
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level + dimension - 1, dimension - 1)), int(comb(level + dimension, dimension - 1)))
+    matrix_shape = (
+        int(comb(level + dimension - 1, dimension - 1)),
+        int(comb(level + dimension, dimension - 1)),
+    )
 
     states = level_states_full_space(level, dimension)
 
@@ -772,12 +827,17 @@ def birth_diagonal_matrices_division(level, clone, dimension, probability, stimu
                     new_state = state[:]
                     new_state[i] += 1
 
-                    cols.append(level_position_full_space(level + 1, dimension, new_state))
+                    cols.append(
+                        level_position_full_space(level + 1, dimension, new_state)
+                    )
                     rows.append(level_position_full_space(level, dimension, state))
                     try:
-                        data.append(birth_rate(state, probability, i, dimension, nu, stimulus) / delta(state, probability, mu, dimension, nu, stimulus))
+                        data.append(
+                            birth_rate(state, probability, i, dimension, nu, stimulus)
+                            / delta(state, probability, mu, dimension, nu, stimulus)
+                        )
                     except ZeroDivisionError:
-                        print(f'Error in {level}, {state}')
+                        print(f"Error in {level}, {state}")
                         if level == 0:
                             cols.pop()
                             rows.pop()
@@ -814,7 +874,10 @@ def birth_diagonal_matrices_approximation(level, dimension, probability, nu, sti
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level, dimension - 1)))
+    matrix_shape = (
+        int(comb(level - 1, dimension - 1)),
+        int(comb(level, dimension - 1)),
+    )
 
     states = level_states(level, dimension)
 
@@ -832,7 +895,9 @@ def birth_diagonal_matrices_approximation(level, dimension, probability, nu, sti
     return bd_matrix
 
 
-def absorption_matrix(level, clone, max_level, dimension, mu, nu, probability, stimulus):
+def absorption_matrix(
+    level, clone, max_level, dimension, mu, nu, probability, stimulus
+):
     """
     Creates the transition matrix R^{*clone*}_{*level*, *level* - 1} in the embedded Markov chain as a csc_matrix.
 
@@ -865,7 +930,10 @@ def absorption_matrix(level, clone, max_level, dimension, mu, nu, probability, s
     cols = []
     data = []
 
-    matrix_shape = (int(comb(level - 1, dimension - 1)), int(comb(level - 2, dimension - 2)))
+    matrix_shape = (
+        int(comb(level - 1, dimension - 1)),
+        int(comb(level - 2, dimension - 2)),
+    )
 
     states = level_states(level, dimension)
 
@@ -878,7 +946,10 @@ def absorption_matrix(level, clone, max_level, dimension, mu, nu, probability, s
                     projection = new_state[:]
                     projection.pop(projection.index(0))
 
-                    data.append((state[i] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
+                    data.append(
+                        (state[i] * mu)
+                        / delta(state, probability, mu, dimension, nu, stimulus)
+                    )
                     cols.append(level_position(level - 1, dimension - 1, projection))
                     rows.append(level_position(level, dimension, state))
     else:
@@ -899,7 +970,18 @@ def absorption_matrix(level, clone, max_level, dimension, mu, nu, probability, s
     return a_matrix
 
 
-def division_vector(level, clone, divisions, max_level, dimension, probability, stimulus, mu, nu, probability_previous_division=None):
+def division_vector(
+    level,
+    clone,
+    divisions,
+    max_level,
+    dimension,
+    probability,
+    stimulus,
+    mu,
+    nu,
+    probability_previous_division=None,
+):
     """
     Creates the division vector d^{(*clone*)}_{*divisions*, *level*} as a csc_matrix.
 
@@ -936,7 +1018,9 @@ def division_vector(level, clone, divisions, max_level, dimension, probability, 
         probability_previous_division = []
 
     try:
-        probability_previous_division = probability_previous_division[level].todense().flatten().tolist()[0]
+        probability_previous_division = (
+            probability_previous_division[level].todense().flatten().tolist()[0]
+        )
     except IndexError:
         if divisions == 0 or level == 0:
             pass
@@ -957,7 +1041,17 @@ def division_vector(level, clone, divisions, max_level, dimension, probability, 
                 for state in states:
                     rows.append(level_position_full_space(level, dimension, state))
                     cols.append(0)
-                    data.append((birth_rate(state, probability, clone, dimension, nu, stimulus) / delta(state, probability, mu, dimension, nu, stimulus)) * probability_previous_division[level_position_full_space(level, dimension, state)])
+                    data.append(
+                        (
+                            birth_rate(
+                                state, probability, clone, dimension, nu, stimulus
+                            )
+                            / delta(state, probability, mu, dimension, nu, stimulus)
+                        )
+                        * probability_previous_division[
+                            level_position_full_space(level, dimension, state)
+                        ]
+                    )
         else:
             for state in states:
                 if state[clone] == 0:
@@ -967,7 +1061,10 @@ def division_vector(level, clone, divisions, max_level, dimension, probability, 
                 elif level < max_level and state[clone] == 1:
                     rows.append(level_position_full_space(level, dimension, state))
                     cols.append(0)
-                    data.append((state[clone] * mu) / delta(state, probability, mu, dimension, nu, stimulus))
+                    data.append(
+                        (state[clone] * mu)
+                        / delta(state, probability, mu, dimension, nu, stimulus)
+                    )
     else:
         if divisions == 0:
             rows.append(0)
@@ -1039,12 +1136,18 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
                 col = next_level + level_position(level + 1, dimension, new_state)
                 rows.append(row)
                 cols.append(col)
-                data.append(birth_rate(state, probability, clone, dimension, nu, stimulus))
+                data.append(
+                    birth_rate(state, probability, clone, dimension, nu, stimulus)
+                )
 
                 new_state[clone] -= 2
 
                 if new_state.count(0) == 0:
-                    col = previous_level - len(level_states(level - 1, dimension)) + level_position(level - 1, dimension, new_state)
+                    col = (
+                        previous_level
+                        - len(level_states(level - 1, dimension))
+                        + level_position(level - 1, dimension, new_state)
+                    )
                     rows.append(row)
                     cols.append(col)
                     data.append(state[clone] * mu)
@@ -1059,9 +1162,16 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
             new_state[clone] -= 1
 
             if new_state.count(0) == 0:
-                col = previous_level - len(level_states(max_level - 1, dimension)) + level_position(max_level - 1, dimension, new_state)
+                col = (
+                    previous_level
+                    - len(level_states(max_level - 1, dimension))
+                    + level_position(max_level - 1, dimension, new_state)
+                )
                 rows.append(row)
                 cols.append(col)
                 data.append(state[clone] * mu)
 
-    return coo_matrix((data, (rows, cols)), (int(comb(max_level, dimension)), int(comb(max_level, dimension)))).tocsr()
+    return coo_matrix(
+        (data, (rows, cols)),
+        (int(comb(max_level, dimension)), int(comb(max_level, dimension))),
+    ).tocsr()
