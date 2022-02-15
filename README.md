@@ -25,19 +25,19 @@ conda activate fs
 
 Due to space limitations only the results of `Homeostatic_QSD.py`, `Homeostatic_QSD_Gillespie.py`, and `Mean-time.py` are included in `Results`
 
-1. Run `QSD-plots-established.py` in `Results/QSD` to generate the figures for the QSD of the established clonotypes and `Means.bin`.
-2. Run `QSD-plots.py` in `Results/QSD` to generate the figures for the QSD of the three clonotypes and `Truncated_levels.bin`.
+1. Run `QSD-plots-established.py` in `Results/QSD/` to generate the figures for the QSD of the established clonotypes and `Means.bin`.
+2. Run `QSD-plots.py` in `Results/QSD/` to generate the figures for the QSD of the three clonotypes and `Truncated_levels.bin`.
 3. Run `Absorption-distribution.py`, and `Division-distribution.py` to generate the data.
 4. Run `Results/Absorption distribution/AD-plots.py`, `Results/Absorption distribution/AD-plots-path.py`, and `Results/Division distribution/DD-plots.py` to generate the figures for the absorption distribution and the distribution of divisions.
 
 ## Using `Homeostatic_QSD.py`, `Homeostatic_QSD_Gillespie.py`, and `Mean-time.py`
 
-When using `Homeostatic_QSD.py`, `Homeostatic_QSD_Gillespie.py`, and `Mean-time.py` they must be run several times to generate a complete dataset.
+When using `Homeostatic_QSD.py`, `Homeostatic_QSD_Gillespie.py`, and `Mean-time.py` they must be run multiple times to generate a complete dataset.
 
 1. `Mean-time.py` must be run first to identify the appropriate value for `time_max` in `Homeostatic_QSD_Gillespie.py`. After all the data is produced `Results/Mean time to extinction/MT-analysis.py` can be run.
    - For `clones = 3` the code needs to be run for all combinations of the following parameters:
-     - `new_clone_is_soft` has to be set to `True` or `False`.
-     - `sample_value` has to be set to `0`, `1`, `2`, or `3`.
+     - `new_clone_is_soft` has to be set to `True` and `False`.
+     - `sample_value` has to be set to `0`, `1`, `2`, and `3`.
    - For `clones = 2` the code only needs to be run once (other parameters are not used in this case).
 2. `Homeostatic_QSD.py` must be run for all combinations of the following parameters:
    - For `clones = 3` the code needs to be run for all combinations of the following parameters:

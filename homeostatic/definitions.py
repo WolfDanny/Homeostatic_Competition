@@ -1,10 +1,11 @@
-from scipy.special import comb
-from scipy.sparse import coo_matrix, identity, csc_matrix, dok_matrix
-from itertools import chain, combinations
-import numpy as np
-import pickle
 import gc
 import os
+import pickle
+from itertools import chain, combinations
+
+import numpy as np
+from scipy.sparse import coo_matrix, csc_matrix, dok_matrix, identity
+from scipy.special import comb
 
 
 def clone_sets(dimension, clone):

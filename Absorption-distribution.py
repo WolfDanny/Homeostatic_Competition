@@ -187,11 +187,13 @@ for new_clone_is_soft in [True, False]:
         if new_clone_is_soft:
             folder = "Soft"
 
-        filename = (
+        parameters_path = (
             f"Results/Absorption distribution/{folder}/Parameters-{sample_value}.bin"
         )
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "wb") as file:
+        data_path = f"Results/Absorption distribution/{folder}/Data-{sample_value}.bin"
+
+        os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+        with open(parameters_path, "wb") as file:
             parameters = (
                 [
                     "dimension_value",
@@ -208,7 +210,6 @@ for new_clone_is_soft in [True, False]:
             )
             pickle.dump(parameters, file)
 
-        filename = f"Results/Absorption distribution/{folder}/Data-{sample_value}.bin"
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "wb") as file:
+        os.makedirs(os.path.dirname(data_path), exist_ok=True)
+        with open(data_path, "wb") as file:
             pickle.dump(distribution, file)

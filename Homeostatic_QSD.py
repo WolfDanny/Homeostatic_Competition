@@ -1,13 +1,15 @@
 #%% Packages
 
 
-from homeostatic import *
-from scipy.sparse import csc_matrix
-from scipy.sparse.linalg import inv
-import numpy as np
-import pickle
 import gc
 import os
+import pickle
+
+import numpy as np
+from scipy.sparse import csc_matrix
+from scipy.sparse.linalg import inv
+
+from homeostatic import *
 
 #%% Global parameters
 
@@ -37,8 +39,7 @@ if clones == 2:
     nu_value = np.genfromtxt(
         "Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=","
     )
-
-if clones == 3:
+elif clones == 3:
     stimulus_value = [
         base_stimulus * gamma_value,
         base_stimulus * gamma_value,
@@ -136,19 +137,22 @@ for level_value in range(len(distribution)):
 #%% Storing results
 
 if clones == 2:
-    params = f"Results/QSD/Established/Model-{model_value}/Parameters.bin"
-    dat = f"Results/QSD/Established/Model-{model_value}/Data.bin"
-
-if clones == 3:
+    parameters_path = f"Results/QSD/Established/Model-{model_value}/Parameters.bin"
+    data_path = f"Results/QSD/Established/Model-{model_value}/Data.bin"
+elif clones == 3:
     if new_clone_is_soft:
-        params = f"Results/QSD/Soft/Model-{model_value}/Parameters.bin"
-        dat = f"Results/QSD/Soft/Model-{model_value}/QSD-S-{sample_value}/Data.bin"
+        parameters_path = f"Results/QSD/Soft/Model-{model_value}/Parameters.bin"
+        data_path = (
+            f"Results/QSD/Soft/Model-{model_value}/QSD-S-{sample_value}/Data.bin"
+        )
     else:
-        params = f"Results/QSD/Hard/Model-{model_value}/Parameters.bin"
-        dat = f"Results/QSD/Hard/Model-{model_value}/QSD-S-{sample_value}/Data.bin"
+        parameters_path = f"Results/QSD/Hard/Model-{model_value}/Parameters.bin"
+        data_path = (
+            f"Results/QSD/Hard/Model-{model_value}/QSD-H-{sample_value}/Data.bin"
+        )
 
-os.makedirs(os.path.dirname(params), exist_ok=True)
-file = open(params, "wb")
+os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+file = open(parameters_path, "wb")
 parameters = (
     [
         "dimension_value",
@@ -168,7 +172,7 @@ parameters = (
 pickle.dump(parameters, file)
 file.close()
 
-os.makedirs(os.path.dirname(dat), exist_ok=True)
-file = open(dat, "wb")
+os.makedirs(os.path.dirname(data_path), exist_ok=True)
+file = open(data_path, "wb")
 pickle.dump(distribution, file)
 file.close()

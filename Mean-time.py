@@ -1,12 +1,14 @@
 #%% Packages
 
 
-from homeostatic import *
-from scipy.special import comb
-from scipy.sparse.linalg import spsolve
-import numpy as np
-import pickle
 import os
+import pickle
+
+import numpy as np
+from scipy.sparse.linalg import spsolve
+from scipy.special import comb
+
+from homeostatic import *
 
 #%% Parameters
 
@@ -31,8 +33,7 @@ if clones == 2:
     nu_value = np.genfromtxt(
         "Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=","
     )
-
-if clones == 3:
+elif clones == 3:
     stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
 
     probability_values = np.genfromtxt(
@@ -73,23 +74,27 @@ Solution = spsolve(M, b)
 #%% Storing Data
 
 if clones == 2:
-    params = "Results/Mean time to extinction/Established/Parameters.bin"
-    dat = "Results/Mean time to extinction/Established/Data.bin"
-if clones == 3:
+    parameters_path = "Results/Mean time to extinction/Established/Parameters.bin"
+    data_path = "Results/Mean time to extinction/Established/Data.bin"
+elif clones == 3:
     if new_clone_is_soft:
-        params = (
+        parameters_path = (
             f"Results/Mean time to extinction/Soft/Matrix-{sample_value}/Parameters.bin"
         )
-        dat = f"Results/Mean time to extinction/Soft/Matrix-{sample_value}/Data.bin"
+        data_path = (
+            f"Results/Mean time to extinction/Soft/Matrix-{sample_value}/Data.bin"
+        )
     else:
-        params = (
+        parameters_path = (
             f"Results/Mean time to extinction/Hard/Matrix-{sample_value}/Parameters.bin"
         )
-        dat = f"Results/Mean time to extinction/Hard/Matrix-{sample_value}/Data.bin"
+        data_path = (
+            f"Results/Mean time to extinction/Hard/Matrix-{sample_value}/Data.bin"
+        )
 
 
-os.makedirs(os.path.dirname(dat), exist_ok=True)
-with open(dat, "wb") as file:
+os.makedirs(os.path.dirname(data_path), exist_ok=True)
+with open(data_path, "wb") as file:
     pickle.dump(Solution, file)
 
 param_data = [
@@ -103,6 +108,6 @@ param_data = [
     dimension_value,
     nu_value,
 ]
-os.makedirs(os.path.dirname(params), exist_ok=True)
-with open(params, "wb") as file:
+os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+with open(parameters_path, "wb") as file:
     pickle.dump(param_data, file)

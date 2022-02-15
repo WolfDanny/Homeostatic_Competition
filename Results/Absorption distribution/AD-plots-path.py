@@ -23,6 +23,8 @@ matrices = 4
 
 hard_data = []
 soft_data = []
+hard_indices = []
+soft_indices = []
 
 for current_matrix in range(matrices):
 
@@ -30,19 +32,19 @@ for current_matrix in range(matrices):
     absorption_values_soft = [[], [], []]
 
     for folder in experiments:
-        file = open(f"{folder}/Parameters-{current_matrix}.bin", "rb")
-        load_data = pickle.load(file)
-        file.close()
+        with open(f"{folder}/Parameters-{current_matrix}.bin", "rb") as file:
+            load_data = pickle.load(file)
 
-        dimension_value = load_data[1]
-        max_level_value = load_data[2]
-        stimulus_value = load_data[5]
+            dimension_value = load_data[1]
+            max_level_value = load_data[2]
+            stimulus_value = load_data[5]
 
-        del load_data
+            del load_data
 
-        file = open(f"{folder}/Data-{current_matrix}.bin", "rb")
-        distribution = pickle.load(file)
-        file.close()
+        with open(f"{folder}/Data-{current_matrix}.bin", "rb") as file:
+            distribution = pickle.load(file)
+
+        print(f"{max_level_value} on {folder} {current_matrix}")
 
         absorption_index = [
             i + 1 for i in range(max_level_value - initial_state[0] - initial_state[1])
@@ -50,6 +52,7 @@ for current_matrix in range(matrices):
 
         for i in range(max_level_value - initial_state[0] - initial_state[1]):
             plotted_state = [i + 1, initial_state[0], initial_state[1]]
+
             absorption_c1 = [
                 distribution[0][i][sum(plotted_state) - dimension_value]
                 .todense()
@@ -74,6 +77,7 @@ for current_matrix in range(matrices):
                 ]
                 for i in range(max_level_value - 2)
             ]
+
             absorption_c1_value = sum(
                 [sum(current_level) for current_level in absorption_c1]
             )
@@ -95,8 +99,10 @@ for current_matrix in range(matrices):
 
         if folder == "Hard":
             hard_data.append(deepcopy(absorption_values_hard))
+            hard_indices.append(deepcopy(absorption_index))
         else:
             soft_data.append(deepcopy(absorption_values_soft))
+            soft_indices.append(deepcopy(absorption_index))
 
 # %% Generating figure
 
@@ -131,15 +137,15 @@ graphs[0].plot(
     [], [], dashes=dpattern, color="k", label="$\\textrm{Scenario } (\\textrm{d})$"
 )
 
-graphs[0].plot(absorption_index, hard_data[0][0], "-", lw=lw, color="g")
-graphs[0].plot(absorption_index, hard_data[1][0], dashes=bpattern, lw=lw, color="g")
-graphs[0].plot(absorption_index, hard_data[2][0], dashes=cpattern, lw=lw, color="g")
-graphs[0].plot(absorption_index, hard_data[3][0], dashes=dpattern, lw=lw, color="g")
-graphs[0].plot(absorption_index, soft_data[0][0], "-", lw=lw, color="b")
-graphs[0].plot(absorption_index, soft_data[1][0], dashes=bpattern, lw=lw, color="b")
-graphs[0].plot(absorption_index, soft_data[2][0], dashes=cpattern, lw=lw, color="b")
-graphs[0].plot(absorption_index, soft_data[3][0], dashes=dpattern, lw=lw, color="b")
-graphs[0].set_title("$\\textrm{Extinction of clonotype 1}$", fontsize=title_size)
+graphs[0].plot(hard_indices[0], hard_data[0][0], "-", lw=lw, color="g")
+graphs[0].plot(hard_indices[1], hard_data[1][0], dashes=bpattern, lw=lw, color="g")
+graphs[0].plot(hard_indices[2], hard_data[2][0], dashes=cpattern, lw=lw, color="g")
+graphs[0].plot(hard_indices[3], hard_data[3][0], dashes=dpattern, lw=lw, color="g")
+graphs[0].plot(soft_indices[0], soft_data[0][0], "-", lw=lw, color="b")
+graphs[0].plot(soft_indices[1], soft_data[1][0], dashes=bpattern, lw=lw, color="b")
+graphs[0].plot(soft_indices[2], soft_data[2][0], dashes=cpattern, lw=lw, color="b")
+graphs[0].plot(soft_indices[3], soft_data[3][0], dashes=dpattern, lw=lw, color="b")
+graphs[0].set_title("$\\mathcal{U}^{1}(n_{1})$", fontsize=title_size)
 graphs[0].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[0].set_ylabel("$\\textrm{Probability}$", fontsize=label_size)
 graphs[0].set_facecolor("white")
@@ -147,30 +153,30 @@ graphs[0].set_ylim(0, 1)
 graphs[0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
 graphs[0].tick_params(axis="both", labelsize=11)
 
-graphs[1].plot(absorption_index, hard_data[0][1], "-", lw=lw, color="g")
-graphs[1].plot(absorption_index, hard_data[1][1], dashes=bpattern, lw=lw, color="g")
-graphs[1].plot(absorption_index, hard_data[2][1], dashes=cpattern, lw=lw, color="g")
-graphs[1].plot(absorption_index, hard_data[3][1], dashes=dpattern, lw=lw, color="g")
-graphs[1].plot(absorption_index, soft_data[0][1], "-", lw=lw, color="b")
-graphs[1].plot(absorption_index, soft_data[1][1], dashes=bpattern, lw=lw, color="b")
-graphs[1].plot(absorption_index, soft_data[2][1], dashes=cpattern, lw=lw, color="b")
-graphs[1].plot(absorption_index, soft_data[3][1], dashes=dpattern, lw=lw, color="b")
-graphs[1].set_title("$\\textrm{Extinction of clonotype 2}$", fontsize=title_size)
+graphs[1].plot(hard_indices[0], hard_data[0][1], "-", lw=lw, color="g")
+graphs[1].plot(hard_indices[1], hard_data[1][1], dashes=bpattern, lw=lw, color="g")
+graphs[1].plot(hard_indices[2], hard_data[2][1], dashes=cpattern, lw=lw, color="g")
+graphs[1].plot(hard_indices[3], hard_data[3][1], dashes=dpattern, lw=lw, color="g")
+graphs[1].plot(soft_indices[0], soft_data[0][1], "-", lw=lw, color="b")
+graphs[1].plot(soft_indices[1], soft_data[1][1], dashes=bpattern, lw=lw, color="b")
+graphs[1].plot(soft_indices[2], soft_data[2][1], dashes=cpattern, lw=lw, color="b")
+graphs[1].plot(soft_indices[3], soft_data[3][1], dashes=dpattern, lw=lw, color="b")
+graphs[1].set_title("$\\mathcal{U}^{2}(n_{1})$", fontsize=title_size)
 graphs[1].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[1].set_facecolor("white")
 graphs[1].set_ylim(0, 1)
 graphs[1].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
 graphs[1].tick_params(axis="both", labelsize=11)
 
-graphs[2].plot(absorption_index, hard_data[0][2], "-", lw=lw, color="g")
-graphs[2].plot(absorption_index, hard_data[1][2], dashes=bpattern, lw=lw, color="g")
-graphs[2].plot(absorption_index, hard_data[2][2], dashes=cpattern, lw=lw, color="g")
-graphs[2].plot(absorption_index, hard_data[3][2], dashes=dpattern, lw=lw, color="g")
-graphs[2].plot(absorption_index, soft_data[0][2], "-", lw=lw, color="b")
-graphs[2].plot(absorption_index, soft_data[1][2], dashes=bpattern, lw=lw, color="b")
-graphs[2].plot(absorption_index, soft_data[2][2], dashes=cpattern, lw=lw, color="b")
-graphs[2].plot(absorption_index, soft_data[3][2], dashes=dpattern, lw=lw, color="b")
-graphs[2].set_title("$\\textrm{Extinction of clonotype 3}$", fontsize=title_size)
+graphs[2].plot(hard_indices[0], hard_data[0][2], "-", lw=lw, color="g")
+graphs[2].plot(hard_indices[1], hard_data[1][2], dashes=bpattern, lw=lw, color="g")
+graphs[2].plot(hard_indices[2], hard_data[2][2], dashes=cpattern, lw=lw, color="g")
+graphs[2].plot(hard_indices[3], hard_data[3][2], dashes=dpattern, lw=lw, color="g")
+graphs[2].plot(soft_indices[0], soft_data[0][2], "-", lw=lw, color="b")
+graphs[2].plot(soft_indices[1], soft_data[1][2], dashes=bpattern, lw=lw, color="b")
+graphs[2].plot(soft_indices[2], soft_data[2][2], dashes=cpattern, lw=lw, color="b")
+graphs[2].plot(soft_indices[3], soft_data[3][2], dashes=dpattern, lw=lw, color="b")
+graphs[2].set_title("$\\mathcal{U}^{3}(n_{1})$", fontsize=title_size)
 graphs[2].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[2].set_facecolor("white")
 graphs[2].set_ylim(0, 1)

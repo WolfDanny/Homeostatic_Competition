@@ -1,12 +1,14 @@
 #%% Packages
 
 
-from homeostatic import *
 import math
-import pickle
 import os
-import numpy as np
+import pickle
 from random import uniform
+
+import numpy as np
+
+from homeostatic import *
 
 #%% Parameters
 
@@ -38,8 +40,7 @@ if clones == 2:
     nu_value = np.genfromtxt(
         "Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=","
     )
-
-if clones == 3:
+elif clones == 3:
     stimulus_value = [
         base_stimulus * gamma_value,
         base_stimulus * gamma_value,
@@ -141,18 +142,18 @@ while current_realisation < realisations:
 #%% Storing results
 
 if clones == 2:
-    params = "Results/QSD/Established/Gillespie/Parameters.bin"
-    dat = "Results/QSD/Established/Gillespie/Data.bin"
-if clones == 3:
+    parameters_path = "Results/QSD/Established/Gillespie/Parameters.bin"
+    data_path = "Results/QSD/Established/Gillespie/Data.bin"
+elif clones == 3:
     if new_clone_is_soft:
-        params = "Results/QSD/Soft/Gillespie/Parameters.bin"
-        dat = f"Results/QSD/Soft/Gillespie/Data-{sample_value}.bin"
+        parameters_path = "Results/QSD/Soft/Gillespie/Parameters.bin"
+        data_path = f"Results/QSD/Soft/Gillespie/Data-{sample_value}.bin"
     else:
-        params = "Results/QSD/Hard/Gillespie/Parameters.bin"
-        dat = f"Results/QSD/Hard/Gillespie/Data-{sample_value}.bin"
+        parameters_path = "Results/QSD/Hard/Gillespie/Parameters.bin"
+        data_path = f"Results/QSD/Hard/Gillespie/Data-{sample_value}.bin"
 
-os.makedirs(os.path.dirname(params), exist_ok=True)
-with open(params, "wb") as file:
+os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+with open(parameters_path, "wb") as file:
     parameters = (
         [
             "dimension_value",
@@ -169,6 +170,6 @@ with open(params, "wb") as file:
     )
     pickle.dump(parameters, file)
 
-os.makedirs(os.path.dirname(dat), exist_ok=True)
-with open(dat, "wb") as file:
+os.makedirs(os.path.dirname(data_path), exist_ok=True)
+with open(data_path, "wb") as file:
     pickle.dump(distribution, file)

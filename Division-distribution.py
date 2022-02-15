@@ -188,16 +188,16 @@ for new_clone_is_soft in [True, False]:
 
                 # Storing current division number results
 
-                filename = f"Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division}.bin"
-                os.makedirs(os.path.dirname(filename), exist_ok=True)
-                with open(filename, "wb") as file:
+                data_path = f"Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Data-{current_division}.bin"
+                os.makedirs(os.path.dirname(data_path), exist_ok=True)
+                with open(data_path, "wb") as file:
                     pickle.dump(distribution, file)
 
             # Storing Parameters
 
-            filename = f"Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Parameters-{sample_value}.bin"
-            os.makedirs(os.path.dirname(filename), exist_ok=True)
-            with open(filename, "wb") as file:
+            parameters_path = f"Results/Division distribution/{folder}/Matrix-{sample_value}/Clone-{dividing_clone + 1}/Parameters-{sample_value}.bin"
+            os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+            with open(parameters_path, "wb") as file:
                 parameters = (
                     [
                         "dimension_value",

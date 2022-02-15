@@ -1,10 +1,12 @@
 #%% Packages
 
 
-from homeostatic import *
-import pickle
 import csv
+import pickle
+
 import numpy as np
+
+from homeostatic import *
 
 #%% Data analysis
 

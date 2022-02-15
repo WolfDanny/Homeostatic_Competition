@@ -15,6 +15,7 @@ if find_executable("latex"):
     plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}"
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
+plt.rcParams["figure.constrained_layout.use"] = True
 
 # %% Loading data
 
@@ -155,8 +156,6 @@ max_values = [max_values[0].max(), max_values[1].max()]
 ticks = np.arange(-1, 15, 5)
 ticks[0] = 0
 
-h = 8
-w = 1.3 * h
 
 # %% Generating figure
 
@@ -169,12 +168,14 @@ scenario_names = [
     "$\\textrm{(c)}$",
     "$\\textrm{(d)}$",
 ]
-pie_size = 12
-tick_size = 14
-label_size = 20
-title_size = 22
+height = 32
+width = 0.5 * height
+tick_size = 26
+label_size = 30
+title_size = 34
+mark_size = 10
 
-fig = plt.figure(constrained_layout=True, figsize=(w, 2 * h))
+fig = plt.figure(figsize=(width, height))
 TBfigs = fig.subfigures(2, 1, height_ratios=[24, 1], hspace=0)
 subfigs = TBfigs[0].subfigures(4, 1, hspace=hspacing)
 barfigs = TBfigs[1].subfigures(1, 2, hspace=hspacing)
@@ -244,10 +245,14 @@ for current_matrix in range(matrices):
                     plotted_state[labels[0] - 1] - 1,
                     "^",
                     color="#133317",
-                    ms=4,
+                    ms=mark_size,
                 )
                 subfig_list[current_matrix][row, col].plot(
-                    mean_value[1] - 1, mean_value[0] - 1, "d", color="#133317", ms=4
+                    mean_value[1] - 1,
+                    mean_value[0] - 1,
+                    "d",
+                    color="#133317",
+                    ms=mark_size,
                 )
                 # #911C37
             elif folder_number == 1:
@@ -256,17 +261,21 @@ for current_matrix in range(matrices):
                     plotted_state[labels[0] - 1] - 1,
                     "^",
                     color="#664C12",
-                    ms=4,
+                    ms=mark_size,
                 )
                 subfig_list[current_matrix][row, col].plot(
-                    mean_value[1] - 1, mean_value[0] - 1, "d", color="#664C12", ms=4
+                    mean_value[1] - 1,
+                    mean_value[0] - 1,
+                    "d",
+                    color="#664C12",
+                    ms=mark_size,
                 )
 
             subfig_list[current_matrix][row, col].set_facecolor("white")
-            subfig_list[current_matrix][row, col].spines["bottom"].set_color("white")
-            subfig_list[current_matrix][row, col].spines["top"].set_color("white")
-            subfig_list[current_matrix][row, col].spines["right"].set_color("white")
-            subfig_list[current_matrix][row, col].spines["left"].set_color("white")
+            subfig_list[current_matrix][row, col].spines["bottom"].set_visible(False)
+            subfig_list[current_matrix][row, col].spines["top"].set_visible(False)
+            subfig_list[current_matrix][row, col].spines["right"].set_visible(False)
+            subfig_list[current_matrix][row, col].spines["left"].set_visible(False)
             subfig_list[current_matrix][row, col].set_xlim(-0.5, 14.5)
             subfig_list[current_matrix][row, col].set_ylim(-0.5, 14.5)
             subfig_list[current_matrix][row, col].set_xticks(ticks)
@@ -279,7 +288,13 @@ for current_matrix in range(matrices):
                     f"$n_{labels[1]}$", fontsize=label_size
                 )
             else:
-                subfig_list[current_matrix][row, col].set_xticklabels([])
+                # subfig_list[current_matrix][row, col].set_xticklabels([])
+                subfig_list[current_matrix][row, col].set_xticklabels(
+                    ticks + 1, fontsize=tick_size, color="w"
+                )
+                subfig_list[current_matrix][row, col].set_xlabel(
+                    f"$n_{labels[1]}$", fontsize=label_size, color="w"
+                )
             subfig_list[current_matrix][row, col].set_ylabel(
                 f"$n_{labels[0]}$", fontsize=label_size
             )
@@ -296,38 +311,57 @@ for current_matrix in range(matrices):
                 subfig_list[current_matrix][row, col].set_title(
                     "$\mathbf{U}^" + f"{clone + 1}$", fontsize=title_size
                 )
+            elif row == 0:
+                subfig_list[current_matrix][row, col].set_title(
+                    "$\mathbf{U}^" + f"{clone + 1}$", fontsize=title_size, color="w"
+                )
 
-        patches, text, autotext = subfig_list[current_matrix][row, 3].pie(
+        subfig_list[current_matrix][row, 3].barh(
+            np.arange(3),
             pie_values[folder_number][current_matrix],
-            labels=["$\mathcal{U}^{1}$", "$\mathcal{U}^{2}$", "$\mathcal{U}^{3}$"],
-            labeldistance=1.2,
-            autopct="$%.1f\%%$",
-            wedgeprops=dict(width=0.08),
-            colors=["#B3784B", "#78FF78", "#A591FF"],
-            startangle=30,
-            pctdistance=0.5,
-            radius=1,
+            tick_label=["$\mathcal{U}^{1}$", "$\mathcal{U}^{2}$", "$\mathcal{U}^{3}$"],
+            color=["#E54517", "#78FF78", "#A591FF"],
         )
+        subfig_list[current_matrix][row, 3].tick_params(axis="y", labelsize=tick_size)
+        subfig_list[current_matrix][row, 3].tick_params(axis="x", labelsize=tick_size)
+        subfig_list[current_matrix][row, 3].invert_yaxis()
+        subfig_list[current_matrix][row, 3].spines["right"].set_visible(False)
+        subfig_list[current_matrix][row, 3].spines["top"].set_visible(False)
+        subfig_list[current_matrix][row, 3].set_xlim(0, 1)
+
+        # patches, text, autotext = subfig_list[current_matrix][row, 3].pie(
+        #     pie_values[folder_number][current_matrix],
+        #     labels=["$\mathcal{U}^{1}$", "$\mathcal{U}^{2}$", "$\mathcal{U}^{3}$"],
+        #     labeldistance=1.2,
+        #     autopct="$%.1f\%%$",
+        #     wedgeprops=dict(width=0.08),
+        #     colors=["#B3784B", "#78FF78", "#A591FF"],
+        #     startangle=30,
+        #     pctdistance=0.5,
+        #     radius=1,
+        # )
+
         # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\mathcal{U}^{1}$', '$\mathcal{U}^{2}$', '$\mathcal{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61 - 0.11, radius=1)
 
-        if current_matrix == 3 and row == 1:
-            subfig_list[current_matrix][row, 3].set_xlabel(
-                "$n_{i}$", fontsize=label_size, color="w"
-            )
-            subfig_list[current_matrix][row, 3].set_xticks([0])
-            subfig_list[current_matrix][row, 3].set_xticklabels(
-                [0], fontsize=tick_size, color="w"
-            )
-            subfig_list[current_matrix][row, 3].tick_params(colors="w", which="both")
-            # piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
-            # piefig_list[current_matrix][row].set_xticks([0])
-            # piefig_list[current_matrix][row].set_xticklabels([0], fontsize=tick_size, color='w')
-            # piefig_list[current_matrix][row].tick_params(colors='w', which='both')
-        for name in text:
-            name.set_fontsize(tick_size)
-        for name in autotext:
-            name.set_fontsize(pie_size)
-        subfig_list[current_matrix][row, 3].axis("equal")
+        # if current_matrix == 3 and row == 1:
+        #     subfig_list[current_matrix][row, 3].set_xlabel(
+        #         "$n_{i}$", fontsize=label_size, color="w"
+        #     )
+        #     subfig_list[current_matrix][row, 3].set_xticks([0])
+        #     subfig_list[current_matrix][row, 3].set_xticklabels(
+        #         [0], fontsize=tick_size, color="w"
+        #     )
+        #     subfig_list[current_matrix][row, 3].tick_params(colors="w", which="both")
+        #     # piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
+        #     # piefig_list[current_matrix][row].set_xticks([0])
+        #     # piefig_list[current_matrix][row].set_xticklabels([0], fontsize=tick_size, color='w')
+        #     # piefig_list[current_matrix][row].tick_params(colors='w', which='both')
+        # for name in text:
+        #     name.set_fontsize(tick_size)
+        # for name in autotext:
+        #     name.set_fontsize(pie_size)
+        # subfig_list[current_matrix][row, 3].axis("equal")
+
         # piefig_list[current_matrix][row].axis('equal')
 
 left_axis = barfigs[0].subplots(1)
