@@ -188,9 +188,6 @@ for current_matrix in range(matrices):
         scenario_names[current_matrix], fontsize=title_size, horizontalalignment="left"
     )
     subfig_list[current_matrix] = subfigs[current_matrix].subplots(2, 4)
-    # plotfigs, piefigs = subfigs[current_matrix].subfigures(1, 2, width_ratios=[20, 7])
-    # subfig_list[current_matrix] = plotfigs.subplots(2, 3)
-    # piefig_list[current_matrix] = piefigs.subplots(2, 1)
 
     for folder in experiments:
         subfig_row = 0
@@ -288,7 +285,6 @@ for current_matrix in range(matrices):
                     f"$n_{labels[1]}$", fontsize=label_size
                 )
             else:
-                # subfig_list[current_matrix][row, col].set_xticklabels([])
                 subfig_list[current_matrix][row, col].set_xticklabels(
                     ticks + 1, fontsize=tick_size, color="w"
                 )
@@ -328,41 +324,6 @@ for current_matrix in range(matrices):
         subfig_list[current_matrix][row, 3].spines["right"].set_visible(False)
         subfig_list[current_matrix][row, 3].spines["top"].set_visible(False)
         subfig_list[current_matrix][row, 3].set_xlim(0, 1)
-
-        # patches, text, autotext = subfig_list[current_matrix][row, 3].pie(
-        #     pie_values[folder_number][current_matrix],
-        #     labels=["$\mathcal{U}^{1}$", "$\mathcal{U}^{2}$", "$\mathcal{U}^{3}$"],
-        #     labeldistance=1.2,
-        #     autopct="$%.1f\%%$",
-        #     wedgeprops=dict(width=0.08),
-        #     colors=["#B3784B", "#78FF78", "#A591FF"],
-        #     startangle=30,
-        #     pctdistance=0.5,
-        #     radius=1,
-        # )
-
-        # patches, text, autotext = piefig_list[current_matrix][row].pie(pie_values[folder_number][current_matrix], labels=['$\mathcal{U}^{1}$', '$\mathcal{U}^{2}$', '$\mathcal{U}^{3}$'], labeldistance=1.2, autopct='$%.1f\%%$', wedgeprops=dict(width=0.08), colors=['#B3784B', '#78FF78', '#A591FF'], startangle=30, pctdistance=0.61 - 0.11, radius=1)
-
-        # if current_matrix == 3 and row == 1:
-        #     subfig_list[current_matrix][row, 3].set_xlabel(
-        #         "$n_{i}$", fontsize=label_size, color="w"
-        #     )
-        #     subfig_list[current_matrix][row, 3].set_xticks([0])
-        #     subfig_list[current_matrix][row, 3].set_xticklabels(
-        #         [0], fontsize=tick_size, color="w"
-        #     )
-        #     subfig_list[current_matrix][row, 3].tick_params(colors="w", which="both")
-        #     # piefig_list[current_matrix][row].set_xlabel('$n_{i}$', fontsize=label_size, color='w')
-        #     # piefig_list[current_matrix][row].set_xticks([0])
-        #     # piefig_list[current_matrix][row].set_xticklabels([0], fontsize=tick_size, color='w')
-        #     # piefig_list[current_matrix][row].tick_params(colors='w', which='both')
-        # for name in text:
-        #     name.set_fontsize(tick_size)
-        # for name in autotext:
-        #     name.set_fontsize(pie_size)
-        # subfig_list[current_matrix][row, 3].axis("equal")
-
-        # piefig_list[current_matrix][row].axis('equal')
 
 left_axis = barfigs[0].subplots(1)
 left_axis.axis("off")
