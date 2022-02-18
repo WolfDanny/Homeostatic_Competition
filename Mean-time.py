@@ -92,22 +92,22 @@ elif clones == 3:
             f"Results/Mean time to extinction/Hard/Matrix-{sample_value}/Data.bin"
         )
 
-
+os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
 os.makedirs(os.path.dirname(data_path), exist_ok=True)
+
+with open(parameters_path, "wb") as file:
+    param_data = [
+        new_clone_is_soft,
+        max_level_value,
+        mu_value,
+        n_mean_value,
+        gamma_value,
+        clones,
+        sample_value,
+        dimension_value,
+        nu_value,
+    ]
+    pickle.dump(param_data, file)
+
 with open(data_path, "wb") as file:
     pickle.dump(Solution, file)
-
-param_data = [
-    new_clone_is_soft,
-    max_level_value,
-    mu_value,
-    n_mean_value,
-    gamma_value,
-    clones,
-    sample_value,
-    dimension_value,
-    nu_value,
-]
-os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
-with open(parameters_path, "wb") as file:
-    pickle.dump(param_data, file)

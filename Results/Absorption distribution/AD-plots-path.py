@@ -44,8 +44,6 @@ for current_matrix in range(matrices):
         with open(f"{folder}/Data-{current_matrix}.bin", "rb") as file:
             distribution = pickle.load(file)
 
-        print(f"{max_level_value} on {folder} {current_matrix}")
-
         absorption_index = [
             i + 1 for i in range(max_level_value - initial_state[0] - initial_state[1])
         ]

@@ -170,9 +170,9 @@ scenario_names = [
 ]
 height = 32
 width = 0.5 * height
-tick_size = 26
-label_size = 30
-title_size = 34
+tick_size = 28
+label_size = 34
+title_size = 38
 mark_size = 10
 
 fig = plt.figure(figsize=(width, height))
@@ -277,6 +277,11 @@ for current_matrix in range(matrices):
             subfig_list[current_matrix][row, col].set_ylim(-0.5, 14.5)
             subfig_list[current_matrix][row, col].set_xticks(ticks)
 
+            subfig_list[current_matrix][row, col].set_ylabel(
+                f"$n_{labels[0]}$", fontsize=label_size
+            )
+            subfig_list[current_matrix][row, col].set_yticks(ticks)
+
             if current_matrix == 3 and row == 1:
                 subfig_list[current_matrix][row, col].set_xticklabels(
                     ticks + 1, fontsize=tick_size
@@ -284,18 +289,16 @@ for current_matrix in range(matrices):
                 subfig_list[current_matrix][row, col].set_xlabel(
                     f"$n_{labels[1]}$", fontsize=label_size
                 )
-            else:
+            elif row == 1:
                 subfig_list[current_matrix][row, col].set_xticklabels(
                     ticks + 1, fontsize=tick_size, color="w"
                 )
                 subfig_list[current_matrix][row, col].set_xlabel(
                     f"$n_{labels[1]}$", fontsize=label_size, color="w"
                 )
-            subfig_list[current_matrix][row, col].set_ylabel(
-                f"$n_{labels[0]}$", fontsize=label_size
-            )
+            else:
+                subfig_list[current_matrix][row, col].set_xticklabels([])
 
-            subfig_list[current_matrix][row, col].set_yticks(ticks)
             if col == 0:
                 subfig_list[current_matrix][row, col].set_yticklabels(
                     ticks + 1, fontsize=tick_size, rotation=90

@@ -153,6 +153,8 @@ elif clones == 3:
         data_path = f"Results/QSD/Hard/Gillespie/Data-{sample_value}.bin"
 
 os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+os.makedirs(os.path.dirname(data_path), exist_ok=True)
+
 with open(parameters_path, "wb") as file:
     parameters = (
         [
@@ -170,6 +172,5 @@ with open(parameters_path, "wb") as file:
     )
     pickle.dump(parameters, file)
 
-os.makedirs(os.path.dirname(data_path), exist_ok=True)
 with open(data_path, "wb") as file:
     pickle.dump(distribution, file)

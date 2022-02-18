@@ -193,6 +193,8 @@ for new_clone_is_soft in [True, False]:
         data_path = f"Results/Absorption distribution/{folder}/Data-{sample_value}.bin"
 
         os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
+        os.makedirs(os.path.dirname(data_path), exist_ok=True)
+
         with open(parameters_path, "wb") as file:
             parameters = (
                 [
@@ -210,6 +212,5 @@ for new_clone_is_soft in [True, False]:
             )
             pickle.dump(parameters, file)
 
-        os.makedirs(os.path.dirname(data_path), exist_ok=True)
         with open(data_path, "wb") as file:
             pickle.dump(distribution, file)

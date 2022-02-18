@@ -17,6 +17,10 @@ sns.set(font="serif")
 
 
 plotted_state = [4, 8, 8]
+scenario_names = [
+    ["$\\textrm{(a)}$", "$\\textrm{(b)}$"],
+    ["$\\textrm{(c)}$", "$\\textrm{(d)}$"],
+]
 experiments = ["Hard", "Soft"]
 
 label_size = 16
@@ -93,6 +97,7 @@ for folder in experiments:
         graphs[row, col].legend(
             loc="best", facecolor="white", framealpha=1, fontsize=label_size
         )
+        graphs[row, col].set_title(scenario_names[row][col], fontsize=title_size)
 
         if row == 1:
             graphs[row, col].set_xlabel(

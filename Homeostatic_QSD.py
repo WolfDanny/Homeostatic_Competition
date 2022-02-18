@@ -152,27 +152,26 @@ elif clones == 3:
         )
 
 os.makedirs(os.path.dirname(parameters_path), exist_ok=True)
-file = open(parameters_path, "wb")
-parameters = (
-    [
-        "dimension_value",
-        "max_level_value",
-        "mu_value",
-        "gamma_value",
-        "stimulus_value",
-        "model_value",
-    ],
-    dimension_value,
-    max_level_value,
-    mu_value,
-    gamma_value,
-    stimulus_value,
-    model_value,
-)
-pickle.dump(parameters, file)
-file.close()
-
 os.makedirs(os.path.dirname(data_path), exist_ok=True)
-file = open(data_path, "wb")
-pickle.dump(distribution, file)
-file.close()
+
+with open(parameters_path, "wb") as file:
+    parameters = (
+        [
+            "dimension_value",
+            "max_level_value",
+            "mu_value",
+            "gamma_value",
+            "stimulus_value",
+            "model_value",
+        ],
+        dimension_value,
+        max_level_value,
+        mu_value,
+        gamma_value,
+        stimulus_value,
+        model_value,
+    )
+    pickle.dump(parameters, file)
+
+with open(data_path, "wb") as file:
+    pickle.dump(distribution, file)
