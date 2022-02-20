@@ -24,7 +24,7 @@ base_stimulus = 10
 model_value = (
     1  # 1 = First auxiliary process (X^(1)), 2 = Second auxiliary process (X^(2))
 )
-sample_value = 0  # Not used if 'clones' is 2
+sample_value = 0  # Not used if clones == 2
 
 #%% Reading Samples
 

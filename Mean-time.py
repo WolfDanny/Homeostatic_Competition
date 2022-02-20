@@ -18,6 +18,7 @@ max_level_value = 100
 mu_value = 1.0
 n_mean_value = 10
 gamma_value = 1.0
+base_stimulus = 10
 clones = 2
 sample_value = 0
 
@@ -25,7 +26,7 @@ sample_value = 0
 
 
 if clones == 2:
-    stimulus_value = [10 * gamma_value, 10 * gamma_value]
+    stimulus_value = [base_stimulus * gamma_value, base_stimulus * gamma_value]
 
     probability_values = np.genfromtxt(
         "Samples/Established-Matrix/Matrix-2C.csv", delimiter=","
@@ -34,7 +35,11 @@ if clones == 2:
         "Samples/Established-Nu-Matrix/Nu-Matrix-2C.csv", delimiter=","
     )
 elif clones == 3:
-    stimulus_value = [10 * gamma_value, 10 * gamma_value, 10 * gamma_value]
+    stimulus_value = [
+        base_stimulus * gamma_value,
+        base_stimulus * gamma_value,
+        base_stimulus * gamma_value,
+    ]
 
     probability_values = np.genfromtxt(
         "Samples/Matrices/Matrix-{}.csv".format(sample_value), delimiter=","

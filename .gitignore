@@ -3,7 +3,7 @@
 
 ### Instructions and tests ###
 
-Parameter_tests/**
+Parameter_tests.nosync/**
 arc.md
 .pre-commit-config.yaml
 

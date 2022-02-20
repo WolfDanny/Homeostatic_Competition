@@ -51,7 +51,7 @@ for folder in experiments:
         for current_matrix in range(4):
             try:
                 with open(
-                    f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Parameters.bin",
+                    f"{folder}/Model-{current_model + 1}/Parameters.bin",
                     "rb",
                 ) as file:
                     load_data = pickle.load(file)
@@ -63,7 +63,7 @@ for folder in experiments:
                 del load_data
 
                 with open(
-                    f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Data-{current_model + 1}-{current_matrix}.bin",
+                    f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Data.bin",
                     "rb",
                 ) as file:
                     data = pickle.load(file)
@@ -74,11 +74,10 @@ for folder in experiments:
                 for captured_level in range(len(data)):
                     captured += sum(data[captured_level])
                     if captured >= 1 - epsilon:
-                        captured_level += 1
                         break
                 model_max_levels.append(captured_level)
 
-                captured_range = captured_level - dimension_value + 1
+                captured_range = captured_level + dimension_value
 
                 mean_value = [0, 0, 0]
                 distribution = np.zeros(
@@ -162,7 +161,7 @@ for current_model in range(2):
                 mean_value = means[0][current_model][current_matrix]
                 row = 2 * int(current_matrix / 2)
                 folder_number = 0
-            elif folder == "Soft":
+            else:
                 captured_level = max_levels[1][current_model][current_matrix]
                 marginal_distribution = marginals[1][current_model][current_matrix]
                 n1_distribution = histograms[1][current_model][current_matrix]
@@ -173,7 +172,7 @@ for current_model in range(2):
             col = 2 * (current_matrix % 2)
 
             if captured_level != 0:
-                captured_range = captured_level - dimension_value + 1
+                captured_range = captured_level + dimension_value
 
                 if (
                     folder == "Soft" and current_matrix == 3 and current_model == 1
@@ -320,7 +319,7 @@ for current_matrix in range(4):
         n1_marginal_dist = n1_marginal / n1_marginal.sum()
 
         if captured_level != 0:
-            captured_range = captured_level - dimension_value + 1
+            captured_range = captured_level + dimension_value
 
             if folder == "Soft" and current_matrix == 3:
                 h_map = graphs[row, col].imshow(
