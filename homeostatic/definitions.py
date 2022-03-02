@@ -334,7 +334,7 @@ def rate_list(state, probability, mu, nu, dimension, stimulus, max_level):
     stimulus : list[float]
         Stimulus parameters.
     max_level : int
-        Maximum level of the state space
+        Maximum level of the state space.
 
     Returns
     -------
@@ -1176,3 +1176,78 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
         (data, (rows, cols)),
         (int(comb(max_level, dimension)), int(comb(max_level, dimension))),
     ).tocsr()
+
+
+def absorption_distribution(clone, state, dimension, max_level, distribution):
+    """
+    Extracts the absorption distribution U^{*clone*} for the starting state *state* from the complete absorption distribution *distribution*.
+
+    Parameters
+    ----------
+    clone : int
+        Clonotype becoming extinct.
+    state : list[int]
+        List of number of cells per clonotype.
+    dimension : int
+        Number of clonotypes.
+    max_level : int
+        Maximum level of the state space.
+    distribution : list[list[list[csc_matrix]]]
+        List of the absorption distributions indexed by clonotype, absorbing level, starting level, and starting state.
+
+    Returns
+    -------
+    absorption : numpy.ndarray
+        Absorption distribution U^{clone} for the starting state.
+    """
+
+    absorption_list = [
+        distribution[clone][i][sum(state) - dimension]
+        .todense()
+        .tolist()[level_position(sum(state), dimension, state)]
+        for i in range(max_level - 2)
+    ]
+
+    absorption = np.zeros((max_level - 2, max_level - 2))
+
+    for current_level, _ in enumerate(distribution[clone]):
+        current_states = level_states(current_level + 2, 2)
+        for current_state in current_states:
+            absorption[current_state[0] - 1, current_state[1] - 1] += absorption_list[
+                current_level
+            ][level_position(current_level + 2, 2, current_state)]
+
+    return absorption
+
+
+def absorption_distribution_value(clone, state, dimension, max_level, distribution):
+    """
+    Extracts the absorption distribution U^{*clone*} and calculates the probability *U*^{*clone*} for the starting state *state* from the complete absorption distribution *distribution*.
+
+    Parameters
+    ----------
+    clone : int
+        Clonotype becoming extinct.
+    state : list[int]
+        List of number of cells per clonotype.
+    dimension : int
+        Number of clonotypes.
+    max_level : int
+        Maximum level of the state space.
+    distribution : list[list[list[csc_matrix]]]
+        List of the absorption distributions indexed by clonotype, absorbing level, starting level, and starting state.
+
+    Returns
+    -------
+    int
+        Absorption probability U^{clone} for the starting state.
+    """
+
+    absorption_list = [
+        distribution[clone][i][sum(state) - dimension]
+        .todense()
+        .tolist()[level_position(sum(state), dimension, state)]
+        for i in range(max_level - 2)
+    ]
+
+    return sum([sum(current_level) for current_level in absorption_list])

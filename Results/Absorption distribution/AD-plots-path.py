@@ -7,7 +7,7 @@ from distutils.spawn import find_executable
 
 import matplotlib.pyplot as plt
 
-from homeostatic import level_position
+from homeostatic import absorption_distribution_value
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})
@@ -51,49 +51,28 @@ for current_matrix in range(matrices):
         for i in range(max_level_value - initial_state[0] - initial_state[1]):
             plotted_state = [i + 1, initial_state[0], initial_state[1]]
 
-            absorption_c1 = [
-                distribution[0][i][sum(plotted_state) - dimension_value]
-                .todense()
-                .tolist()[
-                    level_position(sum(plotted_state), dimension_value, plotted_state)
-                ]
-                for i in range(max_level_value - 2)
-            ]
-            absorption_c2 = [
-                distribution[1][i][sum(plotted_state) - dimension_value]
-                .todense()
-                .tolist()[
-                    level_position(sum(plotted_state), dimension_value, plotted_state)
-                ]
-                for i in range(max_level_value - 2)
-            ]
-            absorption_c3 = [
-                distribution[2][i][sum(plotted_state) - dimension_value]
-                .todense()
-                .tolist()[
-                    level_position(sum(plotted_state), dimension_value, plotted_state)
-                ]
-                for i in range(max_level_value - 2)
-            ]
-
-            absorption_c1_value = sum(
-                [sum(current_level) for current_level in absorption_c1]
-            )
-            absorption_c2_value = sum(
-                [sum(current_level) for current_level in absorption_c2]
-            )
-            absorption_c3_value = sum(
-                [sum(current_level) for current_level in absorption_c3]
-            )
-
             if folder == "Hard":
-                absorption_values_hard[0].append(absorption_c1_value)
-                absorption_values_hard[1].append(absorption_c2_value)
-                absorption_values_hard[2].append(absorption_c3_value)
+                for current_clone in range(3):
+                    absorption_values_hard[current_clone].append(
+                        absorption_distribution_value(
+                            current_clone,
+                            plotted_state,
+                            dimension_value,
+                            max_level_value,
+                            distribution,
+                        )
+                    )
             else:
-                absorption_values_soft[0].append(absorption_c1_value)
-                absorption_values_soft[1].append(absorption_c2_value)
-                absorption_values_soft[2].append(absorption_c3_value)
+                for current_clone in range(3):
+                    absorption_values_soft[current_clone].append(
+                        absorption_distribution_value(
+                            current_clone,
+                            plotted_state,
+                            dimension_value,
+                            max_level_value,
+                            distribution,
+                        )
+                    )
 
         if folder == "Hard":
             hard_data.append(deepcopy(absorption_values_hard))
@@ -135,14 +114,14 @@ graphs[0].plot(
     [], [], dashes=dpattern, color="k", label="$\\textrm{Scenario } (\\textrm{d})$"
 )
 
-graphs[0].plot(hard_indices[0], hard_data[0][0], "-", lw=lw, color="g")
-graphs[0].plot(hard_indices[1], hard_data[1][0], dashes=bpattern, lw=lw, color="g")
-graphs[0].plot(hard_indices[2], hard_data[2][0], dashes=cpattern, lw=lw, color="g")
-graphs[0].plot(hard_indices[3], hard_data[3][0], dashes=dpattern, lw=lw, color="g")
 graphs[0].plot(soft_indices[0], soft_data[0][0], "-", lw=lw, color="b")
 graphs[0].plot(soft_indices[1], soft_data[1][0], dashes=bpattern, lw=lw, color="b")
 graphs[0].plot(soft_indices[2], soft_data[2][0], dashes=cpattern, lw=lw, color="b")
 graphs[0].plot(soft_indices[3], soft_data[3][0], dashes=dpattern, lw=lw, color="b")
+graphs[0].plot(hard_indices[0], hard_data[0][0], "-", lw=lw, color="g")
+graphs[0].plot(hard_indices[1], hard_data[1][0], dashes=bpattern, lw=lw, color="g")
+graphs[0].plot(hard_indices[2], hard_data[2][0], dashes=cpattern, lw=lw, color="g")
+graphs[0].plot(hard_indices[3], hard_data[3][0], dashes=dpattern, lw=lw, color="g")
 graphs[0].set_title("$\\mathcal{U}^{1}(n_{1})$", fontsize=title_size)
 graphs[0].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[0].set_ylabel("$\\textrm{Probability}$", fontsize=label_size)
@@ -151,14 +130,14 @@ graphs[0].set_ylim(0, 1)
 graphs[0].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
 graphs[0].tick_params(axis="both", labelsize=11)
 
-graphs[1].plot(hard_indices[0], hard_data[0][1], "-", lw=lw, color="g")
-graphs[1].plot(hard_indices[1], hard_data[1][1], dashes=bpattern, lw=lw, color="g")
-graphs[1].plot(hard_indices[2], hard_data[2][1], dashes=cpattern, lw=lw, color="g")
-graphs[1].plot(hard_indices[3], hard_data[3][1], dashes=dpattern, lw=lw, color="g")
 graphs[1].plot(soft_indices[0], soft_data[0][1], "-", lw=lw, color="b")
 graphs[1].plot(soft_indices[1], soft_data[1][1], dashes=bpattern, lw=lw, color="b")
 graphs[1].plot(soft_indices[2], soft_data[2][1], dashes=cpattern, lw=lw, color="b")
 graphs[1].plot(soft_indices[3], soft_data[3][1], dashes=dpattern, lw=lw, color="b")
+graphs[1].plot(hard_indices[0], hard_data[0][1], "-", lw=lw, color="g")
+graphs[1].plot(hard_indices[1], hard_data[1][1], dashes=bpattern, lw=lw, color="g")
+graphs[1].plot(hard_indices[2], hard_data[2][1], dashes=cpattern, lw=lw, color="g")
+graphs[1].plot(hard_indices[3], hard_data[3][1], dashes=dpattern, lw=lw, color="g")
 graphs[1].set_title("$\\mathcal{U}^{2}(n_{1})$", fontsize=title_size)
 graphs[1].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[1].set_facecolor("white")
@@ -166,14 +145,14 @@ graphs[1].set_ylim(0, 1)
 graphs[1].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
 graphs[1].tick_params(axis="both", labelsize=11)
 
-graphs[2].plot(hard_indices[0], hard_data[0][2], "-", lw=lw, color="g")
-graphs[2].plot(hard_indices[1], hard_data[1][2], dashes=bpattern, lw=lw, color="g")
-graphs[2].plot(hard_indices[2], hard_data[2][2], dashes=cpattern, lw=lw, color="g")
-graphs[2].plot(hard_indices[3], hard_data[3][2], dashes=dpattern, lw=lw, color="g")
 graphs[2].plot(soft_indices[0], soft_data[0][2], "-", lw=lw, color="b")
 graphs[2].plot(soft_indices[1], soft_data[1][2], dashes=bpattern, lw=lw, color="b")
 graphs[2].plot(soft_indices[2], soft_data[2][2], dashes=cpattern, lw=lw, color="b")
 graphs[2].plot(soft_indices[3], soft_data[3][2], dashes=dpattern, lw=lw, color="b")
+graphs[2].plot(hard_indices[0], hard_data[0][2], "-", lw=lw, color="g")
+graphs[2].plot(hard_indices[1], hard_data[1][2], dashes=bpattern, lw=lw, color="g")
+graphs[2].plot(hard_indices[2], hard_data[2][2], dashes=cpattern, lw=lw, color="g")
+graphs[2].plot(hard_indices[3], hard_data[3][2], dashes=dpattern, lw=lw, color="g")
 graphs[2].set_title("$\\mathcal{U}^{3}(n_{1})$", fontsize=title_size)
 graphs[2].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[2].set_facecolor("white")

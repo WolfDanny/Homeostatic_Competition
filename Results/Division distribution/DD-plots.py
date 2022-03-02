@@ -90,7 +90,7 @@ for folder in experiments:
         graphs[row, col].plot(
             indexes,
             division_distributions[2],
-            color="blue",
+            color="deepskyblue",
             linestyle="dotted",
             label="$\mathcal{D}_{3}$",
         )
