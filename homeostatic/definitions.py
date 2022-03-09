@@ -10,7 +10,7 @@ from scipy.special import comb
 
 def clone_sets(dimension, clone):
     """
-    Creates an ordered list of tuples representing all subsets of a set of *dimension* elements that include the *clone*-th element.
+    Creates an ordered list of tuples representing all subsets of a set of ``dimension`` elements that include the ``clone``-th element.
 
     Parameters
     ----------
@@ -21,8 +21,8 @@ def clone_sets(dimension, clone):
 
     Returns
     -------
-    List
-        list of tuples representing all subsets of a set of dimension elements that include the clone-th element.
+    list[tuple[int]]
+        List of tuples representing all subsets of a set of dimension elements that include the clone-th element.
     """
 
     if clone >= dimension or clone < 0:
@@ -44,7 +44,7 @@ def clone_sets(dimension, clone):
 
 def level_position(level, dimension, state):
     """
-    Calculates the position of *state* in *level*.
+    Calculates the position of ``state`` in ``level``.
 
     Parameters
     ----------
@@ -93,7 +93,7 @@ def level_position(level, dimension, state):
 
 def level_position_full_space(level, dimension, state):
     """
-    Calculates the position of *state* + (1, ..., 1) in *level* + *dimension*.
+    Calculates the position of ``state`` + ``(1, ..., 1)`` in ``level`` + ``dimension``.
 
     Parameters
     ----------
@@ -145,7 +145,7 @@ def level_position_full_space(level, dimension, state):
 
 def level_states(level, dimension):
     """
-    Creates a list of all non-absorbed states in *level*.
+    Creates a list of all non-absorbed states in ``level``.
 
     Parameters
     ----------
@@ -165,7 +165,7 @@ def level_states(level, dimension):
 
     while True:
 
-        if len(n) == dimension and sum(n) == level and (n.count(0) == 0):
+        if sum(n) == level:
             state_list.append(n[:])
 
         n[0] += 1
@@ -185,7 +185,7 @@ def level_states(level, dimension):
 
 def level_states_full_space(level, dimension):
     """
-    Creates a list of all states in *level*.
+    Creates a list of all states in ``level``.
 
     Parameters
     ----------
@@ -205,7 +205,7 @@ def level_states_full_space(level, dimension):
 
     while True:
 
-        if len(n) == dimension and sum(n) == level:
+        if sum(n) == level:
             state_list.append(n[:])
 
         n[0] += 1
@@ -225,7 +225,7 @@ def level_states_full_space(level, dimension):
 
 def sum_clones(subset, state):
     """
-    Sums the number of cells in clones belonging to *subset* for *state*.
+    Sums the number of cells in clones belonging to ``subset`` for ``state``.
 
     Parameters
     ----------
@@ -250,7 +250,7 @@ def sum_clones(subset, state):
 
 def birth_rate(state, probability, clone, dimension, nu, stimulus):
     """
-    Calculates the birth rate for *clone* in *state*.
+    Calculates the birth rate for ``clone`` in ``state``.
 
     Parameters
     ----------
@@ -285,7 +285,7 @@ def birth_rate(state, probability, clone, dimension, nu, stimulus):
 
 def death_rate(state, clone, mu, model):
     """
-    Calculates the death rate for *clone* in *state* in the approximating process X^ *model*.
+    Calculates the death rate for ``clone`` in ``state`` in the approximating process X^{``model``}.
 
     Parameters
     ----------
@@ -360,7 +360,7 @@ def rate_list(state, probability, mu, nu, dimension, stimulus, max_level):
 
 def delta(state, probability, mu, dimension, nu, stimulus):
     """
-    Calculates the sum of all birth and death rates for *state*.
+    Calculates the sum of all birth and death rates for ``state``.
 
     Parameters
     ----------
@@ -396,7 +396,7 @@ def delta(state, probability, mu, dimension, nu, stimulus):
 
 def delta_approximation(state, probability, mu, dimension, nu, stimulus, model):
     """
-    Calculates the sum of all birth and death rates for *state* in the approximating process X^ *model*.
+    Calculates the sum of all birth and death rates for *state* in the approximating process X^{``model``}.
 
     Parameters
     ----------
@@ -434,7 +434,7 @@ def delta_approximation(state, probability, mu, dimension, nu, stimulus, model):
 
 def death_delta(state, mu):
     """
-    Calculates the sum of all death rates for *state*.
+    Calculates the sum of all death rates for ``state``.
 
     Parameters
     ----------
@@ -459,7 +459,7 @@ def death_delta(state, mu):
 
 def death_delta_approximation(state, mu, model):
     """
-    Calculates the sum of all death rates for *state* in the approximating process X^ *model*.
+    Calculates the sum of all death rates for ``state`` in the approximating process X^{``model``}.
 
     Parameters
     ----------
@@ -488,7 +488,7 @@ def main_diagonal_matrices_approximation(
     level, max_level, dimension, probability, mu, nu, stimulus, model
 ):
     """
-    Creates the diagonal matrix A_{level, level} in the approximating process X^ *model*.
+    Creates the diagonal matrix A_{``level``, ``level``} in the approximating process X^{``model``}.
 
     Parameters
     ----------
@@ -544,7 +544,7 @@ def main_diagonal_matrices_approximation(
 
 def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, mu, nu):
     """
-    Creates the sub-diagonal matrix A_{level, level - 1}.
+    Creates the sub-diagonal matrix A_{``level``, ``level`` - 1}.
 
     Parameters
     ----------
@@ -611,7 +611,7 @@ def death_diagonal_matrices_division(
     level, max_level, clone, dimension, probability, stimulus, mu, nu
 ):
     """
-    Creates the sub-diagonal matrix A_{level, level - 1}.
+    Creates the sub-diagonal matrix A_{``level``, ``level`` - 1}.
 
     Parameters
     ----------
@@ -684,7 +684,7 @@ def death_diagonal_matrices_division(
 
 def death_diagonal_matrices_approximation(level, dimension, mu, model):
     """
-    Creates the sub-diagonal matrix A_{level, level - 1} in the approximating process X^ *model*.
+    Creates the sub-diagonal matrix A_{``level``, ``level`` - 1} in the approximating process X^{``model``}.
 
     Parameters
     ----------
@@ -730,7 +730,7 @@ def death_diagonal_matrices_approximation(level, dimension, mu, model):
 
 def birth_diagonal_matrices(level, dimension, probability, stimulus, mu, nu):
     """
-    Creates the diagonal matrix A_{level, level + 1}.
+    Creates the diagonal matrix A_{``level``, ``level`` + 1}.
 
     Parameters
     ----------
@@ -785,7 +785,7 @@ def birth_diagonal_matrices_division(
     level, clone, dimension, probability, stimulus, mu, nu
 ):
     """
-    Creates the superdiagonal matrix A^{clone}_{level, level + 1}.
+    Creates the superdiagonal matrix A^{``clone``}_{``level``, ``level`` + 1}.
 
     Parameters
     ----------
@@ -850,7 +850,7 @@ def birth_diagonal_matrices_division(
 
 def birth_diagonal_matrices_approximation(level, dimension, probability, nu, stimulus):
     """
-    Creates the diagonal matrix A_{level, level + 1} in the approximating process X^ *model*.
+    Creates the diagonal matrix A_{``level``, ``level`` + 1} in the approximating process X^{``model``}.
 
     Parameters
     ----------
@@ -900,7 +900,7 @@ def absorption_matrix(
     level, clone, max_level, dimension, mu, nu, probability, stimulus
 ):
     """
-    Creates the transition matrix R^{*clone*}_{*level*, *level* - 1} in the embedded Markov chain as a csc_matrix.
+    Creates the transition matrix R^{``clone``}_{``level``, ``level`` - 1} in the embedded Markov chain as a csc_matrix.
 
     Parameters
     ----------
@@ -924,7 +924,7 @@ def absorption_matrix(
     Returns
     -------
     a_matrix : csc_matrix
-        Transition matrix R^{*clone*}_{*level*, *level - 1*} in the embedded Markov process.
+        Transition matrix R^{clone}_{level, level - 1} in the embedded Markov process.
     """
 
     rows = []
@@ -984,7 +984,7 @@ def division_vector(
     probability_previous_division=None,
 ):
     """
-    Creates the division vector d^{(*clone*)}_{*divisions*, *level*} as a csc_matrix.
+    Creates the division vector d^{(``clone``)}_{``divisions``, ``level``} as a csc_matrix.
 
     Parameters
     ----------
@@ -1012,7 +1012,7 @@ def division_vector(
     Returns
     -------
     d_vector : csc_matrix
-        Division vector d^{(*clone*)}_{*divisions*, *level*} as a csc_matrix.
+        Division vector d^{(clone)}_{divisions, level} as a csc_matrix.
     """
 
     if probability_previous_division is None:
@@ -1180,7 +1180,7 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
 
 def absorption_distribution(clone, state, dimension, max_level, distribution):
     """
-    Extracts the absorption distribution U^{*clone*} for the starting state *state* from the complete absorption distribution *distribution*.
+    Extracts the absorption distribution U^{``clone``} for the starting state (``state``) from the complete absorption distribution (``distribution``).
 
     Parameters
     ----------
@@ -1222,7 +1222,7 @@ def absorption_distribution(clone, state, dimension, max_level, distribution):
 
 def absorption_distribution_value(clone, state, dimension, max_level, distribution):
     """
-    Extracts the absorption distribution U^{*clone*} and calculates the probability *U*^{*clone*} for the starting state *state* from the complete absorption distribution *distribution*.
+    Extracts the absorption distribution U^{``clone``} and calculates the probability U^{``clone``} for the starting state ``state`` from the complete absorption distribution (``distribution``).
 
     Parameters
     ----------
