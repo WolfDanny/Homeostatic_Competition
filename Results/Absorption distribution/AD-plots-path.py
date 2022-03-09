@@ -143,7 +143,7 @@ graphs[1].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[1].set_facecolor("white")
 graphs[1].set_ylim(0, 1)
 graphs[1].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-graphs[1].tick_params(axis="both", labelsize=11)
+graphs[1].tick_params(axis="both", labelsize=11, labelleft=False)
 
 graphs[2].plot(soft_indices[0], soft_data[0][2], "-", lw=lw, color="b")
 graphs[2].plot(soft_indices[1], soft_data[1][2], dashes=bpattern, lw=lw, color="b")
@@ -158,7 +158,7 @@ graphs[2].set_xlabel("$n_{1}$", fontsize=label_size)
 graphs[2].set_facecolor("white")
 graphs[2].set_ylim(0, 1)
 graphs[2].set_xlim(1, max_level_value - initial_state[0] - initial_state[1])
-graphs[2].tick_params(axis="both", labelsize=11)
+graphs[2].tick_params(axis="both", labelsize=11, labelleft=False)
 
 handles, labels = graphs[0].get_legend_handles_labels()
 fig.legend(
