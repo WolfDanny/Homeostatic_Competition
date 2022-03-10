@@ -9,7 +9,11 @@ import numpy as np
 from scipy.sparse import csc_matrix, dok_matrix, identity
 from scipy.special import comb
 
-from homeostatic import *
+from homeostatic.definitions import (
+    absorption_matrix,
+    birth_diagonal_matrices,
+    death_diagonal_matrices,
+)
 
 #%% Parameters
 

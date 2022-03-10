@@ -8,7 +8,7 @@ import numpy as np
 from scipy.sparse.linalg import spsolve
 from scipy.special import comb
 
-from homeostatic import *
+from homeostatic.definitions import coefficient_matrix
 
 #%% Parameters
 

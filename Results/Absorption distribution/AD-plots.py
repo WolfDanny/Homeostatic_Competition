@@ -14,7 +14,7 @@ from distutils.spawn import find_executable
 import matplotlib.pyplot as plt
 import numpy as np
 
-from homeostatic import absorption_distribution
+from homeostatic.definitions import absorption_distribution
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})

@@ -8,7 +8,7 @@ from random import uniform
 
 import numpy as np
 
-from homeostatic import *
+from homeostatic.definitions import rate_list
 
 #%% Parameters
 

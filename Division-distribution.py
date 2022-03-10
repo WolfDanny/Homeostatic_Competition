@@ -8,7 +8,11 @@ import pickle
 import numpy as np
 from scipy.sparse import coo_matrix, csc_matrix, identity
 
-from homeostatic import *
+from homeostatic.definitions import (
+    birth_diagonal_matrices_division,
+    death_diagonal_matrices_division,
+    division_vector,
+)
 
 #%% Parameters
 

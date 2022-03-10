@@ -12,7 +12,7 @@ import pickle
 
 import numpy as np
 
-from homeostatic import *
+from homeostatic.definitions import level_position, level_states
 
 #%% Data analysis
 

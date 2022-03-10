@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from homeostatic import level_position
+from homeostatic.definitions import level_position
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})

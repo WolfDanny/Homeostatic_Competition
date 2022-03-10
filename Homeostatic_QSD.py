@@ -9,7 +9,11 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import inv
 
-from homeostatic import *
+from homeostatic.definitions import (
+    birth_diagonal_matrices_approximation,
+    death_diagonal_matrices_approximation,
+    main_diagonal_matrices_approximation,
+)
 
 #%% Global parameters
 

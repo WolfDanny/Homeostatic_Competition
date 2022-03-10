@@ -14,7 +14,6 @@ from distutils.spawn import find_executable
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from skimage import color, io
 
 from homeostatic.definitions import level_position
 

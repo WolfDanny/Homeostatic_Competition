@@ -13,7 +13,7 @@ from distutils.spawn import find_executable
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from homeostatic import level_position_full_space
+from homeostatic.definitions import level_position_full_space
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})
