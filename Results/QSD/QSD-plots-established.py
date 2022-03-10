@@ -1,5 +1,11 @@
 # %% Packages
 
+import os
+import sys
+
+sys.path.append(
+    os.path.join(os.path.join(os.path.dirname(__file__), os.pardir), os.pardir)
+)
 
 import pickle
 from copy import deepcopy
@@ -10,7 +16,7 @@ import numpy as np
 import seaborn as sns
 from skimage import color, io
 
-from homeostatic import level_position
+from homeostatic.definitions import level_position
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})

@@ -1,5 +1,11 @@
 # %% Packages
 
+import os
+import sys
+
+sys.path.append(
+    os.path.join(os.path.join(os.path.dirname(__file__), os.pardir), os.pardir)
+)
 
 import pickle
 from distutils.spawn import find_executable
@@ -94,22 +100,33 @@ for folder in experiments:
             linestyle="dotted",
             label="$\mathcal{D}_{3}$",
         )
-        graphs[row, col].legend(
-            loc="best", facecolor="white", framealpha=1, fontsize=label_size
-        )
+
         graphs[row, col].set_title(scenario_names[row][col], fontsize=title_size)
+        graphs[row, col].tick_params(bottom=True, left=True, length=4)
+        graphs[row, col].set_ylim(0, 0.3)
+        graphs[row, col].set_xlim(0, 35)
+        graphs[row, col].set_facecolor("white")
+        graphs[row, col].spines["bottom"].set_color("k")
+        graphs[row, col].spines["top"].set_color("k")
+        graphs[row, col].spines["right"].set_color("k")
+        graphs[row, col].spines["left"].set_color("k")
 
         if row == 1:
             graphs[row, col].set_xlabel(
                 "$\\textrm{Number of divisions}$", fontsize=label_size
             )
-        graphs[row, col].set_ylim(0, 0.3)
-        graphs[row, col].set_xlim(0, 35)
-        graphs[row, col].set_facecolor("white")
-        graphs[row, col].spines["bottom"].set_color("gray")
-        graphs[row, col].spines["top"].set_color("gray")
-        graphs[row, col].spines["right"].set_color("gray")
-        graphs[row, col].spines["left"].set_color("gray")
+        else:
+            graphs[row, col].tick_params(labelbottom=False)
+
+        if col == 0:
+            graphs[row, col].set_ylabel("$\\textrm{Probability}$", fontsize=label_size)
+        else:
+            graphs[row, col].tick_params(labelleft=False)
+
+        if row == 0 and col == 1:
+            graphs[row, col].legend(
+                loc="best", facecolor="white", framealpha=1, fontsize=label_size
+            )
 
     fig.savefig(f"DD-{folder[0]}.pdf")
 

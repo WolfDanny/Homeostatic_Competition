@@ -1,5 +1,11 @@
 #%% Packages
 
+import os
+import sys
+
+sys.path.append(
+    os.path.join(os.path.join(os.path.dirname(__file__), os.pardir), os.pardir)
+)
 
 import pickle
 from copy import deepcopy

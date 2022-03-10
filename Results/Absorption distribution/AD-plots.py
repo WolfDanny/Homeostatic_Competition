@@ -1,5 +1,11 @@
 # %% Packages
 
+import os
+import sys
+
+sys.path.append(
+    os.path.join(os.path.join(os.path.dirname(__file__), os.pardir), os.pardir)
+)
 
 import pickle
 from copy import deepcopy
@@ -108,7 +114,7 @@ height = 32
 width = 0.5 * height
 
 max_axis = 14.5
-ticks = np.arange(-1, max_axis + 0.5, 5)
+ticks = np.arange(-1, int(max_axis + 0.5), 5)
 ticks[0] = 0
 
 tick_size = 28
@@ -131,28 +137,27 @@ for current_matrix in range(matrices):
 
     for folder in experiments:
         subfig_row = 0
+        subfig_col = 0
+        folder_number = 0
         if folder == "Hard":
             colour_max = max_values[0]
             distribution = distributions[0][current_matrix]
             colour_map = "Greens"
-            folder_number = 0
-        elif folder == "Soft":
+        else:
             subfig_row += 1
+            folder_number += 1
             colour_max = max_values[1]
             distribution = distributions[1][current_matrix]
             colour_map = "Blues"
-            folder_number = 1
-        subfig_col = 0
 
         for clone in range(3):
             mean_value = means[folder_number][current_matrix][clone]
-            row = subfig_row
             col = subfig_col + clone
             labels = [1, 2, 3]
             labels.pop(labels.index(clone + 1))
 
             if current_matrix == folder_number == clone == 0:
-                subfig_h_maps[0] = subfig_list[current_matrix][row, col].imshow(
+                subfig_h_maps[0] = subfig_list[current_matrix][subfig_row, col].imshow(
                     distribution[clone],
                     cmap=colour_map,
                     interpolation="none",
@@ -160,7 +165,7 @@ for current_matrix in range(matrices):
                     vmax=colour_max,
                 )
             elif current_matrix == clone == 0 and folder_number == 1:
-                subfig_h_maps[1] = subfig_list[current_matrix][row, col].imshow(
+                subfig_h_maps[1] = subfig_list[current_matrix][subfig_row, col].imshow(
                     distribution[clone],
                     cmap=colour_map,
                     interpolation="none",
@@ -168,7 +173,7 @@ for current_matrix in range(matrices):
                     vmax=colour_max,
                 )
             else:
-                subfig_list[current_matrix][row, col].imshow(
+                subfig_list[current_matrix][subfig_row, col].imshow(
                     distribution[clone],
                     cmap=colour_map,
                     interpolation="none",
@@ -177,14 +182,14 @@ for current_matrix in range(matrices):
                 )
 
             if folder_number == 0:
-                subfig_list[current_matrix][row, col].plot(
+                subfig_list[current_matrix][subfig_row, col].plot(
                     plotted_state[labels[1] - 1] - 1,
                     plotted_state[labels[0] - 1] - 1,
                     "^",
                     color="#133317",
                     ms=mark_size,
                 )
-                subfig_list[current_matrix][row, col].plot(
+                subfig_list[current_matrix][subfig_row, col].plot(
                     mean_value[1] - 1,
                     mean_value[0] - 1,
                     "d",
@@ -192,14 +197,14 @@ for current_matrix in range(matrices):
                     ms=mark_size,
                 )
             elif folder_number == 1:
-                subfig_list[current_matrix][row, col].plot(
+                subfig_list[current_matrix][subfig_row, col].plot(
                     plotted_state[labels[1] - 1] - 1,
                     plotted_state[labels[0] - 1] - 1,
                     "^",
                     color="#664C12",
                     ms=mark_size,
                 )
-                subfig_list[current_matrix][row, col].plot(
+                subfig_list[current_matrix][subfig_row, col].plot(
                     mean_value[1] - 1,
                     mean_value[0] - 1,
                     "d",
@@ -207,54 +212,62 @@ for current_matrix in range(matrices):
                     ms=mark_size,
                 )
 
-            subfig_list[current_matrix][row, col].set_facecolor("white")
-            subfig_list[current_matrix][row, col].spines["bottom"].set_visible(False)
-            subfig_list[current_matrix][row, col].spines["top"].set_visible(False)
-            subfig_list[current_matrix][row, col].spines["right"].set_visible(False)
-            subfig_list[current_matrix][row, col].spines["left"].set_visible(False)
-            subfig_list[current_matrix][row, col].set_xlim(-0.5, max_axis)
-            subfig_list[current_matrix][row, col].set_ylim(-0.5, max_axis)
-            subfig_list[current_matrix][row, col].set_xticks(ticks)
+            subfig_list[current_matrix][subfig_row, col].set_facecolor("white")
+            subfig_list[current_matrix][subfig_row, col].spines["bottom"].set_visible(
+                False
+            )
+            subfig_list[current_matrix][subfig_row, col].spines["top"].set_visible(
+                False
+            )
+            subfig_list[current_matrix][subfig_row, col].spines["right"].set_visible(
+                False
+            )
+            subfig_list[current_matrix][subfig_row, col].spines["left"].set_visible(
+                False
+            )
+            subfig_list[current_matrix][subfig_row, col].set_xlim(-0.5, max_axis)
+            subfig_list[current_matrix][subfig_row, col].set_ylim(-0.5, max_axis)
+            subfig_list[current_matrix][subfig_row, col].set_xticks(ticks)
 
-            subfig_list[current_matrix][row, col].set_ylabel(
+            subfig_list[current_matrix][subfig_row, col].set_ylabel(
                 f"$n_{labels[0]}$", fontsize=label_size
             )
-            subfig_list[current_matrix][row, col].set_yticks(ticks)
+            subfig_list[current_matrix][subfig_row, col].set_yticks(ticks)
 
-            if current_matrix == 3 and row == 1:
-                subfig_list[current_matrix][row, col].set_xticklabels(
+            if current_matrix == 3 and subfig_row == 1:
+                subfig_list[current_matrix][subfig_row, col].set_xticklabels(
                     ticks + 1, fontsize=tick_size
                 )
-                subfig_list[current_matrix][row, col].set_xlabel(
+                subfig_list[current_matrix][subfig_row, col].set_xlabel(
                     f"$n_{labels[1]}$", fontsize=label_size
                 )
-            elif row == 1:
-                subfig_list[current_matrix][row, col].set_xticklabels(
+            elif subfig_row == 1:
+                subfig_list[current_matrix][subfig_row, col].set_xticklabels(
                     ticks + 1, fontsize=tick_size, color="w"
                 )
-                subfig_list[current_matrix][row, col].set_xlabel(
+                subfig_list[current_matrix][subfig_row, col].set_xlabel(
                     f"$n_{labels[1]}$", fontsize=label_size, color="w"
                 )
             else:
-                subfig_list[current_matrix][row, col].set_xticklabels([])
+                subfig_list[current_matrix][subfig_row, col].set_xticklabels([])
 
             if col == 0:
-                subfig_list[current_matrix][row, col].set_yticklabels(
+                subfig_list[current_matrix][subfig_row, col].set_yticklabels(
                     ticks + 1, fontsize=tick_size, rotation=90
                 )
             else:
-                subfig_list[current_matrix][row, col].set_yticklabels([])
+                subfig_list[current_matrix][subfig_row, col].set_yticklabels([])
 
-            if current_matrix == row == 0:
-                subfig_list[current_matrix][row, col].set_title(
+            if current_matrix == subfig_row == 0:
+                subfig_list[current_matrix][subfig_row, col].set_title(
                     "$\\mathbf{U}^" + f"{clone + 1}$", fontsize=title_size
                 )
-            elif row == 0:
-                subfig_list[current_matrix][row, col].set_title(
+            elif subfig_row == 0:
+                subfig_list[current_matrix][subfig_row, col].set_title(
                     "$\\mathbf{U}^" + f"{clone + 1}$", fontsize=title_size, color="w"
                 )
 
-        subfig_list[current_matrix][row, 3].barh(
+        subfig_list[current_matrix][subfig_row, 3].barh(
             np.arange(3),
             pie_values[folder_number][current_matrix],
             tick_label=[
@@ -264,12 +277,28 @@ for current_matrix in range(matrices):
             ],
             color=["#E54517", "#78FF78", "#A591FF"],
         )
-        subfig_list[current_matrix][row, 3].tick_params(axis="y", labelsize=tick_size)
-        subfig_list[current_matrix][row, 3].tick_params(axis="x", labelsize=tick_size)
-        subfig_list[current_matrix][row, 3].invert_yaxis()
-        subfig_list[current_matrix][row, 3].spines["right"].set_visible(False)
-        subfig_list[current_matrix][row, 3].spines["top"].set_visible(False)
-        subfig_list[current_matrix][row, 3].set_xlim(0, 1)
+        subfig_list[current_matrix][subfig_row, 3].tick_params(
+            axis="y", labelsize=tick_size
+        )
+        subfig_list[current_matrix][subfig_row, 3].tick_params(
+            axis="x", labelsize=tick_size
+        )
+        subfig_list[current_matrix][subfig_row, 3].invert_yaxis()
+        subfig_list[current_matrix][subfig_row, 3].spines["right"].set_visible(False)
+        subfig_list[current_matrix][subfig_row, 3].spines["top"].set_visible(False)
+        subfig_list[current_matrix][subfig_row, 3].set_xlim(0, 1)
+
+        if subfig_row == 1:
+            for current_col in range(4):
+                subfig_list[current_matrix][subfig_row, current_col].tick_params(
+                    labelbottom=True
+                )
+        else:
+            for current_col in range(4):
+                subfig_list[current_matrix][subfig_row, current_col].tick_params(
+                    labelbottom=False
+                )
+
 
 left_axis = bar_figs[0].subplots(1)
 left_axis.axis("off")
