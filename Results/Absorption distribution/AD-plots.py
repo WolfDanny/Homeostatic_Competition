@@ -123,9 +123,9 @@ title_size = 38
 mark_size = 10
 
 fig = plt.figure(figsize=(width, height))
-top_bottom_figs = fig.subfigures(2, 1, height_ratios=[24, 1], hspace=0)
-sub_figs = top_bottom_figs[0].subfigures(4, 1, hspace=hspacing)
-bar_figs = top_bottom_figs[1].subfigures(1, 2, hspace=hspacing)
+top_bottom_figs = fig.subfigures(2, 1, height_ratios=[24, 1.15], hspace=0)
+sub_figs = top_bottom_figs[0].subfigures(4, 1, hspace=0)
+bar_figs = top_bottom_figs[1].subfigures(1, 2, hspace=0, wspace=0)
 subfig_list = np.empty(4, dtype=object)
 subfig_h_maps = np.empty(2, dtype=object)
 
@@ -271,9 +271,9 @@ for current_matrix in range(matrices):
             np.arange(3),
             pie_values[folder_number][current_matrix],
             tick_label=[
-                "$\\mathcal{U}^{1}$",
-                "$\\mathcal{U}^{2}$",
-                "$\\mathcal{U}^{3}$",
+                "$\\mathcal{U}^{1}_{\\mathbf{n}_{0}}$",
+                "$\\mathcal{U}^{2}_{\\mathbf{n}_{0}}$",
+                "$\\mathcal{U}^{3}_{\\mathbf{n}_{0}}$",
             ],
             color=["#E54517", "#78FF78", "#A591FF"],
         )
@@ -307,6 +307,7 @@ c_bar_l = fig.colorbar(
 )
 c_bar_l.ax.tick_params(labelsize=tick_size)
 c_bar_l.outline.set_visible(False)
+c_bar_l.set_label("$\\textrm{Probability (hard niche case)}$", fontsize=label_size)
 
 right_axis = bar_figs[1].subplots(1)
 right_axis.axis("off")
@@ -315,6 +316,7 @@ c_bar_r = fig.colorbar(
 )
 c_bar_r.ax.tick_params(labelsize=tick_size)
 c_bar_r.outline.set_visible(False)
+c_bar_r.set_label("$\\textrm{Probability (soft niche case)}$", fontsize=label_size)
 
 fig.savefig("AD.pdf")
 plt.close(fig="all")
