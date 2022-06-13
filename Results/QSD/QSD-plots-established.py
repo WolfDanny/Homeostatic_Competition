@@ -19,6 +19,7 @@ from homeostatic.definitions import level_position
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})
+    plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}\usepackage{eucal}"
 sns.set(font="serif")
 sns.set_style("ticks")
 plt.rcParams["font.family"] = "serif"

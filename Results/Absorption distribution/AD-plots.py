@@ -18,7 +18,7 @@ from homeostatic.definitions import absorption_distribution
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})
-    plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}"
+    plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}\usepackage{eucal}"
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 plt.rcParams["figure.constrained_layout.use"] = True
@@ -105,10 +105,10 @@ max_values = [max_values[0].max(), max_values[1].max()]
 wspacing = 0.05
 hspacing = 1.5 * wspacing
 scenario_names = [
-    "$\\textrm{(a)}$",
-    "$\\textrm{(b)}$",
-    "$\\textrm{(c)}$",
-    "$\\textrm{(d)}$",
+    "$\\textbf{(a)}$",
+    "$\\textbf{(b)}$",
+    "$\\textbf{(c)}$",
+    "$\\textbf{(d)}$",
 ]
 height = 32
 width = 0.5 * height
@@ -131,7 +131,9 @@ subfig_h_maps = np.empty(2, dtype=object)
 
 for current_matrix in range(matrices):
     sub_figs[current_matrix].suptitle(
-        scenario_names[current_matrix], fontsize=title_size, horizontalalignment="left"
+        scenario_names[current_matrix],
+        fontsize=title_size,
+        horizontalalignment="left",
     )
     subfig_list[current_matrix] = sub_figs[current_matrix].subplots(2, 4)
 

@@ -17,6 +17,7 @@ from homeostatic.definitions import level_position_full_space
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})
+    plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}\usepackage{eucal}"
 sns.set(font="serif")
 
 # %% Loading data and generating figures
@@ -24,16 +25,16 @@ sns.set(font="serif")
 
 plotted_state = [4, 8, 8]
 scenario_names = [
-    ["$\\textrm{(a)}$", "$\\textrm{(b)}$"],
-    ["$\\textrm{(c)}$", "$\\textrm{(d)}$"],
+    ["$\\textbf{(a)}$", "$\\textbf{(b)}$"],
+    ["$\\textbf{(c)}$", "$\\textbf{(d)}$"],
 ]
 experiments = ["Hard", "Soft"]
 
-label_size = 16
-title_size = 18
+label_size = 20
+title_size = 22
 
 for folder in experiments:
-    fig, graphs = plt.subplots(2, 2, constrained_layout=True)
+    fig, graphs = plt.subplots(2, 2, figsize=(6, 6), constrained_layout=True)
     matrices = 4
     for current_matrix in range(matrices):
         row = int(current_matrix / 2)

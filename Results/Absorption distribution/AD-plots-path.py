@@ -17,6 +17,7 @@ from homeostatic.definitions import absorption_distribution_value
 
 if find_executable("latex"):
     plt.rcParams.update({"text.usetex": True})
+    plt.rcParams["text.latex.preamble"] = r"\usepackage{graphicx}\usepackage{eucal}"
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["mathtext.fontset"] = "dejavuserif"
 
@@ -106,18 +107,18 @@ cpattern = [7, 5, 2, 5]
 dpattern = [2, 4]
 
 # Empty plots for general legend (white plot included to align labels)
-graphs[0].plot([], [], "-", color="k", label="$\\textrm{Scenario } (\\textrm{a})$")
+graphs[0].plot([], [], "-", color="k", label="$\\textrm{Scenario } \\textbf{(a)}$")
 graphs[0].plot([], [], "-", color="w", label="$\\textrm{ }$")
 graphs[0].plot(
-    [], [], dashes=bpattern, color="k", label="$\\textrm{Scenario } (\\textrm{b})$"
+    [], [], dashes=bpattern, color="k", label="$\\textrm{Scenario } \\textbf{(b)}$"
 )
 graphs[0].plot([], [], "s", color="g", label="$\\textrm{Hard niche}$")
 graphs[0].plot(
-    [], [], dashes=cpattern, color="k", label="$\\textrm{Scenario } (\\textrm{c})$"
+    [], [], dashes=cpattern, color="k", label="$\\textrm{Scenario } \\textbf{(c)}$"
 )
 graphs[0].plot([], [], "s", color="b", label="$\\textrm{Soft niche}$")
 graphs[0].plot(
-    [], [], dashes=dpattern, color="k", label="$\\textrm{Scenario } (\\textrm{d})$"
+    [], [], dashes=dpattern, color="k", label="$\\textrm{Scenario } \\textbf{(d)}$"
 )
 
 graphs[0].plot(soft_indices[0], soft_data[0][0], "-", lw=lw, color="b")
