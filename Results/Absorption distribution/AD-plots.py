@@ -111,7 +111,7 @@ scenario_names = [
     "$\\textbf{(d)}$",
 ]
 height = 32
-width = 0.5 * height
+width = 0.55 * height
 
 max_axis = 14.5
 ticks = np.arange(-1, int(max_axis + 0.5), 5)
@@ -121,21 +121,33 @@ tick_size = 28
 label_size = 34
 title_size = 38
 mark_size = 10
+side_label_ratio = 5
 
 fig = plt.figure(figsize=(width, height))
 top_bottom_figs = fig.subfigures(2, 1, height_ratios=[24, 1.15], hspace=0)
-sub_figs = top_bottom_figs[0].subfigures(4, 1, hspace=0)
+sub_figs = top_bottom_figs[0].subfigures(
+    4, 2, width_ratios=[side_label_ratio, 100 - side_label_ratio], hspace=0, wspace=0
+)
 bar_figs = top_bottom_figs[1].subfigures(1, 2, hspace=0, wspace=0)
 subfig_list = np.empty(4, dtype=object)
 subfig_h_maps = np.empty(2, dtype=object)
 
 for current_matrix in range(matrices):
-    sub_figs[current_matrix].suptitle(
+    sub_figs[current_matrix, 1].suptitle(
+        "{\\_}",
+        fontsize=1,
+        horizontalalignment="left",
+        visible=False,
+    )
+    sub_figs[current_matrix, 0].text(
+        0.5,
+        0.5,
         scenario_names[current_matrix],
         fontsize=title_size,
-        horizontalalignment="left",
+        ha="center",
+        va="center",
     )
-    subfig_list[current_matrix] = sub_figs[current_matrix].subplots(2, 4)
+    subfig_list[current_matrix] = sub_figs[current_matrix, 1].subplots(2, 4)
 
     for folder in experiments:
         subfig_row = 0
@@ -305,7 +317,7 @@ for current_matrix in range(matrices):
 left_axis = bar_figs[0].subplots(1)
 left_axis.axis("off")
 c_bar_l = fig.colorbar(
-    subfig_h_maps[0], ax=left_axis, orientation="horizontal", fraction=0.975, aspect=40
+    subfig_h_maps[0], ax=left_axis, orientation="horizontal", fraction=0.95, aspect=40
 )
 c_bar_l.ax.tick_params(labelsize=tick_size)
 c_bar_l.outline.set_visible(False)
@@ -314,7 +326,7 @@ c_bar_l.set_label("$\\textrm{Probability (hard niche case)}$", fontsize=label_si
 right_axis = bar_figs[1].subplots(1)
 right_axis.axis("off")
 c_bar_r = fig.colorbar(
-    subfig_h_maps[1], ax=right_axis, orientation="horizontal", fraction=0.975, aspect=40
+    subfig_h_maps[1], ax=right_axis, orientation="horizontal", fraction=0.95, aspect=40
 )
 c_bar_r.ax.tick_params(labelsize=tick_size)
 c_bar_r.outline.set_visible(False)
