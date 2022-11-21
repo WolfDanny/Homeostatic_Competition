@@ -1,4 +1,5 @@
 import gc
+import math
 import os
 import pickle
 from itertools import chain, combinations
@@ -169,7 +170,7 @@ def level_states(level, dimension):
             state_list.append(n[:])
 
         n[0] += 1
-        for i in range(len(n)):
+        for i, _ in enumerate(n):
             if n[i] > level - dimension + 1:
                 if (i + 1) < len(n):
                     n[i + 1] += 1
@@ -209,7 +210,7 @@ def level_states_full_space(level, dimension):
             state_list.append(n[:])
 
         n[0] += 1
-        for i in range(len(n)):
+        for i, _ in enumerate(n):
             if n[i] > level:
                 if (i + 1) < len(n):
                     n[i + 1] += 1
@@ -276,9 +277,11 @@ def birth_rate(state, probability, clone, dimension, nu, stimulus):
     rate = 0.0
     sets = clone_sets(dimension, clone)
 
-    for i in range(len(sets)):
-        if sum_clones(sets[i], state) != 0:
-            rate += probability[clone][i] / (sum_clones(sets[i], state) + nu[clone][i])
+    for i, current_set in enumerate(sets):
+        if sum_clones(current_set, state) != 0:
+            rate += probability[clone][i] / (
+                sum_clones(current_set, state) + nu[clone][i]
+            )
 
     return rate * state[clone] * stimulus[clone]
 
@@ -385,10 +388,10 @@ def delta(state, probability, mu, dimension, nu, stimulus):
 
     delta_value = 0.0
 
-    for i in range(len(state)):
-        delta_value += state[i] * mu
+    for current_clone in state:
+        delta_value += current_clone * mu
 
-    for i in range(len(state)):
+    for i, _ in enumerate(state):
         delta_value += birth_rate(state, probability, i, dimension, nu, stimulus)
 
     return delta_value
@@ -451,8 +454,8 @@ def death_delta(state, mu):
 
     delta_value = 0.0
 
-    for i in range(len(state)):
-        delta_value += state[i] * mu
+    for current_clone in state:
+        delta_value += current_clone * mu
 
     return delta_value
 
@@ -582,7 +585,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
 
     if level < max_level:
         for state in states:
-            for i in range(len(state)):
+            for i, _ in enumerate(state):
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 0:
@@ -594,7 +597,7 @@ def death_diagonal_matrices(level, max_level, dimension, probability, stimulus, 
                     rows.append(level_position(level, dimension, state))
     else:
         for state in states:
-            for i in range(len(state)):
+            for i, _ in enumerate(state):
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 0:
@@ -652,7 +655,7 @@ def death_diagonal_matrices_division(
     if level < max_level:
         for state in states:
             if state[clone] != 0:
-                for i in range(len(state)):
+                for i, _ in enumerate(state):
                     new_state = state[:]
                     new_state[i] -= 1
                     if new_state.count(-1) == 0:
@@ -667,7 +670,7 @@ def death_diagonal_matrices_division(
     else:
         for state in states:
             if state[clone] != 0:
-                for i in range(len(state)):
+                for i, _ in enumerate(state):
                     new_state = state[:]
                     new_state[i] -= 1
                     if new_state.count(-1) == 0:
@@ -940,7 +943,7 @@ def absorption_matrix(
 
     if level < max_level:
         for state in states:
-            for i in range(len(state)):
+            for i, _ in enumerate(state):
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 1 and new_state.index(0) == clone:
@@ -955,7 +958,7 @@ def absorption_matrix(
                     rows.append(level_position(level, dimension, state))
     else:
         for state in states:
-            for i in range(len(state)):
+            for i, _ in enumerate(state):
                 new_state = state[:]
                 new_state[i] -= 1
                 if new_state.count(0) == 1 and new_state.index(0) == clone:
@@ -1130,7 +1133,7 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
             rows.append(row)
             cols.append(row)
             data.append(-delta(state, probability, mu, dimension, nu, stimulus))
-            for clone in range(len(state)):
+            for clone, clone_value in enumerate(state):
                 new_state = state[:]
                 new_state[clone] += 1
 
@@ -1151,14 +1154,14 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
                     )
                     rows.append(row)
                     cols.append(col)
-                    data.append(state[clone] * mu)
+                    data.append(clone_value * mu)
     previous_level += len(level_states(max_level - 1, dimension))
     for state in level_states(max_level, dimension):
         row = previous_level + level_position(max_level, dimension, state)
         rows.append(row)
         cols.append(row)
         data.append(-delta(state, probability, mu, dimension, nu, stimulus))
-        for clone in range(len(state)):
+        for clone, clone_value in enumerate(state):
             new_state = state[:]
             new_state[clone] -= 1
 
@@ -1170,7 +1173,7 @@ def coefficient_matrix(probability, max_level, mu, nu, stimulus):
                 )
                 rows.append(row)
                 cols.append(col)
-                data.append(state[clone] * mu)
+                data.append(clone_value * mu)
 
     return coo_matrix(
         (data, (rows, cols)),
@@ -1251,3 +1254,33 @@ def absorption_distribution_value(clone, state, dimension, max_level, distributi
     ]
 
     return sum([sum(current_level) for current_level in absorption_list])
+
+
+def hellinger_distance(distributions):
+    """
+    Calculates  the Hellinger distance between two distributions.
+
+    Parameters
+    ----------
+    distributions : tuple[numpy.ndarray]
+        Tuple of the two distributions to be compared.
+
+    Returns
+    -------
+    float
+        Hellinger distance between the two distributions.
+    """
+    shapes = (distributions[0].shape[0], distributions[1].shape[0])
+    max_index = np.argmax(shapes)
+    distance = 0
+    for i in range(shapes[max_index]):
+        for j in range(shapes[max_index]):
+            for k in range(shapes[max_index]):
+                try:
+                    distance += (
+                        math.sqrt(distributions[0][i][j][k])
+                        - math.sqrt(distributions[1][i][j][k])
+                    ) ** 2
+                except IndexError:
+                    distance += math.fabs(distributions[max_index][i][j][k])
+    return (1 / math.sqrt(2)) * math.sqrt(distance)

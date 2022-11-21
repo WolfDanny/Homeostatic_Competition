@@ -135,7 +135,7 @@ bars_1 = graph.bar(
     ticks_1 - (3 / 2) * width,
     all_marginals[0][0],
     width,
-    label="$\mathcal{X}^{(1)}$",
+    label="$\\mathcal{X}^{(1)}$",
     color="Green",
     linewidth=0.8,
 )
@@ -151,7 +151,7 @@ bars_2s = graph.bar(
     ticks_2 - 1 + width / 2,
     all_marginals[1][0],
     width,
-    label="$\\textrm{Shifted } \mathcal{X}^{(2)}$",
+    label="$\\textrm{Shifted } \\mathcal{X}^{(2)}$",
     color="blue",
     hatch="///",
     linewidth=0.8,
@@ -160,7 +160,7 @@ bars_2 = graph.bar(
     ticks_2 + (3 / 2) * width,
     all_marginals[1][0],
     width,
-    label="$\mathcal{X}^{(2)}$",
+    label="$\\mathcal{X}^{(2)}$",
     color="blue",
     linewidth=0.8,
 )
@@ -187,7 +187,7 @@ bars_1 = graph.bar(
     ticks_1 - (3 / 2) * width,
     all_marginals[0][1],
     width,
-    label="$\mathcal{X}^{(1)}$",
+    label="$\\mathcal{X}^{(1)}$",
     color="Green",
     linewidth=0.8,
 )
@@ -203,7 +203,7 @@ bars_2s = graph.bar(
     ticks_2 - 1 + width / 2,
     all_marginals[1][1],
     width,
-    label="$\\textrm{Shifted } \mathcal{X}^{(2)}$",
+    label="$\\textrm{Shifted } \\mathcal{X}^{(2)}$",
     color="blue",
     hatch="///",
     linewidth=0.8,
@@ -212,7 +212,7 @@ bars_2 = graph.bar(
     ticks_2 + (3 / 2) * width,
     all_marginals[1][1],
     width,
-    label="$\mathcal{X}^{(2)}$",
+    label="$\\mathcal{X}^{(2)}$",
     color="blue",
     linewidth=0.8,
 )

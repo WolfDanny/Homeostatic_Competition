@@ -117,9 +117,9 @@ max_axis = 14.5
 ticks = np.arange(-1, int(max_axis + 0.5), 5)
 ticks[0] = 0
 
-tick_size = 28
-label_size = 34
-title_size = 38
+tick_size = 33
+label_size = 39
+title_size = 43
 mark_size = 10
 side_label_ratio = 5
 

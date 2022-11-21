@@ -36,12 +36,14 @@ with open("Established/Means.bin", "rb") as file:
 max_values = [[np.array([]), np.array([])], [np.array([]), np.array([])]]
 max_levels = []
 marginals = []
+distributions = []
 histograms = []
 means = []
 
 for folder in experiments:
     folder_max_levels = []
     folder_marginals = []
+    folder_distributions = []
     folder_histograms = []
     folder_means = []
     folder_number = 0
@@ -51,13 +53,14 @@ for folder in experiments:
     for current_model in range(2):
         model_max_levels = []
         model_marginals = []
+        model_distributions = []
         model_histograms = []
         model_means = []
 
         for current_matrix in range(4):
             try:
                 with open(
-                    f"{folder}/Model-{current_model + 1}/Parameters.bin",
+                    f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Parameters.bin",
                     "rb",
                 ) as file:
                     load_data = pickle.load(file)
@@ -69,7 +72,7 @@ for folder in experiments:
                 del load_data
 
                 with open(
-                    f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Data.bin",
+                    f"{folder}/Model-{current_model + 1}/QSD-{folder[0]}-{current_matrix}/Data-{current_model + 1}-{current_matrix}.bin",
                     "rb",
                 ) as file:
                     data = pickle.load(file)
@@ -103,6 +106,7 @@ for folder in experiments:
                                 mean_value[0] += (k + 1) * distribution[k][m][n]
                                 mean_value[1] += (m + 1) * distribution[k][m][n]
                                 mean_value[2] += (n + 1) * distribution[k][m][n]
+                model_distributions.append(deepcopy(distribution))
                 model_means.append(deepcopy(mean_value))
 
                 marginal_distribution = np.zeros((captured_range, captured_range))
@@ -137,16 +141,19 @@ for folder in experiments:
                 )
                 model_max_levels.append(0)
                 model_marginals.append([])
+                model_distributions.append([])
                 model_histograms.append([])
                 model_means.append([])
 
         folder_max_levels.append(deepcopy(model_max_levels))
         folder_marginals.append(deepcopy(model_marginals))
+        folder_distributions.append(deepcopy(model_distributions))
         folder_histograms.append(deepcopy(model_histograms))
         folder_means.append(deepcopy(model_means))
 
     max_levels.append(deepcopy(folder_max_levels))
     marginals.append(deepcopy(folder_marginals))
+    distributions.append(deepcopy(folder_distributions))
     histograms.append(deepcopy(folder_histograms))
     means.append(deepcopy(folder_means))
 

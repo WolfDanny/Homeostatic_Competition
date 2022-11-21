@@ -85,21 +85,21 @@ for folder in experiments:
             division_distributions[0],
             color="black",
             linestyle="solid",
-            label="$\mathcal{D}_{1}$",
+            label="$\\mathcal{D}_{1}$",
         )
         graphs[row, col].plot(
             indexes,
             division_distributions[1],
             color="red",
             linestyle="dashed",
-            label="$\mathcal{D}_{2}$",
+            label="$\\mathcal{D}_{2}$",
         )
         graphs[row, col].plot(
             indexes,
             division_distributions[2],
             color="deepskyblue",
             linestyle="dotted",
-            label="$\mathcal{D}_{3}$",
+            label="$\\mathcal{D}_{3}$",
         )
 
         graphs[row, col].set_title(scenario_names[row][col], fontsize=title_size)
