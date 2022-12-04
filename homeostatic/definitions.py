@@ -1258,7 +1258,7 @@ def absorption_distribution_value(clone, state, dimension, max_level, distributi
 
 def hellinger_distance(distributions):
     """
-    Calculates  the Hellinger distance between two distributions.
+    Calculates  the Hellinger distance between two three-dimensional distributions.
 
     Parameters
     ----------
